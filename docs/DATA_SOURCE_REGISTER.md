@@ -30,6 +30,8 @@ Machine-readable registry: [`data/sources.json`](../data/sources.json), synced i
 | `livemint-companies` | Mint — Companies | business_news | no | rss | yes | Vercel | 2026-10-12 06:41 | 35 | — |
 | `taxguru-company-law` | TaxGuru — Company Law (MCA) | regulatory_news | no | rss | yes | Vercel | 2026-10-12 06:41 | 75 | — |
 | `hcltech-newsroom` | HCLTech official newsroom | corporate_official | **yes** | rss | yes | Vercel | 2026-10-12 06:41 | 10 | — (transient HTTP/2 resets now retried once) |
+| `ngoportal-csr` | NGOportal — CSR project calls | partner_calls | no | rss | yes | Vercel | 2026-10-12 | 1 | — (this week's only item, AROH Foundation RFP, closed 25 Sep: skipped) |
+| `ngoportal-funding` | NGOportal — funding opportunities | partner_calls | no | rss | yes | Vercel | 2026-10-12 | 10 | — (India-filtered) |
 | `ngobox-rfp` | NGOBox RFP/EOI board | partner_calls | no | ngobox_html | yes | **Mac collector** | 2026-10-12 07:00 | 6 | — (403 from Vercel) |
 | `fundsforngos` | FundsForNGOs | partner_calls | no | rss | yes | **Mac collector** | 2026-10-12 07:00 | 25 | — (403 from Vercel) |
 | `gdelt-csr-education` | GDELT DOC 2.0 API | news_api | no | gdelt_api | yes | **Mac collector** | never | — | 429 / connect timeout (rate limit, also hit by today's testing) |
@@ -45,6 +47,7 @@ Machine-readable registry: [`data/sources.json`](../data/sources.json), synced i
 - Article pages are never fetched. Only feed-provided text is used (paywall- and terms-friendly).
 - Network resets get one retry after 1 s, and GDELT rate limits one polite retry after 6 s. HTTP 4xx/5xx errors are not retried.
 - NGOBox and other listings have no publication date. It stays `unknown`, and the **source-printed deadline** is stored separately (`deadline`, provenance `source_listing`). It is never inferred by AI.
+- Deadlines are also read **deterministically from the source text** when it states them ("Last Date for Submission: …", "applications close on …"). Query or clarification dates are ignored, and ambiguous formats are not guessed. Partner-call sources keep items up to 120 days while the stated deadline is ahead, and skip calls whose deadline has passed.
 - Each source is fetched independently (`Promise.allSettled`). A failure updates that source's `last_error` and appears on the dashboard and in the digest; existing data is never deleted.
 - Items older than 30 days are discarded. Undated items are kept with `published_at = NULL` and provenance `unknown`.
 - GDELT `seendate` is stored with provenance `api_seendate` (when GDELT first saw the article), labelled as approximate, and its recency is discounted by 15%.
