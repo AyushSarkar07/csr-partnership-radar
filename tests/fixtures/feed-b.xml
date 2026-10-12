@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+<channel>
+  <title>Fixture CSR News B</title>
+  <item>
+    <title>Fixture Infotech CSR: digital skilling programme to train 2,000 Pune youth</title>
+    <link>https://fixture-b.example/csr/fixture-infotech-pune-youth</link>
+    <pubDate>Sun, 11 Oct 2026 10:00:00 +0000</pubDate>
+    <description>Fixture Infotech will train 2,000 young people in Pune through its CSR digital skilling programme, the company said.</description>
+  </item>
+  <item>
+    <title>Fixture Infotech CSR to plant 10,000 trees in Pune</title>
+    <link>https://fixture-b.example/csr/fixture-infotech-trees</link>
+    <pubDate>Sun, 11 Oct 2026 11:00:00 +0000</pubDate>
+    <description>Fixture Infotech announced a separate CSR environmental programme to plant trees. The CSR foundation's education work continues.</description>
+  </item>
+</channel>
+</rss>

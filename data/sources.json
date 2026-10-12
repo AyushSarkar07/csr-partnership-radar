@@ -1,0 +1,341 @@
+{
+  "_comment": "Source registry. Accessibility verified with curl on 2026-10-12 from a residential connection in India. Re-applied to the database by `npm run db:seed` (preserves last fetch status). Disabled sources stay in the registry so their limitation is visible.",
+  "sources": [
+    {
+      "id": "indiacsr",
+      "name": "India CSR (indiacsr.in)",
+      "source_type": "csr_specialist_news",
+      "base_url": "https://indiacsr.in",
+      "feed_url": "https://indiacsr.in/feed/",
+      "retrieval_method": "rss",
+      "is_official": false,
+      "credibility": 0.7,
+      "sector_relevance": [
+        "education",
+        "skill_development",
+        "digital_literacy",
+        "youth_employment",
+        "policy"
+      ],
+      "geographic_coverage": "India",
+      "enabled": true,
+      "access_limitations": "Public WordPress RSS (HTTP 200, 10 latest items). robots.txt has no rule against /feed/. Items include full text in content:encoded.",
+      "config": {}
+    },
+    {
+      "id": "thecsrjournal",
+      "name": "The CSR Journal",
+      "source_type": "csr_specialist_news",
+      "base_url": "https://thecsrjournal.in",
+      "feed_url": "https://thecsrjournal.in/feed/",
+      "retrieval_method": "rss",
+      "is_official": false,
+      "credibility": 0.7,
+      "sector_relevance": [
+        "education",
+        "skill_development",
+        "digital_literacy",
+        "youth_employment",
+        "policy"
+      ],
+      "geographic_coverage": "India",
+      "enabled": true,
+      "access_limitations": "Public WordPress RSS (HTTP 200, 10 latest items). robots.txt has no rule against /feed/.",
+      "config": {}
+    },
+    {
+      "is_official": false,
+      "credibility": 0.7,
+      "geographic_coverage": "India",
+      "enabled": true,
+      "retrieval_method": "rss",
+      "source_type": "csr_specialist_news",
+      "config": {},
+      "id": "indiacsr-csr-category",
+      "name": "India CSR — CSR category feed",
+      "base_url": "https://indiacsr.in",
+      "feed_url": "https://indiacsr.in/category/csr/feed/",
+      "sector_relevance": [
+        "education",
+        "skill_development",
+        "policy"
+      ],
+      "access_limitations": "Public WordPress category RSS (HTTP 200). Overlaps with the main India CSR feed; overlaps are removed by canonical-URL dedup."
+    },
+    {
+      "is_official": false,
+      "credibility": 0.7,
+      "geographic_coverage": "India",
+      "enabled": true,
+      "retrieval_method": "rss",
+      "source_type": "csr_specialist_news",
+      "config": {},
+      "id": "indiacsr-skilling-tag",
+      "name": "India CSR — skill development tag feed",
+      "base_url": "https://indiacsr.in",
+      "feed_url": "https://indiacsr.in/tag/skill-development/feed/",
+      "sector_relevance": [
+        "skill_development",
+        "youth_employment"
+      ],
+      "access_limitations": "Public WordPress tag RSS (HTTP 200). Low volume; most items are older than the 7-day window and are stored only if within the 30-day lookback."
+    },
+    {
+      "is_official": false,
+      "credibility": 0.7,
+      "geographic_coverage": "India",
+      "enabled": true,
+      "retrieval_method": "rss",
+      "source_type": "csr_specialist_news",
+      "config": {},
+      "id": "indiacsr-page2",
+      "name": "India CSR — main feed, page 2",
+      "base_url": "https://indiacsr.in",
+      "feed_url": "https://indiacsr.in/feed/?paged=2",
+      "sector_relevance": [
+        "education",
+        "skill_development",
+        "policy"
+      ],
+      "access_limitations": "Second page of the public WordPress feed (items 11–20) so a busy week is not truncated to 10 items."
+    },
+    {
+      "is_official": false,
+      "credibility": 0.7,
+      "geographic_coverage": "India",
+      "enabled": true,
+      "retrieval_method": "rss",
+      "source_type": "csr_specialist_news",
+      "config": {},
+      "id": "thecsrjournal-education",
+      "name": "The CSR Journal — education category feed",
+      "base_url": "https://thecsrjournal.in",
+      "feed_url": "https://thecsrjournal.in/category/education/feed/",
+      "sector_relevance": [
+        "education"
+      ],
+      "access_limitations": "Public WordPress category RSS (HTTP 200)."
+    },
+    {
+      "is_official": false,
+      "credibility": 0.7,
+      "geographic_coverage": "India",
+      "enabled": true,
+      "retrieval_method": "rss",
+      "source_type": "csr_specialist_news",
+      "config": {},
+      "id": "thecsrjournal-skilling-tag",
+      "name": "The CSR Journal — skill development tag feed",
+      "base_url": "https://thecsrjournal.in",
+      "feed_url": "https://thecsrjournal.in/tag/skill-development/feed/",
+      "sector_relevance": [
+        "skill_development"
+      ],
+      "access_limitations": "Public WordPress tag RSS (HTTP 200)."
+    },
+    {
+      "is_official": false,
+      "credibility": 0.7,
+      "geographic_coverage": "India",
+      "enabled": true,
+      "retrieval_method": "rss",
+      "source_type": "csr_specialist_news",
+      "config": {},
+      "id": "thecsrjournal-page2",
+      "name": "The CSR Journal — main feed, page 2",
+      "base_url": "https://thecsrjournal.in",
+      "feed_url": "https://thecsrjournal.in/feed/?paged=2",
+      "sector_relevance": [
+        "education",
+        "skill_development",
+        "policy"
+      ],
+      "access_limitations": "Second page of the public WordPress feed (items 11–20)."
+    },
+    {
+      "id": "et-corporate-trends",
+      "name": "The Economic Times — Corporate Trends",
+      "source_type": "business_news",
+      "base_url": "https://economictimes.indiatimes.com",
+      "feed_url": "https://economictimes.indiatimes.com/news/company/corporate-trends/rssfeeds/2143429.cms",
+      "retrieval_method": "rss",
+      "is_official": false,
+      "credibility": 0.8,
+      "sector_relevance": [
+        "general_business"
+      ],
+      "geographic_coverage": "India",
+      "enabled": true,
+      "access_limitations": "Public RSS (HTTP 200, ~50 items). Only headline + short description are available; full articles may be paywalled (ET Prime) and are NOT fetched. robots.txt disallows *rssarticleshow* pages, which we never request.",
+      "config": {}
+    },
+    {
+      "id": "livemint-companies",
+      "name": "Mint — Companies",
+      "source_type": "business_news",
+      "base_url": "https://www.livemint.com",
+      "feed_url": "https://www.livemint.com/rss/companies",
+      "retrieval_method": "rss",
+      "is_official": false,
+      "credibility": 0.8,
+      "sector_relevance": [
+        "general_business"
+      ],
+      "geographic_coverage": "India",
+      "enabled": true,
+      "access_limitations": "Public RSS (HTTP 200, ~35 items). Headline + summary only; article pages are not fetched.",
+      "config": {}
+    },
+    {
+      "id": "hcltech-newsroom",
+      "name": "HCLTech — official newsroom & insights RSS",
+      "source_type": "corporate_official",
+      "base_url": "https://www.hcltech.com",
+      "feed_url": "https://www.hcltech.com/rss.xml",
+      "retrieval_method": "rss",
+      "is_official": true,
+      "credibility": 0.95,
+      "sector_relevance": [
+        "general_business",
+        "education",
+        "skill_development"
+      ],
+      "geographic_coverage": "Global / India",
+      "enabled": true,
+      "access_limitations": "Official company RSS (HTTP 200). Mostly business/marketing content; CSR items (HCLFoundation) are rare, so most items are dropped by the relevance pre-filter. Other corporate newsrooms probed (Infosys, TCS, Tata, Wipro, Mahindra, Tech Mahindra, Reliance Foundation, Azim Premji Foundation) returned 403/404 or no feed on 2026-10-12.",
+      "config": {}
+    },
+    {
+      "id": "fundsforngos",
+      "name": "FundsForNGOs — grants & calls for proposals",
+      "source_type": "partner_calls",
+      "base_url": "https://www.fundsforngos.org",
+      "feed_url": "https://www.fundsforngos.org/feed/",
+      "retrieval_method": "rss",
+      "is_official": false,
+      "credibility": 0.6,
+      "sector_relevance": [
+        "education",
+        "skill_development",
+        "youth_employment"
+      ],
+      "geographic_coverage": "Global (filtered to items mentioning India)",
+      "enabled": true,
+      "access_limitations": "Public RSS (HTTP 200, 25 items). Global coverage — only items that mention India or an Indian state/city are kept. Some full listings require a paid membership; we only use the public feed text.",
+      "config": {
+        "requireIndiaMention": true
+      }
+    },
+    {
+      "id": "gdelt-csr-education",
+      "name": "GDELT DOC 2.0 API — CSR × education/skilling (India)",
+      "source_type": "news_api",
+      "base_url": "https://api.gdeltproject.org",
+      "feed_url": "https://api.gdeltproject.org/api/v2/doc/doc",
+      "retrieval_method": "gdelt_api",
+      "is_official": false,
+      "credibility": 0.55,
+      "sector_relevance": [
+        "education",
+        "skill_development",
+        "digital_literacy",
+        "youth_employment"
+      ],
+      "geographic_coverage": "India (sourcecountry:IN)",
+      "enabled": true,
+      "access_limitations": "Free public API, limited to 1 request / 5 seconds and frequently returns a rate-limit notice from shared IPs (observed during development). Returns headline + URL + 'seendate' (first time GDELT saw the article — not the publisher's date). No article text, so evidence is headline-only and scored as weak.",
+      "config": {
+        "query": "(\"CSR\" OR \"corporate social responsibility\") (skilling OR \"skill development\" OR education OR \"digital literacy\" OR employability) sourcecountry:IN sourcelang:english",
+        "maxrecords": 50
+      }
+    },
+    {
+      "id": "google-news-rss",
+      "name": "Google News RSS search",
+      "source_type": "news_api",
+      "base_url": "https://news.google.com",
+      "feed_url": "https://news.google.com/rss/search?q=CSR+skilling+India",
+      "retrieval_method": "rss",
+      "is_official": false,
+      "credibility": 0.6,
+      "sector_relevance": [
+        "education",
+        "skill_development"
+      ],
+      "geographic_coverage": "India",
+      "enabled": false,
+      "access_limitations": "DISABLED: news.google.com/robots.txt disallows /rss for all user agents (only /, /topics/, /publications/, /stories/ etc. are allowed). The feed responds technically, but we respect robots.txt.",
+      "config": {}
+    },
+    {
+      "id": "pib",
+      "name": "Press Information Bureau (Govt. of India) RSS",
+      "source_type": "government",
+      "base_url": "https://pib.gov.in",
+      "feed_url": "https://pib.gov.in/RssMain.aspx?ModId=6&Lang=1&Regid=3",
+      "retrieval_method": "rss",
+      "is_official": true,
+      "credibility": 0.95,
+      "sector_relevance": [
+        "policy"
+      ],
+      "geographic_coverage": "India",
+      "enabled": false,
+      "access_limitations": "DISABLED: returned HTTP 403 to automated requests during verification (2026-10-12). Enable from Settings to re-test; failures are isolated and recorded.",
+      "config": {}
+    },
+    {
+      "id": "mca-notifications",
+      "name": "Ministry of Corporate Affairs — CSR notifications",
+      "source_type": "government",
+      "base_url": "https://www.mca.gov.in",
+      "feed_url": null,
+      "retrieval_method": "link_only",
+      "is_official": true,
+      "credibility": 0.95,
+      "sector_relevance": [
+        "policy"
+      ],
+      "geographic_coverage": "India",
+      "enabled": false,
+      "access_limitations": "LINK ONLY: mca.gov.in returned HTTP 403 to automated requests and offers no RSS/API for CSR notifications. Check manually; CSR rule changes are usually also reported by the CSR specialist feeds above.",
+      "config": {}
+    },
+    {
+      "id": "csr-portal",
+      "name": "National CSR Portal (csr.gov.in)",
+      "source_type": "government",
+      "base_url": "https://www.csr.gov.in",
+      "feed_url": null,
+      "retrieval_method": "link_only",
+      "is_official": true,
+      "credibility": 0.95,
+      "sector_relevance": [
+        "policy",
+        "education",
+        "skill_development"
+      ],
+      "geographic_coverage": "India",
+      "enabled": false,
+      "access_limitations": "LINK ONLY: returned HTTP 403 to automated requests; the portal is a JavaScript dashboard of filed CSR spend (lagging annual data), not an announcement feed.",
+      "config": {}
+    },
+    {
+      "id": "businessline-companies",
+      "name": "The Hindu BusinessLine — Companies",
+      "source_type": "business_news",
+      "base_url": "https://www.thehindubusinessline.com",
+      "feed_url": "https://www.thehindubusinessline.com/companies/feeder/default.rss",
+      "retrieval_method": "rss",
+      "is_official": false,
+      "credibility": 0.8,
+      "sector_relevance": [
+        "general_business"
+      ],
+      "geographic_coverage": "India",
+      "enabled": false,
+      "access_limitations": "DISABLED: feed responds (HTTP 200) but robots.txt contains multiple 'Disallow: /' groups whose scope for generic agents is ambiguous; disabled pending explicit permission.",
+      "config": {}
+    }
+  ]
+}
