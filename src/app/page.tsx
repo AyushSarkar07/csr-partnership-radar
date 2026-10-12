@@ -67,11 +67,12 @@ export default async function Dashboard({ searchParams }: PageProps<"/">) {
     );
   }
   const db = getDb();
-  const { settings } = await loadSettings(db);
+  const loaded = await loadSettings(db);
+  const { settings } = loaded;
   const sp = await searchParams;
   const filters = parseFilters(sp, { mode: settings.dataMode.defaultMode, days: settings.reportingWindowDays });
   if (filters.mode === "demo" && !settings.dataMode.showDemo) filters.mode = "live";
-  const d = await getDashboard(db, filters);
+  const d = await getDashboard(db, filters, loaded);
   const tz = settings.timezone;
   const ref = referenceTime(filters.mode);
   const labels = new Map(settings.sectors.map((s) => [s.key, s.label]));

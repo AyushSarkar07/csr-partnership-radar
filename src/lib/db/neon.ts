@@ -9,7 +9,7 @@ export function createNeonDb(connectionString: string): Db & { end: () => Promis
   if (typeof globalThis.WebSocket !== "undefined") {
     neonConfig.webSocketConstructor = globalThis.WebSocket;
   }
-  const pool = new Pool({ connectionString, max: 4, idleTimeoutMillis: 10_000 });
+  const pool = new Pool({ connectionString, max: 8, idleTimeoutMillis: 10_000 });
   // An idle connection dropped by the server must not crash the function.
   pool.on("error", (err: Error) => console.error("[db] pool error:", err.message));
 

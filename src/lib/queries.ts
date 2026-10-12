@@ -88,15 +88,14 @@ export async function listDigests(db: Db, limit = 20) {
   );
 }
 
-export async function getDashboard(db: Db, filters: Filters) {
-  const { settings, version, updatedAt } = await loadSettings(db);
+export async function getDashboard(db: Db, filters: Filters, preloaded?: Awaited<ReturnType<typeof loadSettings>>) {
+  const { settings, version, updatedAt } = preloaded ?? (await loadSettings(db));
   const origin: DataOrigin = filters.mode === "demo" ? "synthetic" : "live";
   const window = reportingWindow(referenceTime(filters.mode), filters.days, settings.timezone);
-  const all = await loadOpportunities(db, origin, settings, window);
-  const shown = applyFilters(all, filters);
-  const sources = await listSources(db);
-  const fetchable = sources.filter((s) => s.enabled && s.retrieval_method !== "link_only");
-  const [run, okRun, digest, liveCount, activityRows] = await Promise.all([
+  // Everything below is independent, so it runs in a single parallel round.
+  const [all, sources, run, okRun, digest, liveCount, activityRows] = await Promise.all([
+    loadOpportunities(db, origin, settings, window),
+    listSources(db),
     latestRun(db),
     lastSuccessfulRun(db),
     latestDigest(db, filters.mode),
@@ -109,6 +108,8 @@ export async function getDashboard(db: Db, filters: Filters) {
       [window.start],
     ),
   ]);
+  const shown = applyFilters(all, filters);
+  const fetchable = sources.filter((s) => s.enabled && s.retrieval_method !== "link_only");
   const fresh = all.filter((o) => o.score.freshness === "fresh" || o.score.freshness === "open_call");
   const metrics = {
     freshAnnouncements: fresh.filter((o) => o.isRelevant !== false).length,
