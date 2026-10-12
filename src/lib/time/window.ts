@@ -119,3 +119,13 @@ export function parseFeedDate(raw: unknown): Date | null {
   if (d.getUTCFullYear() < 2000) return null;
   return d;
 }
+
+/** Next scheduled weekly digest: Monday 06:00 IST (00:30 UTC), strictly after `now`. */
+export function nextDigestAt(now: Date): Date {
+  const d = new Date(now);
+  d.setUTCHours(0, 30, 0, 0);
+  const daysUntilMonday = (8 - d.getUTCDay()) % 7; // 0 when today is Monday (UTC)
+  d.setUTCDate(d.getUTCDate() + daysUntilMonday);
+  if (d.getTime() <= now.getTime()) d.setUTCDate(d.getUTCDate() + 7);
+  return d;
+}

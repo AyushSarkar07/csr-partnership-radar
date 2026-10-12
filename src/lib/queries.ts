@@ -9,7 +9,7 @@ import { applyFilters, type Filters } from "./repo/filters";
 import { loadOpportunities, reviewHistory, type DataOrigin, type Opportunity } from "./repo/opportunities";
 import { loadSettings } from "./settings/store";
 import { listSources } from "./sources/registry";
-import { reportingWindow, type ReportingWindow } from "./time/window";
+import { deadlineEnd, reportingWindow, type ReportingWindow } from "./time/window";
 
 export function referenceTime(mode: "live" | "demo", now = new Date()): Date {
   return mode === "demo" ? DEMO_REFERENCE_TIME : now;
@@ -123,6 +123,12 @@ export async function getDashboard(db: Db, filters: Filters) {
     totalStored: all.length,
     liveTotal: liveCount[0].n,
     watchlist: all.filter((o) => o.score.priority === "monitor" && !["not_relevant", "won_closed"].includes(o.review?.status ?? "")).length,
+    closingSoon: all.filter((o) => {
+      if (!o.deadline || o.partnerSignal !== "explicit" || o.score.flags.includes("deadline_passed")) return false;
+      if (["not_relevant", "won_closed"].includes(o.review?.status ?? "")) return false;
+      const ms = deadlineEnd(o.deadline).getTime() - window.end.getTime();
+      return ms >= 0 && ms <= 7 * 86_400_000;
+    }).length,
   };
   const keptInWindow = all.filter((o) => new Date(o.firstSeenAt) > window.start);
   const activity = {

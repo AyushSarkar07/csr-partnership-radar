@@ -52,7 +52,7 @@ box(230,510,190,74,'off',['Not fetched (recorded)','PIB · MCA · CSR portal: 40
 box(450,68,195,62,'context',['Source registry','data/sources.json → sources','enabled · limits · last error'])
 box(450,230,195,70,'context',["Ananya's settings",'sectors · geographies · weights','window · thresholds','(user_settings, validated)'])
 box(450,360,195,140,'context',['Neon Postgres','announcements','announcement_sources','evidence_claims','opportunity_scores · reviews','digests · digest_items','fetch_runs · audit_events'])
-box(450,560,150,62,'synthetic',['Synthetic seed','30 labelled records','demo mode only'],dashed=True)
+box(450,560,150,62,'synthetic',['Synthetic seed','31 labelled records','demo mode only'],dashed=True)
 # Processing
 P=[('Fetch adapters','rss.ts · gdelt.ts · 12s timeout','per-source failure isolation'),
    ('Normalise & validate','HTML→text · canonical URL','publication-date provenance'),

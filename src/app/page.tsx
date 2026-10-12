@@ -7,18 +7,20 @@ import { SourceHealthPanel } from "@/components/SourceHealth";
 import { Card, EmptyState, SectionTitle } from "@/components/ui";
 import { getDb, isDbConfigured } from "@/lib/db/client";
 import { getDashboard, parseSummary, referenceTime } from "@/lib/queries";
-import { parseFilters } from "@/lib/repo/filters";
+import { explainHidden, filtersToQuery, parseFilters } from "@/lib/repo/filters";
 import { loadSettings } from "@/lib/settings/store";
-import { formatDate, formatDateTime } from "@/lib/time/window";
+import { formatDate, formatDateTime, nextDigestAt } from "@/lib/time/window";
 
 export const dynamic = "force-dynamic";
 
-function Metric({ label, value, hint }: { label: string; value: string | number; hint?: string }) {
+function Tile({ label, value, hint, tone = "default" }: { label: string; value: number; hint: string; tone?: "default" | "high" | "urgent" }) {
+  const ring = tone === "urgent" && value > 0 ? "border-danger/60" : tone === "high" && value > 0 ? "border-high/60" : "border-line";
+  const num = tone === "urgent" && value > 0 ? "text-danger" : tone === "high" && value > 0 ? "text-high" : "";
   return (
-    <div className="rounded-xl border border-line bg-surface p-3">
-      <div className="text-2xl font-semibold tabular-nums">{value}</div>
-      <div className="text-xs text-ink-2">{label}</div>
-      {hint && <div className="mt-0.5 text-[11px] text-ink-3">{hint}</div>}
+    <div className={`rounded-xl border bg-surface p-4 ${ring}`}>
+      <div className="text-xs font-medium uppercase tracking-wide text-ink-3">{label}</div>
+      <div className={`mt-1 text-3xl font-semibold tabular-nums ${num}`}>{value}</div>
+      <div className="mt-0.5 text-xs text-ink-3">{hint}</div>
     </div>
   );
 }
@@ -42,13 +44,14 @@ export default async function Dashboard({ searchParams }: PageProps<"/">) {
   const labels = new Map(settings.sectors.map((s) => [s.key, s.label]));
   const maxSector = Math.max(1, ...d.sectorCounts.map((s) => s.count));
   const digestSummary = parseSummary(d.digest?.summary ?? null);
+  const hidden = explainHidden(d.all, filters);
 
   return (
     <div className="mx-auto max-w-7xl px-4 sm:px-6 py-6 space-y-5">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <p className="text-sm text-ink-3">
-            Window: {formatDate(d.window.start, tz)} → {formatDate(d.window.end, tz)} ({tz})
+            {formatDate(d.window.start, tz).replace(/, \d{4}$/, "")} – {formatDate(d.window.end, tz)}
           </p>
           <h1 className="font-serif text-3xl font-semibold tracking-tight">Is this worth a call this week?</h1>
         </div>
@@ -56,67 +59,78 @@ export default async function Dashboard({ searchParams }: PageProps<"/">) {
       </div>
       <ModeBanner mode={filters.mode} refLabel={formatDateTime(ref, tz)} />
 
+      <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-line bg-surface px-4 py-3">
+        <p className="text-sm text-ink-2">
+          {filters.mode === "live" ? (
+            <>
+              <span className={d.run && d.run.status === "failed" ? "text-danger" : "text-high"} aria-hidden>●</span>{" "}
+              {d.okRun?.finished_at ? <>Updated {formatDateTime(d.okRun.finished_at, tz)}</> : "Not updated yet"}
+              <span className="text-ink-3"> · {d.metrics.sourcesOk} of {d.metrics.sourcesEnabled} sources checked · </span>
+            </>
+          ) : (
+            <span className="text-ink-3">Demo data as of {formatDateTime(ref, tz)} · </span>
+          )}
+          <span className="text-ink-3">Next digest {formatDate(nextDigestAt(new Date()), tz).replace(/, \d{4}$/, "")}, 06:00 IST</span>
+        </p>
+        <ActionButtons mode={filters.mode} />
+      </div>
+
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        <Tile tone="high" label="Worth a call this week" value={d.metrics.highPriority} hint={d.metrics.highPriority ? "ranked first in the list below" : "none met the bar this week"} />
+        <Tile tone="urgent" label="Calls closing in 7 days" value={d.metrics.closingSoon} hint={d.metrics.closingSoon ? "proposal deadlines coming up" : "no open NGO calls closing soon"} />
+        <Tile label="On the watchlist" value={d.metrics.watchlist} hint="relevant, not yet a call" />
+        <Tile label="Policy developments" value={d.metrics.policy} hint={d.metrics.policy ? "affecting CSR spending" : "no CSR rule changes"} />
+      </div>
+
+      {digestSummary && d.digest && (
+            <Card className="p-4">
+              <div className="flex flex-wrap items-baseline justify-between gap-2">
+                <h2 className="font-serif text-lg font-semibold">This week in brief</h2>
+                <Link className="text-xs text-accent hover:underline" href={`/digest/${d.digest.id}`}>Read the full digest →</Link>
+              </div>
+              <p className="mt-1 text-sm leading-relaxed text-ink-2">{digestSummary.overview}</p>
+            </Card>
+      )}
+
       {filters.mode === "live" && (
-        <Card className="p-4">
-          <div className="flex flex-wrap items-baseline justify-between gap-2">
-            <h2 className="font-serif text-lg font-semibold">This week&apos;s scan</h2>
-            <span className="text-xs text-ink-3">
-              {d.okRun?.finished_at ? `Last updated ${formatDateTime(d.okRun.finished_at, tz)}` : "Not updated yet"}
+        <details className="group rounded-xl border border-line bg-surface">
+          <summary className="flex cursor-pointer list-none flex-wrap items-center gap-x-2 gap-y-1 px-4 py-3 text-sm text-ink-2">
+            <span className="inline-block transition-transform group-open:rotate-90" aria-hidden>›</span>
+            <span className="font-medium text-ink">This week&apos;s scan</span>
+            <span className="text-ink-3">
+              {d.activity.itemsChecked.toLocaleString("en-IN")} news items checked → {d.activity.kept} CSR announcements kept → {d.metrics.highPriority} worth a call
             </span>
-          </div>
-          <ol className="mt-3 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3" aria-label="How this week's announcements were processed">
+          </summary>
+          <ol className="grid grid-cols-2 gap-3 px-4 pb-4 sm:grid-cols-3 lg:grid-cols-6" aria-label="How this week's announcements were processed">
             {[
               { n: d.activity.updates, label: "updates run", hint: "automatic and on request" },
               { n: d.activity.itemsChecked.toLocaleString("en-IN"), label: "news items checked", hint: `from ${d.activity.sourcesChecked || d.metrics.sourcesOk} sources` },
               { n: d.activity.kept, label: "CSR-related announcements kept", hint: "after filtering and duplicate removal" },
               { n: d.activity.analysed, label: "analysed and scored", hint: `${d.activity.csrRelevant} confirmed as CSR activity` },
               { n: d.activity.watchlist, label: "on the watchlist", hint: "relevant, worth tracking" },
-              { n: d.metrics.highPriority, label: "worth a call now", hint: d.metrics.highPriority ? "see the list below" : "none met the bar yet" },
-            ].map((s, i, arr) => (
-              <li key={s.label} className="relative rounded-lg bg-surface-2 p-3">
-                <div className="text-2xl font-semibold tabular-nums">{s.n}</div>
-                <div className="text-xs text-ink-2">{s.label}</div>
-                <div className="mt-0.5 text-[11px] text-ink-3">{s.hint}</div>
-                {i < arr.length - 1 && <span aria-hidden className="absolute -right-2.5 top-1/2 hidden -translate-y-1/2 text-ink-3 lg:block">›</span>}
+              { n: d.metrics.highPriority, label: "worth a call", hint: d.metrics.highPriority ? "see the list below" : "none met the bar yet" },
+            ].map((x) => (
+              <li key={x.label} className="rounded-lg bg-surface-2 p-3">
+                <div className="text-xl font-semibold tabular-nums">{x.n}</div>
+                <div className="text-xs text-ink-2">{x.label}</div>
+                <div className="mt-0.5 text-[11px] text-ink-3">{x.hint}</div>
               </li>
             ))}
           </ol>
-        </Card>
+        </details>
       )}
-
-      <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3">
-        <Metric label={filters.mode === "live" ? "New announcements this week" : "Demo announcements this week"} value={d.metrics.freshAnnouncements} hint={d.metrics.unknownDates ? `plus ${d.metrics.unknownDates} with no publication date` : "published in the last 7 days"} />
-        <Metric label="Worth a call this week" value={d.metrics.highPriority} hint={d.metrics.highPriority ? "high priority" : "none met the bar this week"} />
-        <Metric label="Open calls for NGO partners" value={d.metrics.explicitRequests} hint={d.metrics.explicitRequests ? "explicit invitations" : "none published this week"} />
-        <Metric label="On the watchlist" value={d.metrics.watchlist} hint="relevant, but not yet a call" />
-        <Metric label="Policy developments" value={d.metrics.policy} hint={d.metrics.policy ? "affecting CSR spending" : "no CSR rule changes this week"} />
-        <Metric label="Sources checked successfully" value={`${d.metrics.sourcesOk}/${d.metrics.sourcesEnabled}`} hint={filters.mode === "demo" ? "applies to live data" : "on the latest check"} />
-      </div>
-
-      <Card className="p-4 flex flex-wrap items-start justify-between gap-4">
-        <ActionButtons mode={filters.mode} />
-        <div className="text-sm text-ink-2 max-w-xl">
-          {d.digest ? (
-            <>
-              Latest digest: <Link className="text-accent hover:underline" href={`/digest/${d.digest.id}`}>{formatDateTime(d.digest.generated_at, tz)}</Link> ·{" "}
-              {d.digest.content.counts.high_priority} high priority · delivery: <strong>{d.digest.delivery_status.replace("_", " ")}</strong>
-              {digestSummary && <p className="mt-2 text-ink-2 leading-relaxed">{digestSummary.overview}</p>}
-            </>
-          ) : (
-            <>No digest yet. The weekly digest is prepared every Monday at 06:00 IST.</>
-          )}
-          {d.run && d.run.status !== "succeeded" && filters.mode === "live" && (
-            <p className="mt-1 text-monitor">Some sources could not be checked on the last update; earlier results are still shown.</p>
-          )}
-          {filters.mode === "live" && d.metrics.aiPending > 0 && <p className="mt-1 text-ink-3">{d.metrics.aiPending} new item(s) queued for analysis on the next refresh.</p>}
-        </div>
-      </Card>
+      {filters.mode === "live" && d.metrics.aiPending > 0 && <p className="text-sm text-ink-3">{d.metrics.aiPending} new item(s) queued for analysis on the next update.</p>}
 
       <FilterBar f={filters} settings={settings} />
 
       <div className="grid gap-5 lg:grid-cols-[1fr_320px]">
         <div className="space-y-3">
-          <SectionTitle aside={<span className="text-xs text-ink-3">{d.shown.length} of {d.all.length} stored · ranked by {filters.sort}</span>}>Ranked opportunities</SectionTitle>
+          <SectionTitle>Opportunities</SectionTitle>
+          <p className="-mt-1 text-xs text-ink-3">
+            Showing {hidden.shown} of {d.all.length}
+            {hidden.lowHidden > 0 && <> · {hidden.lowHidden} low-relevance hidden (<Link className="underline" href={`/?${filtersToQuery({ ...filters, showLow: true })}`}>show</Link>)</>}
+            {hidden.olderHidden > 0 && <> · {hidden.olderHidden} older hidden (<Link className="underline" href={`/?${filtersToQuery({ ...filters, showLow: true, freshness: "all" })}`}>show</Link>)</>}
+          </p>
           {d.shown.length === 0 ? (
             filters.mode === "live" && d.metrics.liveTotal === 0 ? (
               <EmptyState title="No live announcements collected yet">

@@ -7,6 +7,8 @@ export interface Filters {
   freshness: "window" | "fresh" | "all";
   sector: string;
   company: string;
+  /** Free-text search across company, headline, summary and initiative. */
+  q: string;
   geography: string;
   type: string;
   priority: string;
@@ -34,6 +36,7 @@ export function parseFilters(p: Params, defaults: { mode: "live" | "demo"; days:
     freshness: pick(get(p, "freshness"), ["window", "fresh", "all"] as const, "window"),
     sector: get(p, "sector"),
     company: get(p, "company"),
+    q: get(p, "q"),
     geography: get(p, "geography"),
     type: pick(get(p, "type"), ["", ...ANNOUNCEMENT_TYPES] as const, ""),
     priority: pick(get(p, "priority"), ["", "high", "monitor", "policy", "background", "low"] as const, ""),
@@ -53,6 +56,10 @@ export function applyFilters(opps: Opportunity[], f: Filters): Opportunity[] {
     if (f.freshness === "window" && !(o.score.freshness === "fresh" || o.score.freshness === "open_call" || o.score.freshness === "unknown" || o.score.freshness === "future")) return false;
     if (f.sector && !o.sectors.includes(f.sector)) return false;
     if (f.company && !lc(o.company).includes(lc(f.company)) && !lc(o.headline).includes(lc(f.company))) return false;
+    if (f.q) {
+      const hay = lc([o.company, o.headline, o.initiativeName, o.analysis?.summary, ...o.geographies].filter(Boolean).join(" "));
+      if (!lc(f.q).split(/\s+/).every((w) => hay.includes(w))) return false;
+    }
     if (f.geography && !o.geographies.some((g) => lc(g).includes(lc(f.geography)))) return false;
     if (f.type && o.announcementType !== f.type) return false;
     if (f.priority) {
@@ -81,4 +88,20 @@ export function filtersToQuery(f: Partial<Filters>): string {
     q.set(k, v === true ? "1" : String(v));
   }
   return q.toString();
+}
+
+/** How many items the current view hides because of the default visibility rules. */
+export function explainHidden(opps: Opportunity[], f: Filters) {
+  const shown = applyFilters(opps, f).length;
+  const withLow = f.priority ? shown : applyFilters(opps, { ...f, showLow: true }).length;
+  const withOlder = f.freshness === "all" ? withLow : applyFilters(opps, { ...f, showLow: true, freshness: "all" }).length;
+  return { shown, lowHidden: withLow - shown, olderHidden: withOlder - withLow };
+}
+
+/** True when any filter beyond search/sector/sort is active (the "More filters" panel opens). */
+export function hasAdvancedFilters(f: Filters, defaultDays: number): boolean {
+  return Boolean(
+    f.days !== defaultDays || f.freshness !== "window" || f.type || f.priority || f.evidence || f.company ||
+      f.geography || f.sourceType || f.status || f.verification || f.showLow,
+  );
 }

@@ -1,6 +1,6 @@
 # Gemini Flash Classification Evaluation
 
-Real Gemini API calls (not mocks) over the 30 synthetic seed articles, comparing against hand-written expectations. Run on 2026-10-12 with `npx tsx scripts/gemini-eval.ts`.
+Real Gemini API calls (not mocks) over the 31 synthetic seed articles, comparing against hand-written expectations. Run on 2026-10-12 with `npx tsx scripts/gemini-eval.ts`.
 
 - Model: gemini-3.8-flash · records: 30/30
 - Announcement type exact match: 28/30 · Partner-signal safety (never false 'explicit'): 30/30 · Fact excerpts verified: 64/64

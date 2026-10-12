@@ -21,6 +21,8 @@ export interface SeedRecord {
   company: string | null;
   headline: string;
   published_at: string | null;
+  /** Application deadline stated in the (fictional) source, YYYY-MM-DD. */
+  deadline?: string;
   source: { publisher: string; url: string; source_type: string };
   text: string;
   type: AnnouncementType;
@@ -102,12 +104,13 @@ export async function seedDemoData(db: Db, opts: { reset?: boolean } = {}) {
         await q.query<{ id: string }>(
           `insert into announcements (data_origin, verification_status, seed_id, company_id, headline, normalized_headline,
              published_at, published_at_provenance, primary_text, content_hash, ai_status, ai_model, ai_processed_at,
-             is_relevant, announcement_type, sectors, geographies, initiative_name, partner_signal, analysis, scenario)
-           values ('synthetic','synthetic',$1,$2,$3,$4,$5,$6,$7,$8,'fixture','fixture:seed-v1',now(),$9,$10,$11,$12,$13,$14,$15::jsonb,$16::jsonb)
+             is_relevant, announcement_type, sectors, geographies, initiative_name, partner_signal, analysis, scenario, deadline, deadline_provenance)
+           values ('synthetic','synthetic',$1,$2,$3,$4,$5,$6,$7,$8,'fixture','fixture:seed-v1',now(),$9,$10,$11,$12,$13,$14,$15::jsonb,$16::jsonb,$17,$18)
            returning id`,
           [r.seed_id, companyId, r.headline, normalizeHeadline(r.headline), r.published_at,
             r.published_at ? "synthetic" : "unknown", r.text, sha256(r.headline + r.text), analysis.is_csr_relevant, r.type,
-            r.sectors, r.geographies, r.initiative, r.partner_signal, JSON.stringify(analysis), JSON.stringify(r.scenario)],
+            r.sectors, r.geographies, r.initiative, r.partner_signal, JSON.stringify(analysis), JSON.stringify(r.scenario),
+            r.deadline ?? null, r.deadline ? "synthetic" : null],
         )
       )[0].id;
       const srcId = (

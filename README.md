@@ -33,7 +33,7 @@ Sources that block Vercel's servers (the NGOBox RFP/EOI board and FundsForNGOs) 
 |---|---|
 | **Verified** | Retrieved from a real source; publication date known; ≥1 claim quoted verbatim from the source. |
 | **Needs verification** | Real retrieved item that is unclassified, has an unknown date, or has no verbatim evidence. |
-| **Demo** | One of 30 fictional demo records ([`data/seed-opportunities.json`](data/seed-opportunities.json)) using `example.org` URLs. Shown only in **Demo data** mode, which evaluates windows against a fixed reference time (Mon 12 Oct 2026 06:00 IST). Never counted in live metrics or live digests, and never emailed. |
+| **Demo** | One of 31 fictional demo records ([`data/seed-opportunities.json`](data/seed-opportunities.json)) using `example.org` URLs. Shown only in **Demo data** mode, which evaluates windows against a fixed reference time (Mon 12 Oct 2026 06:00 IST). Never counted in live metrics or live digests, and never emailed. |
 
 ## Stack
 

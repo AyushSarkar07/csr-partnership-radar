@@ -76,3 +76,28 @@ describe("deduplication on seed data (Test 7)", () => {
     expect(bySeed("SYN-001")!.coverage).toHaveLength(1);
   });
 });
+
+describe("dashboard search and hidden-item explanation", () => {
+  it("free-text search matches company, headline and place", async () => {
+    const { applyFilters, parseFilters, explainHidden } = await import("@/lib/repo/filters");
+    const f = parseFilters({ mode: "demo", q: "orchid nashik" }, { mode: "demo", days: 7 });
+    const r = applyFilters(opps, f);
+    expect(r.map((o) => o.seedId)).toEqual(["SYN-004"]);
+    const all = parseFilters({ mode: "demo" }, { mode: "demo", days: 7 });
+    const h = explainHidden(opps, all);
+    expect(h.shown + h.lowHidden + h.olderHidden).toBe(opps.length);
+    expect(h.lowHidden).toBeGreaterThan(0);
+    expect(h.olderHidden).toBeGreaterThan(0);
+  });
+});
+
+describe("calls closing soon (demo)", () => {
+  it("SYN-031 carries its deadline and counts as closing within 7 days", async () => {
+    const o = bySeed("SYN-031")!;
+    expect(o.deadline).toBe("2026-10-16");
+    const { getDashboard } = await import("@/lib/queries");
+    const { parseFilters } = await import("@/lib/repo/filters");
+    const d = await getDashboard(db, parseFilters({ mode: "demo" }, { mode: "demo", days: 7 }));
+    expect(d.metrics.closingSoon).toBe(1); // Orchid (7 Nov) and Ember (15 Nov) are further out
+  });
+});

@@ -35,7 +35,7 @@ Date: 2026-10-12 (Monday). **Updated the same day after fixing the blockers** (s
 All brief-level requirements (BR-1…BR-35) are tracked in `docs/REQUIREMENTS_TRACEABILITY.md`, and all are VERIFIED, including BR-20 (a real Resend send), except **BR-21, now PARTIAL**: user sign-in was removed at the owner's request.
 
 ## Test results (run 2026-10-12, final audit)
-- `npm test`: **131 passed / 0 failed** across 10 files (after sign-in removal) (unit, PGlite integration with real migrations, route-handler security, end-to-end).
+- `npm test`: **138 passed / 0 failed** across 11 files (unit, PGlite integration with real migrations, route-handler security, end-to-end).
 - `npm run lint`: 0 problems · `tsc --noEmit`: 0 errors · `next build`: success.
 - Mutation sanity check: deliberately breaking two rules made the corresponding tests fail; restored.
 - All 18 required functional tests map to passing tests (table in `docs/TEST_PLAN.md`).
