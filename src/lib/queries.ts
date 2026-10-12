@@ -96,11 +96,18 @@ export async function getDashboard(db: Db, filters: Filters) {
   const shown = applyFilters(all, filters);
   const sources = await listSources(db);
   const fetchable = sources.filter((s) => s.enabled && s.retrieval_method !== "link_only");
-  const [run, okRun, digest, liveCount] = await Promise.all([
+  const [run, okRun, digest, liveCount, activityRows] = await Promise.all([
     latestRun(db),
     lastSuccessfulRun(db),
     latestDigest(db, filters.mode),
     db.query<{ n: number }>("select count(*)::int as n from announcements where data_origin='live'"),
+    // Real pipeline activity inside the selected window (live data only).
+    db.query<{ runs: number; checked: number; sources: number }>(
+      `select count(*)::int as runs, coalesce(sum(items_fetched), 0)::int as checked,
+              coalesce(max(sources_succeeded), 0)::int as sources
+         from fetch_runs where started_at > $1 and status <> 'failed'`,
+      [window.start],
+    ),
   ]);
   const fresh = all.filter((o) => o.score.freshness === "fresh" || o.score.freshness === "open_call");
   const metrics = {
@@ -115,13 +122,26 @@ export async function getDashboard(db: Db, filters: Filters) {
     unknownDates: all.filter((o) => o.score.freshness === "unknown").length,
     totalStored: all.length,
     liveTotal: liveCount[0].n,
+    watchlist: all.filter((o) => o.score.priority === "monitor" && !["not_relevant", "won_closed"].includes(o.review?.status ?? "")).length,
   };
+  const keptInWindow = all.filter((o) => new Date(o.firstSeenAt) > window.start);
+  const activity = {
+    updates: activityRows[0].runs,
+    itemsChecked: activityRows[0].checked,
+    sourcesChecked: activityRows[0].sources,
+    kept: keptInWindow.length,
+    analysed: keptInWindow.filter((o) => o.aiStatus === "done" || o.aiStatus === "fixture").length,
+    csrRelevant: keptInWindow.filter((o) => o.isRelevant).length,
+    watchlist: 0,
+    background: all.filter((o) => o.score.priority === "background").length,
+  };
+  activity.watchlist = metrics.watchlist;
   const sectorCounts = settings.sectors.map((s) => ({
     key: s.key,
     label: s.label,
     count: fresh.filter((o) => o.sectors.includes(s.key) && o.isRelevant !== false).length,
   }));
-  return { settings, settingsVersion: version, settingsUpdatedAt: updatedAt, window, all, shown, sources, run, okRun, digest, metrics, sectorCounts };
+  return { settings, settingsVersion: version, settingsUpdatedAt: updatedAt, window, all, shown, sources, run, okRun, digest, metrics, sectorCounts, activity };
 }
 
 export async function getOpportunityDetail(db: Db, id: string) {

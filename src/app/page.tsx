@@ -56,17 +56,41 @@ export default async function Dashboard({ searchParams }: PageProps<"/">) {
       </div>
       <ModeBanner mode={filters.mode} refLabel={formatDateTime(ref, tz)} />
 
+      {filters.mode === "live" && (
+        <Card className="p-4">
+          <div className="flex flex-wrap items-baseline justify-between gap-2">
+            <h2 className="font-serif text-lg font-semibold">This week&apos;s scan</h2>
+            <span className="text-xs text-ink-3">
+              {d.okRun?.finished_at ? `Last updated ${formatDateTime(d.okRun.finished_at, tz)}` : "Not updated yet"}
+            </span>
+          </div>
+          <ol className="mt-3 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3" aria-label="How this week's announcements were processed">
+            {[
+              { n: d.activity.updates, label: "updates run", hint: "automatic and on request" },
+              { n: d.activity.itemsChecked.toLocaleString("en-IN"), label: "news items checked", hint: `from ${d.activity.sourcesChecked || d.metrics.sourcesOk} sources` },
+              { n: d.activity.kept, label: "CSR-related announcements kept", hint: "after filtering and duplicate removal" },
+              { n: d.activity.analysed, label: "analysed and scored", hint: `${d.activity.csrRelevant} confirmed as CSR activity` },
+              { n: d.activity.watchlist, label: "on the watchlist", hint: "relevant, worth tracking" },
+              { n: d.metrics.highPriority, label: "worth a call now", hint: d.metrics.highPriority ? "see the list below" : "none met the bar yet" },
+            ].map((s, i, arr) => (
+              <li key={s.label} className="relative rounded-lg bg-surface-2 p-3">
+                <div className="text-2xl font-semibold tabular-nums">{s.n}</div>
+                <div className="text-xs text-ink-2">{s.label}</div>
+                <div className="mt-0.5 text-[11px] text-ink-3">{s.hint}</div>
+                {i < arr.length - 1 && <span aria-hidden className="absolute -right-2.5 top-1/2 hidden -translate-y-1/2 text-ink-3 lg:block">›</span>}
+              </li>
+            ))}
+          </ol>
+        </Card>
+      )}
+
       <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3">
-        <Metric label={filters.mode === "live" ? "New announcements this week" : "Demo announcements this week"} value={d.metrics.freshAnnouncements} hint={`${d.metrics.unknownDates} with unknown date`} />
-        <Metric label="High priority (call this week)" value={d.metrics.highPriority} />
-        <Metric label="Explicit NGO-partner requests" value={d.metrics.explicitRequests} />
-        <Metric label="Policy developments" value={d.metrics.policy} />
+        <Metric label={filters.mode === "live" ? "New announcements this week" : "Demo announcements this week"} value={d.metrics.freshAnnouncements} hint={d.metrics.unknownDates ? `plus ${d.metrics.unknownDates} with no publication date` : "published in the last 7 days"} />
+        <Metric label="Worth a call this week" value={d.metrics.highPriority} hint={d.metrics.highPriority ? "high priority" : "none met the bar this week"} />
+        <Metric label="Open calls for NGO partners" value={d.metrics.explicitRequests} hint={d.metrics.explicitRequests ? "explicit invitations" : "none published this week"} />
+        <Metric label="On the watchlist" value={d.metrics.watchlist} hint="relevant, but not yet a call" />
+        <Metric label="Policy developments" value={d.metrics.policy} hint={d.metrics.policy ? "affecting CSR spending" : "no CSR rule changes this week"} />
         <Metric label="Sources checked successfully" value={`${d.metrics.sourcesOk}/${d.metrics.sourcesEnabled}`} hint={filters.mode === "demo" ? "applies to live data" : "on the latest check"} />
-        <Metric
-          label="Last updated"
-          value={d.okRun?.finished_at ? formatDate(d.okRun.finished_at, tz).replace(/, \d{4}$/, "") : "Never"}
-          hint={d.okRun?.finished_at ? formatDateTime(d.okRun.finished_at, tz) : "Run a refresh"}
-        />
       </div>
 
       <Card className="p-4 flex flex-wrap items-start justify-between gap-4">
