@@ -27,8 +27,9 @@ export default async function SourcesPage() {
   const [sources, { settings }, run] = await Promise.all([listSources(db), loadSettings(db), latestRun(db)]);
   const tz = settings.timezone;
   const perSource = new Map(((run?.details as { sources?: Array<{ sourceId: string; candidates: number; new: number }> } | null)?.sources ?? []).map((s) => [s.sourceId, s]));
-  const automatic = sources.filter((s) => s.retrieval_method !== "link_only" && (s.enabled || !s.notes?.startsWith("Paused")));
-  const manual = sources.filter((s) => !automatic.includes(s));
+  // Sites that don't allow automated access are listed separately for manual checking.
+  const manual = sources.filter((s) => s.retrieval_method === "link_only" || s.config?.manualOnly === true);
+  const automatic = sources.filter((s) => !manual.includes(s));
   return (
     <div className="mx-auto max-w-7xl px-4 sm:px-6 py-6 space-y-4">
       <div>
@@ -56,6 +57,11 @@ export default async function SourcesPage() {
                     <span>{s.geographic_coverage}</span>
                   </div>
                   <a href={s.base_url} target="_blank" rel="noopener noreferrer nofollow" className="text-xs text-accent break-all hover:underline">{s.base_url.replace(/^https?:\/\//, "")}</a>
+                  {s.config?.runner === "local" && s.enabled && (
+                    <p className="mt-1 text-xs text-ink-2">
+                      <span className="rounded bg-surface-2 px-1.5 py-0.5 font-medium">Checked from a local computer</span> This site blocks cloud servers, so it is checked from a computer on a normal internet connection (Mondays 05:15 and daily 09:00 IST).
+                    </p>
+                  )}
                   <p className="mt-1 text-xs text-ink-3">
                     Last checked: {s.last_success_at ? formatDateTime(s.last_success_at, tz) : "not yet"}
                     {r && ` · ${r.new} new, ${r.candidates} relevant`}

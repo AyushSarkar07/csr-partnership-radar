@@ -5,6 +5,7 @@ import { ModeBanner, ModeSwitch } from "@/components/ModeSwitch";
 import { OpportunityCard } from "@/components/OpportunityCard";
 import { CountUp } from "@/components/CountUp";
 import { SectorRing } from "@/components/SectorRing";
+import { TourButton } from "@/components/Tour";
 import { sectorColour, tint } from "@/lib/colours";
 import { Card, EmptyState, PRIORITY_STYLE } from "@/components/ui";
 import type { Priority } from "@/lib/scoring/score";
@@ -186,6 +187,22 @@ export default async function Dashboard({ searchParams }: PageProps<"/">) {
           </div>
         );
       })()}
+
+      {filters.mode === "live" && d.metrics.highPriority < 3 && settings.dataMode.showDemo && (
+        <div
+          className="flex flex-wrap items-center justify-between gap-3 rounded-xl border px-4 py-3"
+          style={{ background: tint("var(--synthetic)", 7), borderColor: "color-mix(in oklab, var(--synthetic) 35%, var(--line))" }}
+        >
+          <p className="text-sm text-ink-2">
+            <strong className="text-ink">Quiet week in live data</strong>: {d.metrics.highPriority === 1 ? "1 opportunity is" : `${d.metrics.highPriority} opportunities are`} worth a call so far.
+            To see everything the radar does (open calls with deadlines, policy changes, merged duplicates and recorded decisions), explore the demo data.
+          </p>
+          <div className="flex shrink-0 gap-2">
+            <Link href="/?mode=demo" className="rounded-lg px-3 py-1.5 text-sm font-medium text-white" style={{ background: "var(--synthetic)" }}>Open demo data</Link>
+            <TourButton />
+          </div>
+        </div>
+      )}
 
       {filters.mode === "live" && (
         <details className="group rounded-xl border border-line bg-surface">

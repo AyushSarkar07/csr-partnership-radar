@@ -126,7 +126,7 @@ describe("cloud vs local runner split", () => {
   it("Vercel runs skip local-only sources; the collector fetches only them", async () => {
     const { runsHere } = await import("@/lib/pipeline/ingest");
     const ids = (runner: "cloud" | "local" | "all") => REGISTRY.filter((s) => s.enabled || s.id === "fundsforngos").filter((s) => runsHere(s, runner)).map((s) => s.id);
-    expect(ids("local").sort()).toEqual(["fundsforngos", "gdelt-csr-education", "ngobox-rfp"]);
+    expect(ids("local").sort()).toEqual(["fundsforngos", "ngobox-rfp"]); // GDELT is paused
     expect(ids("cloud")).not.toContain("ngobox-rfp");
     expect(ids("cloud")).toContain("indiacsr");
     expect(ids("all")).toEqual(expect.arrayContaining(["ngobox-rfp", "indiacsr"]));

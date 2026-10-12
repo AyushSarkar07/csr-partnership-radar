@@ -384,15 +384,15 @@
         "youth_employment"
       ],
       "geographic_coverage": "India (sourcecountry:IN)",
-      "enabled": true,
-      "access_limitations": "Free public API, limited to 1 request / 5 s per IP; shared Vercel IPs were rate-limited (HTTP 429) on every production attempt. Returns headline + URL + 'seendate' (first seen by GDELT, not the publisher's date), so evidence is headline-only. 25 s timeout, one polite retry after 6 s. Fetched by the Mac collector (config.runner = \"local\"), not by Vercel: the site blocks datacenter IPs. Runs Mondays 05:15 IST and daily 09:00 IST while the Mac is awake.",
+      "enabled": false,
+      "access_limitations": "PAUSED 2026-10-12: rate-limited (HTTP 429) or timed out on every attempt from Vercel and from the local collector. Parsing and the retry are unit-tested; re-enable from the Sources page to try again.",
       "config": {
         "query": "(CSR OR \"corporate social responsibility\") (skilling OR \"skill development\" OR education OR \"digital literacy\" OR employability) sourcecountry:IN sourcelang:english",
         "maxrecords": 50,
         "timeoutMs": 25000,
         "runner": "local"
       },
-      "notes": "Global news index searched for CSR and skilling coverage in India."
+      "notes": "Paused: this global news index limits requests from shared servers and never returned results for us. The CSR news feeds cover the same stories in full."
     },
     {
       "id": "google-news-rss",
@@ -410,7 +410,9 @@
       "geographic_coverage": "India",
       "enabled": false,
       "access_limitations": "DISABLED: news.google.com/robots.txt disallows /rss for all user agents (only /, /topics/, /publications/, /stories/ etc. are allowed). The feed responds technically, but we respect robots.txt.",
-      "config": {},
+      "config": {
+        "manualOnly": true
+      },
       "notes": "Paused: the provider does not permit automated access to this feed."
     },
     {
@@ -428,7 +430,9 @@
       "geographic_coverage": "India",
       "enabled": false,
       "access_limitations": "DISABLED: returned HTTP 403 to automated requests during verification (2026-10-12). Enable from Settings to re-test; failures are isolated and recorded.",
-      "config": {},
+      "config": {
+        "manualOnly": true
+      },
       "notes": "Government press releases. The site doesn't allow automated access; check it manually."
     },
     {
@@ -446,7 +450,9 @@
       "geographic_coverage": "India",
       "enabled": false,
       "access_limitations": "LINK ONLY: mca.gov.in returned HTTP 403 to automated requests and offers no RSS/API for CSR notifications. Check manually; CSR rule changes are usually also reported by the CSR specialist feeds above.",
-      "config": {},
+      "config": {
+        "manualOnly": true
+      },
       "notes": "Official CSR notifications. The site doesn't allow automated access; check it manually."
     },
     {
@@ -466,7 +472,9 @@
       "geographic_coverage": "India",
       "enabled": false,
       "access_limitations": "LINK ONLY: returned HTTP 403 to automated requests; the portal is a JavaScript dashboard of filed CSR spend (lagging annual data), not an announcement feed.",
-      "config": {},
+      "config": {
+        "manualOnly": true
+      },
       "notes": "National CSR spending dashboard. Check it manually for annual spending data."
     },
     {
@@ -484,7 +492,9 @@
       "geographic_coverage": "India",
       "enabled": false,
       "access_limitations": "DISABLED: feed responds (HTTP 200) but robots.txt contains multiple 'Disallow: /' groups whose scope for generic agents is ambiguous; disabled pending explicit permission.",
-      "config": {},
+      "config": {
+        "manualOnly": true
+      },
       "notes": "Paused pending permission for automated access."
     }
   ]
