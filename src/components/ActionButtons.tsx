@@ -15,18 +15,11 @@ async function post(url: string, body?: unknown) {
   return json;
 }
 
-export function ActionButtons({ mode, signedIn }: { mode: "live" | "demo"; signedIn: boolean }) {
+export function ActionButtons({ mode }: { mode: "live" | "demo" }) {
   const router = useRouter();
   const [refresh, setRefresh] = useState<State>({ kind: "idle" });
   const [digest, setDigest] = useState<State>({ kind: "idle" });
 
-  if (!signedIn) {
-    return (
-      <p className="text-sm text-ink-3">
-        <a href="/login" className="underline">Sign in</a> to refresh sources, generate digests or record decisions.
-      </p>
-    );
-  }
 
   return (
     <div className="flex flex-col gap-2">

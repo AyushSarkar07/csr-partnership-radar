@@ -26,14 +26,14 @@ Constraints: live external data wherever possible, Gemini Flash for every AI tas
 | Digest `/digest`, `/digest/[id]` | Gemini overview + top actions, the 5 sections, delivery status, archive, print/PDF |
 | Sources `/sources` | Registry with type, method, credibility, coverage, limitations, last success/error, per-run filter counts, enable/disable |
 | Settings `/settings` | Sectors (key/label/priority/keywords), excluded sectors, operating/expansion/excluded geographies, programme types, beneficiary groups, weights (must total 100), recency thresholds, priority thresholds, window, timezone, digest on/off and caps, email recipient, data mode, demo reset |
-| Status `/status` | First-run checklist: database, seed, live data, Gemini, auth, cron, email |
+| Status `/status` | First-run checklist: database, seed, live data, Gemini, cron, email |
 | Scheduled job | Vercel Cron, Mondays 06:00 IST, idempotent |
 
 ## Review statuses
 Worth contacting this week · Monitor · Research further · Not relevant · Already contacted · Partnership discussion underway · Won / closed. "Not relevant" and "Won / closed" remove an item from future digests.
 
 ## Out of scope / not built
-- Multi-user accounts and roles. There is a single access code; see ASSUMPTIONS A-14.
+- Accounts, roles or sign-in. The app is deliberately open; see ASSUMPTIONS A-14.
 - Scraping pages behind logins or paywalls, or sites whose robots.txt forbids it.
 - Automated outreach.
 - Full-text retrieval of article pages. Only the feed-provided text is used.

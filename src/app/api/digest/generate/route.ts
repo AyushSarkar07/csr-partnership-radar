@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { requireWriteAccess } from "@/lib/auth";
+import { requireSameOrigin } from "@/lib/auth";
 import { LIMITS } from "@/lib/config";
 import { getDb } from "@/lib/db/client";
 import { generateDigest } from "@/lib/digest/generate";
@@ -13,7 +13,7 @@ const bodySchema = z.object({ mode: z.enum(["live", "demo"]).default("live") });
 
 /** "Generate digest now". Idempotent per mode and IST date: re-running updates the same digest. */
 export async function POST(req: Request) {
-  const denied = requireWriteAccess(req);
+  const denied = requireSameOrigin(req);
   if (denied) return denied;
   try {
     const parsed = bodySchema.safeParse(await readJson(req));

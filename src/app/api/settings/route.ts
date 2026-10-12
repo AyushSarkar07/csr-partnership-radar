@@ -1,4 +1,4 @@
-import { requireWriteAccess } from "@/lib/auth";
+import { requireSameOrigin } from "@/lib/auth";
 import { getDb } from "@/lib/db/client";
 import { BadRequest, badRequest, errorResponse, readJson } from "@/lib/http";
 import { loadSettings, saveSettings } from "@/lib/settings/store";
@@ -14,7 +14,7 @@ export async function GET() {
 }
 
 export async function PUT(req: Request) {
-  const denied = requireWriteAccess(req);
+  const denied = requireSameOrigin(req);
   if (denied) return denied;
   try {
     const result = await saveSettings(getDb(), await readJson(req), "ananya");

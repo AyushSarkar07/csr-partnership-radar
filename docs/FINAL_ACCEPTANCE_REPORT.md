@@ -32,10 +32,10 @@ Date: 2026-10-12 (Monday). **Updated the same day after fixing the blockers** (s
 | Configurable sectors and geographies | VERIFIED | `/settings`; Test 13; prod settings saved (v1) |
 | Delivered every Monday morning | **VERIFIED** | A temporary one-off schedule (`0 8 12 10 *`) was added so Vercel's scheduler could be observed. **Vercel triggered `/api/cron/weekly-digest` unattended at 08:38:43 UTC**: digest `live:2026-10-12` regenerated (generation 5, trigger `cron`), the refresh skipped by run key, no duplicate email. The one-off entry was then removed; the Monday schedule `30 0 * * 1` remains. Email delivery verified: Resend accepted the digest for ayush10ani@gmail.com. |
 
-All brief-level requirements (BR-1…BR-35) are tracked in `docs/REQUIREMENTS_TRACEABILITY.md`, and all are VERIFIED, including BR-20 (a real Resend send).
+All brief-level requirements (BR-1…BR-35) are tracked in `docs/REQUIREMENTS_TRACEABILITY.md`, and all are VERIFIED, including BR-20 (a real Resend send), except **BR-21, now PARTIAL**: user sign-in was removed at the owner's request.
 
 ## Test results (run 2026-10-12, final audit)
-- `npm test`: **133 passed / 0 failed** across 10 files (unit, PGlite integration with real migrations, route-handler security, end-to-end).
+- `npm test`: **131 passed / 0 failed** across 10 files (after sign-in removal) (unit, PGlite integration with real migrations, route-handler security, end-to-end).
 - `npm run lint`: 0 problems · `tsc --noEmit`: 0 errors · `next build`: success.
 - Mutation sanity check: deliberately breaking two rules made the corresponding tests fail; restored.
 - All 18 required functional tests map to passing tests (table in `docs/TEST_PLAN.md`).
@@ -47,7 +47,7 @@ All brief-level requirements (BR-1…BR-35) are tracked in `docs/REQUIREMENTS_TR
 | CLI #1 | local | 130 fetched, 5 candidates, 5 classified; HCLTech transient HTTP/2 error; GDELT 429 |
 | CLI #2 (after adding category feeds) | local | 190 fetched from 13 sources, 24 new, 8 duplicates, 16 classified, 8 queued |
 | Cron (`/api/cron/weekly-digest`) | **production** | 175 fetched, 18 duplicates, 0 new (already stored); Gemini failed on an invalid key (see incident); digest created with the code fallback, which it labels as such |
-| Manual refresh (signed in) | **production** | 175 fetched, **8 classified by Gemini, 0 AI failures**; FundsForNGOs 403, GDELT timeout recorded |
+| Manual refresh | **production** | 175 fetched, **8 classified by Gemini, 0 AI failures**; FundsForNGOs 403, GDELT timeout recorded |
 
 This week's honest outcome: 20 relevant live items fell in the window, mostly CSR spend reports, conferences and general CSR. **No item met the high-priority bar**, and the digest says so rather than padding.
 
@@ -55,7 +55,7 @@ This week's honest outcome: 20 relevant live items fell in the window, mostly CS
 **Working in production.** Incident during verification: the first production run returned `API_KEY_INVALID` because the key had been copied into Vercel with surrounding quotes. The system behaved as designed. Affected items were marked `failed` with the error recorded (retried later), the digest used the code-generated summary and labelled it, and nothing was fabricated. After the key was re-set without quotes, the next production refresh classified all 8 queued items and the regenerated digest's overview was written by Gemini.
 
 ## Deployment status
-Vercel project `mesa-dbb9/csr-partnership-radar`: framework Next.js, Node 24, Standard Deployment Protection (production domain public, previews protected), env vars set (Gemini, access code, session and cron secrets, app URL; Neon vars via integration). Two deployment fixes were needed and are documented: the framework preset was "Other", which served 404s, and Vercel Authentication covered the production domain.
+Vercel project `mesa-dbb9/csr-partnership-radar`: framework Next.js, Node 24, Standard Deployment Protection (production domain public, previews protected), env vars set (Gemini, cron secret, app URL, Resend; Neon vars via integration). Two deployment fixes were needed and are documented: the framework preset was "Other", which served 404s, and Vercel Authentication covered the production domain.
 
 ## GitHub status
 Public repository `AyushSarkar07/csr-partnership-radar`, branch `main`. `.env.local`, `.vercel` and tool folders are ignored, and staged files were scanned for keys and connection strings before each commit (none found).
@@ -68,11 +68,11 @@ Public repository `AyushSarkar07/csr-partnership-radar`, branch `main`. `.env.lo
 | 3 | FundsForNGOs blocked from Vercel | **Mac collector**: launchd job `com.csrradar.collector` (Mon 05:15 + daily 09:00 IST) fetches sources marked `runner: local` into production with the same pipeline. Also added the **NGOBox RFP/EOI board** (deadline-bearing partner calls), which is likewise blocked from Vercel (CloudFront 403) and so also runs on the Mac | launchd run at 07:00 UTC: FundsForNGOs 25 items, NGOBox 6 items (1 relevant new). No proxies used to get around the CDN blocks |
 | 4 | GDELT rate-limited | 25 s timeout, one polite retry after 6 s (and on HTTP 429), moved to the Mac collector | Still failing today (HTTP 429 / connect timeout, worsened by today's test traffic). Retried on every collector run; reported honestly |
 | 5 | Government sources 403 | Added **TaxGuru Company Law** RSS (republishes MCA notifications) for regulatory coverage; PIB/MCA stay link-only | Feed works from Vercel (75 items). This week's 2 candidates were correctly classified `not_csr` (company-law, not CSR rules) |
-| 6 | Single shared access code | Not changed: appropriate for a single-user tool. Documented as a limitation | — |
+| 6 | Single shared access code | **Sign-in removed entirely at the owner's request** (later on 2026-10-12) | Writes now only need the same origin; cron still needs `CRON_SECRET` |
 | 7 | Dev and prod shared one database | Separate Neon database `csr-radar-dev` (`DEV_DATABASE_URL`); local runtime and scripts use dev unless `--prod` | Scripts log `target=dev host=ep-mute-dust…` vs `target=prod host=ep-patient-rain…` |
-| 8 | Access code delivery | Still in `.env.local` only (never committed) | — |
+| 8 | Access code delivery | No longer applicable (no access code) | `ACCESS_CODE` and `SESSION_SECRET` removed from Vercel and `.env.local` |
 
-Also added: CSR Universe and CSR Mandate feeds; source-stated deadlines with an open-call rule (an explicit call with a future deadline counts as current, a passed deadline drops to background); one retry for transient network resets (fixed HCLTech's HTTP/2 errors). **Bug found and fixed while verifying:** SQL `date` values were parsed into local-midnight JS Dates, shifting deadlines by a day when the process ran in IST. They are now returned as strings, with a regression test run under `TZ=Asia/Kolkata`. Tests: **133 passed / 0 failed**.
+Also added: CSR Universe and CSR Mandate feeds; source-stated deadlines with an open-call rule (an explicit call with a future deadline counts as current, a passed deadline drops to background); one retry for transient network resets (fixed HCLTech's HTTP/2 errors). **Bug found and fixed while verifying:** SQL `date` values were parsed into local-midnight JS Dates, shifting deadlines by a day when the process ran in IST. They are now returned as strings, with a regression test run under `TZ=Asia/Kolkata`. Tests: **133 passed / 0 failed** at that point (131 after sign-in removal).
 
 ## Remaining limitations
 | # | Item | Impact | Resolution |
@@ -81,4 +81,4 @@ Also added: CSR Universe and CSR Mandate feeds; source-stated deadlines with an 
 | 2 | Mac collector depends on the Mac being awake and online | Partner calls (NGOBox, FundsForNGOs) and GDELT are missed if the Mac is off on Monday morning; launchd catches up on wake | Keep the Mac on Monday mornings, or run `npm run collect:local -- --prod` manually |
 | 3 | GDELT not yet successful | The news-index source contributes nothing so far | Wait for its rate limit to reset; disable it from Sources if it keeps failing |
 | 4 | Official government feeds (PIB, MCA, CSR portal) return 403 | Policy changes come from secondary sources (TaxGuru, CSR news) | Check the links manually; re-enable PIB from Sources to re-test |
-| 5 | Single shared access code | Not multi-user | Add an identity provider if more users join |
+| 5 | No authentication (owner's decision) | Anyone with the URL can change settings and decisions and trigger Gemini usage (within cooldowns); review notes are public | Re-add sign-in (e.g. Vercel Password Protection, or an identity provider) if the URL is shared beyond Ananya |

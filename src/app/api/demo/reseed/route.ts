@@ -1,4 +1,4 @@
-import { requireWriteAccess } from "@/lib/auth";
+import { requireSameOrigin } from "@/lib/auth";
 import { getDb } from "@/lib/db/client";
 import { errorResponse } from "@/lib/http";
 import { seedDemoData } from "@/lib/seed";
@@ -7,7 +7,7 @@ export const dynamic = "force-dynamic";
 
 /** Resets ONLY synthetic demo records (live data is never touched). */
 export async function POST(req: Request) {
-  const denied = requireWriteAccess(req);
+  const denied = requireSameOrigin(req);
   if (denied) return denied;
   try {
     const db = getDb();

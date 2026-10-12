@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Newsreader } from "next/font/google";
 import Link from "next/link";
-import { getSession } from "@/lib/session";
-import { SignOutButton } from "@/components/SignOutButton";
 import "./globals.css";
 
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
@@ -22,8 +20,7 @@ const NAV = [
   { href: "/status", label: "Status" },
 ];
 
-export default async function RootLayout({ children }: LayoutProps<"/">) {
-  const session = await getSession();
+export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en" className={`${geistSans.variable} ${geistMono.variable} ${newsreader.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col">
@@ -41,18 +38,6 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
                 </Link>
               ))}
             </nav>
-            <div className="ml-auto text-sm flex items-center gap-3">
-              {session.signedIn ? (
-                <>
-                  <span className="text-ink-3">Signed in as Ananya</span>
-                  <SignOutButton />
-                </>
-              ) : (
-                <Link href="/login" className="rounded-md border border-line px-3 py-1.5 hover:bg-surface-2">
-                  Sign in to edit
-                </Link>
-              )}
-            </div>
           </div>
         </header>
         <main id="main" className="flex-1">{children}</main>

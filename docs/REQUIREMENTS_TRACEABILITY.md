@@ -56,7 +56,7 @@ History: created before any application code, with every row `NOT STARTED`. Upda
 | BR-18 | Digest sections; no padding | `build.ts` | Unit | VERIFIED | `digest.test.ts`; prod digest 0 high priority + "nothing padded" note |
 | BR-19 | Idempotent scheduled workflow; manual refresh & generate buttons | `run_key`, `digest_key`, UI buttons | Test 15 | VERIFIED | `pipeline.test.ts` run_key; `digest.test.ts`; prod generation_count 2 |
 | BR-20 | Optional email; honest status | `email.ts`, delivery claim | Unit + real send | VERIFIED | Resend accepted the test digest for ayush10ani@gmail.com (id `01a12ee8…`); a rejected send was recorded as `failed` with the provider's reason; `digest.test.ts` (one email per digest) |
-| BR-21 | Protected privileged endpoints | `auth.ts` | Test 16 | VERIFIED | `api-security.test.ts`; prod 401s |
+| BR-21 | Protected scheduled / privileged endpoints | `auth.ts`: cron needs `CRON_SECRET`; mutations need same origin. **User sign-in removed at the owner's request**, so settings, reviews and refresh are open to anyone with the URL | Test 16 | **PARTIAL (owner decision)** | `api-security.test.ts`; cron 401 without secret; cross-origin 403 |
 | BR-22 | Computed metrics, source health, live/synthetic indicator | `getDashboard()` | Integration | VERIFIED | Metrics derived from rows; no hard-coded totals |
 | BR-23 | Filters (10) + sorting | `filters.ts`, `FilterBar.tsx`, `GET /api/opportunities` | Integration | VERIFIED (logic) | `parseFilters`/`applyFilters` exercised in tests; UI manual |
 | BR-24 | Detail view contents | `/opportunities/[id]` | UI | VERIFIED | Screenshot / manual |
@@ -64,7 +64,7 @@ History: created before any application code, with every row `NOT STARTED`. Upda
 | BR-26 | DB with migrations, FKs, indexes | `db/migrations/001_initial.sql`, `scripts/migrate.ts` | Applied on PGlite + Neon | VERIFIED | `/api/health` migrations list |
 | BR-27 | API boundaries | 15 route handlers | Tests | VERIFIED | Build route list |
 | BR-28 | First-run status screen; demo/live mode | `/status`, mode switch | UI | VERIFIED | Manual |
-| BR-29 | Tests 1–18 (+ partner-call, runner, retry tests) | `tests/*` | `npm test` | VERIFIED | 133/133 pass |
+| BR-29 | Tests 1–18 (+ partner-call, runner, retry tests) | `tests/*` | `npm test` | VERIFIED | 131/131 pass |
 | BR-30 | Docs set | `README.md`, `docs/*` | Review | VERIFIED | Files present |
 | BR-31 | Security items | headers, zod, cooldowns, text-only rendering, registry-only fetching, timeouts | Review + tests | VERIFIED | ARCHITECTURE.md security section |
 | BR-32 | UI polish, responsive, states | Tailwind tokens, skeleton, empty/error states | Browser | VERIFIED | 375px no horizontal scroll; loading skeleton seen |

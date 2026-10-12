@@ -6,7 +6,6 @@ import { ANNOUNCEMENT_TYPE_LABEL } from "@/lib/ai/analysis";
 import { getDb } from "@/lib/db/client";
 import { getOpportunityDetail } from "@/lib/queries";
 import { REVIEW_LABEL } from "@/lib/repo/opportunities";
-import { getSession } from "@/lib/session";
 import { SOURCE_TYPE_LABEL, type SourceType } from "@/lib/sources/types";
 import { formatDateTime } from "@/lib/time/window";
 
@@ -21,7 +20,7 @@ const PROVENANCE: Record<string, string> = {
 
 export default async function OpportunityPage({ params }: PageProps<"/opportunities/[id]">) {
   const { id } = await params;
-  const [d, session] = await Promise.all([getOpportunityDetail(getDb(), id), getSession()]);
+  const d = await getOpportunityDetail(getDb(), id);
   if (!d?.opp) notFound();
   const { opp: o, settings, window, history } = d;
   const tz = settings.timezone;
@@ -145,7 +144,7 @@ export default async function OpportunityPage({ params }: PageProps<"/opportunit
           <Card className="p-5">
             <SectionTitle>Your decision</SectionTitle>
             {o.review && <p className="mb-3 text-sm">Current: <strong>{REVIEW_LABEL[o.review.status]}</strong> <span className="text-ink-3">· {formatDateTime(o.review.created_at, tz)}</span></p>}
-            <ReviewControl id={o.id} current={o.review?.status ?? null} signedIn={session.signedIn} />
+            <ReviewControl id={o.id} current={o.review?.status ?? null} />
             {history.length > 0 && (
               <>
                 <h3 className="text-sm font-semibold mt-4 mb-1">Status history</h3>
@@ -153,7 +152,7 @@ export default async function OpportunityPage({ params }: PageProps<"/opportunit
                   {history.map((h) => (
                     <li key={h.id} className="border-l-2 border-line pl-3">
                       <div>{REVIEW_LABEL[h.status]} <span className="text-xs text-ink-3">· {formatDateTime(h.created_at, tz)} · {h.actor}</span></div>
-                      {h.note && <div className="text-ink-2">{session.signedIn ? h.note : "Private note — sign in to view"}</div>}
+                      {h.note && <div className="text-ink-2">{h.note}</div>}
                     </li>
                   ))}
                 </ol>

@@ -19,8 +19,6 @@
    |---|---|---|
    | `GEMINI_API_KEY` | yes | Google AI Studio key. Paste the raw value **without quotes**: a quoted value caused `API_KEY_INVALID` in our first production run |
    | `GEMINI_MODEL` | no | default `gemini-3.8-flash`; must contain `flash` |
-   | `ACCESS_CODE` | yes for writes | code typed on /login |
-   | `SESSION_SECRET` | yes for writes | `openssl rand -hex 32` |
    | `CRON_SECRET` | yes for cron | `openssl rand -hex 24`; Vercel Cron sends it automatically |
    | `APP_URL` | recommended | public URL used in email links |
    | `MAX_AI_PER_RUN` | no | default 16 |
@@ -38,17 +36,17 @@
 8. **Verify**:
    ```bash
    curl https://<domain>/api/health                       # ok:true, migrations, gemini.configured
-   curl -X POST https://<domain>/api/refresh              # expect 401 without a session
+   curl -X POST -H 'origin: https://evil.example' https://<domain>/api/refresh   # expect 403 (cross-origin)
    curl -H "Authorization: Bearer $CRON_SECRET" https://<domain>/api/cron/weekly-digest   # full Monday run
    ```
-   Then sign in on `/login`, run **Refresh intelligence**, then **Generate digest now**.
+   Then open the app and run **Refresh intelligence**, then **Generate digest now** (no sign-in).
 
 ## Operational notes
 - **Idempotency:** a second cron call on the same IST date returns `skipped: already_ran` for the refresh and updates, rather than duplicates, the digest, with no second email.
 - **Function duration:** a full run took about 37 to 85 seconds in production (13 sources plus up to 16 Gemini calls). The limit is 300 seconds.
 - **Source behaviour from Vercel:** NGOBox and FundsForNGOs return 403 to Vercel IPs and GDELT is rate-limited there, so those three carry `config.runner = "local"` and only the Mac collector fetches them. Any failure is isolated per source and listed in the digest.
 - **Rollback:** Vercel → Deployments → promote a previous deployment. Database migrations are additive (`create … if not exists`).
-- **Rotating secrets:** update the env var and redeploy. Changing `SESSION_SECRET` signs everyone out.
+- **Rotating secrets:** update the env var (e.g. `CRON_SECRET`, `GEMINI_API_KEY`) and redeploy.
 - **Email:** set `RESEND_API_KEY` and `DIGEST_FROM_EMAIL`, then in Settings enable "Email the live digest" and enter the recipient. With the shared test sender `onboarding@resend.dev`, Resend only delivers to the account owner's address (here ayush10ani@gmail.com). Verify a domain at resend.com/domains to send elsewhere. The status becomes `sent` only after Resend returns a message id; a rejected send is stored as `failed` with Resend's reason.
 - **Mac collector** (sources that block Vercel IPs):
   ```bash

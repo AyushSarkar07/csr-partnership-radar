@@ -23,7 +23,6 @@ export default async function StatusPage() {
     email?: { configured: boolean; missing: string[] };
     database: { configured: boolean; connected?: boolean; migrations?: string[] };
     gemini: { configured: boolean; model: string };
-    writeAuth: boolean;
     cronSecret: boolean;
   };
   const run = db && h.ok ? await latestRun(db) : null;
@@ -38,7 +37,6 @@ export default async function StatusPage() {
           <Row ok={Boolean(h.records && h.records.synthetic > 0)} label="Synthetic demo dataset" detail={h.records ? `${h.records.synthetic} synthetic records loaded` : "Run npm run db:seed"} />
           <Row ok={Boolean(h.records && h.records.live > 0)} label="Live data" detail={h.records ? `${h.records.live} live announcements stored${run ? ` · last run ${run.status} at ${formatDateTime(run.started_at, "Asia/Kolkata")}` : ""}` : "Run a refresh"} />
           <Row ok={gem.configured} label="Gemini Flash" detail={gem.configured ? `GEMINI_API_KEY set · model ${gem.model}` : `GEMINI_API_KEY missing — live items stay "awaiting AI analysis" (model ${gem.model})`} />
-          <Row ok={Boolean(h.writeAuth)} label="Write access control" detail={h.writeAuth ? "ACCESS_CODE and SESSION_SECRET set" : "Set ACCESS_CODE and SESSION_SECRET; until then all writes are refused"} />
           <Row ok={Boolean(h.cronSecret)} label="Scheduled job (Vercel Cron)" detail={h.cronSecret ? "CRON_SECRET set · Mondays 06:00 IST" : "Set CRON_SECRET so the Monday job is authorised"} />
           <Row ok={Boolean(h.email?.configured)} warn label="Email delivery (optional)" detail={h.email?.configured ? "Resend configured" : `Not configured (${h.email?.missing.join(", ") ?? "n/a"}). Digests are stored in-app and printable.`} />
         </ul>

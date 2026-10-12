@@ -25,7 +25,7 @@ function ListField({ label, hint, value, onChange }: { label: string; hint?: str
   );
 }
 
-export function SettingsForm({ initial, version, signedIn, emailMissing }: { initial: Settings; version: number; signedIn: boolean; emailMissing: string[] }) {
+export function SettingsForm({ initial, version, emailMissing }: { initial: Settings; version: number; emailMissing: string[] }) {
   const router = useRouter();
   const [s, setS] = useState<Settings>(initial);
   const [state, setState] = useState<{ kind: "idle" | "busy" | "ok" | "error"; msg?: string; issues?: string[] }>({ kind: "idle" });
@@ -45,7 +45,7 @@ export function SettingsForm({ initial, version, signedIn, emailMissing }: { ini
         router.refresh();
       }}
     >
-      <fieldset disabled={!signedIn} className="space-y-6 disabled:opacity-70">
+      <fieldset className="space-y-6">
         <section className="rounded-xl border border-line bg-surface p-5 space-y-4">
           <h2 className="font-serif text-lg font-semibold">Focus sectors</h2>
           <p className="text-xs text-ink-3">Gemini classifies announcements into these keys; keywords drive the pre-AI relevance filter. Priority sets the sector score (high 100%, medium 70%, low 45%).</p>
@@ -122,12 +122,11 @@ export function SettingsForm({ initial, version, signedIn, emailMissing }: { ini
       </fieldset>
 
       <div className="sticky bottom-0 flex flex-wrap items-center gap-3 border-t border-line bg-paper py-3">
-        <button type="submit" disabled={!signedIn || state.kind === "busy" || weightSum !== 100} className="rounded-lg bg-ink px-4 py-2 text-sm font-medium text-surface disabled:opacity-50">
+        <button type="submit" disabled={state.kind === "busy" || weightSum !== 100} className="rounded-lg bg-ink px-4 py-2 text-sm font-medium text-surface disabled:opacity-50">
           {state.kind === "busy" ? "Saving…" : "Save settings"}
         </button>
-        <button type="button" disabled={!signedIn} onClick={() => setS(initial)} className="rounded-lg border border-line px-4 py-2 text-sm hover:bg-surface-2 disabled:opacity-50">Discard changes</button>
+        <button type="button" onClick={() => setS(initial)} className="rounded-lg border border-line px-4 py-2 text-sm hover:bg-surface-2 disabled:opacity-50">Discard changes</button>
         <span className="text-xs text-ink-3">Stored in the database · version {version || "defaults (never saved)"}</span>
-        {!signedIn && <span className="text-sm text-ink-3"><a href="/login" className="underline">Sign in</a> to edit.</span>}
         {state.msg && <span role="status" className={state.kind === "error" ? "text-sm text-danger" : "text-sm text-high"}>{state.msg}</span>}
       </div>
       {state.issues && <ul className="list-disc pl-5 text-sm text-danger">{state.issues.map((i) => <li key={i}>{i}</li>)}</ul>}

@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { isSignedIn, requireWriteAccess } from "@/lib/auth";
+import { requireSameOrigin } from "@/lib/auth";
 import { getDb } from "@/lib/db/client";
 import { BadRequest, badRequest, errorResponse, readJson } from "@/lib/http";
 import { getOpportunityDetail } from "@/lib/queries";
@@ -8,15 +8,14 @@ import { toApiOpportunity } from "@/lib/serialize";
 
 export const dynamic = "force-dynamic";
 
-export async function GET(req: Request, ctx: RouteContext<"/api/opportunities/[id]">) {
+export async function GET(_req: Request, ctx: RouteContext<"/api/opportunities/[id]">) {
   try {
     const { id } = await ctx.params;
     const d = await getOpportunityDetail(getDb(), id);
     if (!d) return Response.json({ error: "Not found" }, { status: 404 });
-    const authed = isSignedIn(req);
     return Response.json({
-      opportunity: toApiOpportunity(d.opp, authed),
-      history: d.history.map((h) => ({ ...h, note: authed ? h.note : h.note ? "[private — sign in]" : null })),
+      opportunity: toApiOpportunity(d.opp),
+      history: d.history,
       related: d.related,
     });
   } catch (err) {
@@ -31,7 +30,7 @@ const patchSchema = z.object({
 
 /** Records a human review decision. Append-only: history is never overwritten. */
 export async function PATCH(req: Request, ctx: RouteContext<"/api/opportunities/[id]">) {
-  const denied = requireWriteAccess(req);
+  const denied = requireSameOrigin(req);
   if (denied) return denied;
   try {
     const { id } = await ctx.params;

@@ -1,4 +1,4 @@
-import { requireWriteAccess } from "@/lib/auth";
+import { requireSameOrigin } from "@/lib/auth";
 import { LIMITS } from "@/lib/config";
 import { getDb } from "@/lib/db/client";
 import { errorResponse } from "@/lib/http";
@@ -10,7 +10,7 @@ export const maxDuration = 300;
 
 /** Manual "Refresh intelligence": fetch sources, store, dedupe, classify with Gemini, score. */
 export async function POST(req: Request) {
-  const denied = requireWriteAccess(req);
+  const denied = requireSameOrigin(req);
   if (denied) return denied;
   try {
     const db = getDb();

@@ -1,6 +1,5 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { setDb } from "@/lib/db/client";
-import { createSessionToken, SESSION_COOKIE } from "@/lib/auth";
 import { runRefresh } from "@/lib/pipeline/ingest";
 import { getDashboard, getOpportunityDetail } from "@/lib/queries";
 import { parseFilters } from "@/lib/repo/filters";
@@ -16,11 +15,9 @@ import { FIXTURE_SOURCES, NOW, fakeClassifier, fixtureFetch } from "./helpers/fi
 
 let db: Awaited<ReturnType<typeof createTestDb>>;
 const H = "http://localhost:3000";
-const auth = () => ({ "content-type": "application/json", host: "localhost:3000", cookie: `${SESSION_COOKIE}=${createSessionToken()}` });
+const auth = () => ({ "content-type": "application/json", host: "localhost:3000", origin: H });
 
 beforeAll(async () => {
-  process.env.ACCESS_CODE = "test-access-code";
-  process.env.SESSION_SECRET = "0123456789abcdef0123456789abcdef";
   db = await createTestDb();
   setDb(db);
   await syncRegistry(db);

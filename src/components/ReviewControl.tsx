@@ -3,13 +3,12 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { REVIEW_LABEL, REVIEW_STATUSES, type ReviewStatus } from "@/lib/repo/opportunities";
 
-export function ReviewControl({ id, current, signedIn }: { id: string; current: ReviewStatus | null; signedIn: boolean }) {
+export function ReviewControl({ id, current }: { id: string; current: ReviewStatus | null }) {
   const router = useRouter();
   const [status, setStatus] = useState<ReviewStatus>(current ?? "contact_this_week");
   const [note, setNote] = useState("");
   const [state, setState] = useState<{ kind: "idle" | "busy" | "ok" | "error"; msg?: string }>({ kind: "idle" });
 
-  if (!signedIn) return <p className="text-sm text-ink-3"><a className="underline" href="/login">Sign in</a> to record a decision. Decisions are stored with full history and are never overwritten by reprocessing.</p>;
 
   return (
     <form
@@ -36,7 +35,7 @@ export function ReviewControl({ id, current, signedIn }: { id: string; current: 
         </select>
       </label>
       <label className="block text-sm">
-        <span className="text-ink-2">Note (private)</span>
+        <span className="text-ink-2">Note</span>
         <textarea value={note} onChange={(e) => setNote(e.target.value)} maxLength={2000} rows={3} placeholder="e.g. Spoke to CSR head; send proposal by Friday" className="mt-1 w-full rounded-md border border-line bg-surface px-2 py-2" />
       </label>
       <button type="submit" disabled={state.kind === "busy"} className="rounded-lg bg-ink px-4 py-2 text-sm font-medium text-surface disabled:opacity-60">

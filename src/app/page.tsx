@@ -8,7 +8,6 @@ import { Card, EmptyState, SectionTitle } from "@/components/ui";
 import { getDb, isDbConfigured } from "@/lib/db/client";
 import { getDashboard, parseSummary, referenceTime } from "@/lib/queries";
 import { parseFilters } from "@/lib/repo/filters";
-import { getSession } from "@/lib/session";
 import { loadSettings } from "@/lib/settings/store";
 import { formatDate, formatDateTime } from "@/lib/time/window";
 
@@ -37,7 +36,7 @@ export default async function Dashboard({ searchParams }: PageProps<"/">) {
   const sp = await searchParams;
   const filters = parseFilters(sp, { mode: settings.dataMode.defaultMode, days: settings.reportingWindowDays });
   if (filters.mode === "demo" && !settings.dataMode.showDemo) filters.mode = "live";
-  const [d, session] = await Promise.all([getDashboard(db, filters), getSession()]);
+  const d = await getDashboard(db, filters);
   const tz = settings.timezone;
   const ref = referenceTime(filters.mode);
   const labels = new Map(settings.sectors.map((s) => [s.key, s.label]));
@@ -71,7 +70,7 @@ export default async function Dashboard({ searchParams }: PageProps<"/">) {
       </div>
 
       <Card className="p-4 flex flex-wrap items-start justify-between gap-4">
-        <ActionButtons mode={filters.mode} signedIn={session.signedIn} />
+        <ActionButtons mode={filters.mode} />
         <div className="text-sm text-ink-2 max-w-md">
           {d.digest ? (
             <>
@@ -97,7 +96,7 @@ export default async function Dashboard({ searchParams }: PageProps<"/">) {
           {d.shown.length === 0 ? (
             filters.mode === "live" && d.metrics.liveTotal === 0 ? (
               <EmptyState title="No live announcements collected yet">
-                {session.signedIn ? "Use “Refresh intelligence” to fetch the configured sources." : "Sign in and run “Refresh intelligence”, or explore the synthetic demo."}{" "}
+                Use “Refresh intelligence” to fetch the configured sources, or explore the synthetic demo.{" "}
                 <Link href="/?mode=demo" className="underline">Open the synthetic demo</Link>.
               </EmptyState>
             ) : (

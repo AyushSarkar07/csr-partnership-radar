@@ -12,7 +12,7 @@ The automated suites use deterministic fixtures: two fixture RSS feeds (`tests/f
 ## Results (2026-10-12)
 | Check | Result |
 |---|---|
-| `npm test` | **133 passed, 0 failed** (10 files; also run with `TZ=Asia/Kolkata`) |
+| `npm test` | **131 passed, 0 failed** (10 files; also run with `TZ=Asia/Kolkata`) |
 | `npm run lint` | 0 problems |
 | `tsc --noEmit` | 0 errors |
 | `next build` | success, 22 dynamic routes |
@@ -37,7 +37,7 @@ The automated suites use deterministic fixtures: two fixture RSS feeds (`tests/f
 | 13 | Configuration persistence | `settings-e2e.test.ts` › "survive a reload"; production PUT → version 1 → reload | PASS |
 | 14 | Review persistence, not overwritten by ingestion | `pipeline.test.ts` › "re-running is idempotent and preserves human reviews"; browser check (note survived reload) | PASS |
 | 15 | Digest idempotency, no duplicate emails | `digest.test.ts` › "re-running for the same window…" (1 email, same digest id); production regeneration → `generation_count` 2, same key | PASS |
-| 16 | Security: unauthorised calls rejected | `api-security.test.ts` (7 endpoints + cron + forged cookie + cross-origin + fail-closed); production curl → 401 on all | PASS |
+| 16 | Security: unauthorised calls rejected | No user sign-in (owner's decision). `api-security.test.ts`: cross-origin mutations on 6 endpoints → 403 with no state change; cron without / with wrong secret → 401; bodies validated; cooldown → 429; no secrets in public endpoints | PASS |
 | 17 | Evidence traceability | `normalize.test.ts` › excerpt verification; `gemini.test.ts` › "verifies excerpts and flags fabricated facts"; UI shows "Verified quote" / "Not found in source" | PASS |
 | 19 | Partner-call listing with deadline (NGOBox) | `partner-calls.test.ts`: parser, deadline parsing, open-call rule, passed deadline, DB round-trip of the exact date | PASS |
 | 20 | Cloud vs Mac-collector source split; dev vs prod database selection | `partner-calls.test.ts` › "cloud vs local runner split", "database selection" | PASS |
@@ -49,7 +49,7 @@ The automated suites use deterministic fixtures: two fixture RSS feeds (`tests/f
 - RSS/Atom parsing, HTML/script stripping, canonical URLs, publication names excluded from CSR keyword matching, GDELT rate-limit text treated as failure.
 - Scheduled `run_key` executes once; unconfirmed partner-request classification is downgraded; policy versus stale policy; configurable weights.
 - Email template escapes untrusted text and blocks `javascript:` links.
-- Private notes hidden from anonymous API readers; public endpoints contain no secrets.
+- Same-origin writes work without sign-in; public endpoints contain no secrets.
 - All 29 seed records' expected rankings (`seed-scenarios.test.ts`).
 
 ## Manual / production verification performed
@@ -57,9 +57,9 @@ The automated suites use deterministic fixtures: two fixture RSS feeds (`tests/f
 |---|---|
 | Live pipeline from CLI | 190 items fetched from 13 sources, 24 new, 8 duplicates, 16 classified by Gemini |
 | Production cron run (`/api/cron/weekly-digest` with secret) | HTTP 200 in 37 s, `run_key weekly:2026-10-12`, digest `live:2026-10-12` created |
-| Production manual refresh (signed in) | 175 fetched, 8 classified by Gemini (0 failed), 2 sources failed and recorded |
+| Production manual refresh | 175 fetched, 8 classified by Gemini (0 failed), 2 sources failed and recorded |
 | Production digest | Gemini overview; 0 high priority (no padding), 7 monitor, 4 background; failed sources listed; delivery `not_configured` |
-| UI | Login, demo digest generation, review save + reload, settings form, sources page, mobile 375px (no horizontal scroll), dark theme |
+| UI | Demo digest generation, review save + reload, settings form, sources page, mobile 375px (no horizontal scroll), dark theme |
 
 | Unattended Vercel Cron | A temporary one-off schedule fired by itself at 08:38:43 UTC: digest regenerated (trigger `cron`, generation 5), refresh skipped by run key, no duplicate email. Entry then removed |
 | Real email (Resend) | Test digest `live:2026-10-12` accepted by Resend for ayush10ani@gmail.com (message id `01a12ee8-e435-7474-8ca8-67d1386106fc`). The first attempt to ayush_sarkar@pg27.mesaschool.co was rejected (403, test-sender restriction) and recorded as `failed`. |

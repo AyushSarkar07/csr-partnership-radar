@@ -11,7 +11,7 @@ Every Monday morning it answers one question for each development from the past 
 | **Components Map** | [`docs/COMPONENTS_MAP.md`](docs/COMPONENTS_MAP.md) · diagram [`docs/components-map.svg`](docs/components-map.svg) (also served at [/components-map.svg](https://csr-partnership-radar-six.vercel.app/components-map.svg)) |
 | **Acceptance report** | [`docs/FINAL_ACCEPTANCE_REPORT.md`](docs/FINAL_ACCEPTANCE_REPORT.md) |
 
-Reading is public. Recording decisions, editing settings, refreshing sources and generating digests need the access code, which is supplied separately and never committed.
+**Open access (owner's decision, 2026-10-12):** there is no sign-in. Anyone with the URL can read everything, including review notes, and can record decisions, change settings, toggle sources, refresh and generate digests. Writes are limited to the app's own origin and expensive actions have cooldowns. The Monday job still requires `CRON_SECRET`.
 
 ---
 
@@ -24,7 +24,7 @@ Reading is public. Recording decisions, editing settings, refreshing sources and
 5. **Builds the weekly digest.** It has five sections: high priority, monitor, policy & regulatory, background, and sources that failed. Gemini writes a grounded overview, with a code-generated fallback. The digest is stored in the database, printable, and **emailed through Resend** (once per digest).
 
 Sources that block Vercel's servers (the NGOBox RFP/EOI board and FundsForNGOs) or rate-limit it (GDELT) are fetched by a **Mac-side collector**: a launchd job on Mondays at 05:15 IST and daily at 09:00 IST, running the same pipeline.
-6. **Keeps a human decision gate.** Ananya records one of 7 statuses plus private notes. Decisions are append-only and never overwritten by reprocessing.
+6. **Keeps a human decision gate.** Ananya records one of 7 statuses plus notes. Decisions are append-only and never overwritten by reprocessing.
 7. **Is configurable.** Sectors, keywords, priorities, operating/expansion/excluded geographies, weights, thresholds, window, timezone, digest options and data mode are all validated and persisted in Postgres.
 
 ### Live vs synthetic data
@@ -45,7 +45,7 @@ Gemini Flash is the only LLM in the application. The repo has no Claude, OpenAI 
 
 ```bash
 npm install
-cp .env.example .env.local   # fill DATABASE_URL, GEMINI_API_KEY, ACCESS_CODE, SESSION_SECRET, CRON_SECRET
+cp .env.example .env.local   # fill DATABASE_URL, GEMINI_API_KEY, CRON_SECRET
 npm run db:migrate           # apply db/migrations/*.sql
 npm run db:seed              # sync source registry + load synthetic demo data
 npm run pipeline:refresh     # optional: run the live pipeline once from the CLI
@@ -91,7 +91,7 @@ See [`docs/DEPLOYMENT_GUIDE.md`](docs/DEPLOYMENT_GUIDE.md). Short version: impor
 2. Switch to **Synthetic demo**. Orchid Pharma's explicit NGO call ranks first. Open it to see the verified quotes, score breakdown, confidence reasons and next action.
 3. Open **Lumen Telecom**: two publications, merged into one opportunity with two sources. Then open **Kestrel Digital**: the same company's tree-planting announcement is kept separate and ranked Low.
 4. Filter by **Evidence: weak**. Zenith Retail and Crestline Finance have "facts" whose quotes don't appear in the source, so they are flagged and downgraded.
-5. Sign in, set a decision with a note, and reload: the decision persists with its history.
+5. Set a decision with a note and reload: the decision persists with its history.
 6. Click **Generate demo digest now** to see the five sections, the Gemini overview and the honest delivery status ("not emailed").
 7. In **Settings**, add a sector or change a weight and save. Scores update everywhere after reload.
 8. **Sources** shows each feed's last success or error, robots.txt and 403 findings, and the per-run filter counts.
@@ -99,7 +99,7 @@ See [`docs/DEPLOYMENT_GUIDE.md`](docs/DEPLOYMENT_GUIDE.md). Short version: impor
 ## Repository map
 
 ```
-src/app/            pages (dashboard, opportunity detail, digest, sources, settings, status, login) + API routes
+src/app/            pages (dashboard, opportunity detail, digest, sources, settings, status) + API routes
 src/lib/sources/    registry + adapters (rss.ts, gdelt.ts) + bounded HTTP
 src/lib/pipeline/   normalise/validate/pre-filter (normalize.ts), ingest + dedup + AI orchestration (ingest.ts)
 src/lib/ai/         Gemini client (gemini.ts), classification prompt & grounding (classify.ts), schema (analysis.ts)

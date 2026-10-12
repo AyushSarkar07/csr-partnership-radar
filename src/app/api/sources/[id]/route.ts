@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { requireWriteAccess } from "@/lib/auth";
+import { requireSameOrigin } from "@/lib/auth";
 import { getDb } from "@/lib/db/client";
 import { BadRequest, badRequest, errorResponse, readJson } from "@/lib/http";
 
@@ -9,7 +9,7 @@ const schema = z.object({ enabled: z.boolean() });
 
 /** Enable/disable a registry source. URLs cannot be changed here (no arbitrary URL fetching). */
 export async function PATCH(req: Request, ctx: RouteContext<"/api/sources/[id]">) {
-  const denied = requireWriteAccess(req);
+  const denied = requireSameOrigin(req);
   if (denied) return denied;
   try {
     const { id } = await ctx.params;

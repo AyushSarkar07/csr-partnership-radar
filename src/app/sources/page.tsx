@@ -3,7 +3,6 @@ import { SourceToggle } from "@/components/SourceToggle";
 import { Card, Pill } from "@/components/ui";
 import { getDb } from "@/lib/db/client";
 import { latestRun } from "@/lib/queries";
-import { getSession } from "@/lib/session";
 import { loadSettings } from "@/lib/settings/store";
 import { listSources } from "@/lib/sources/registry";
 import { SOURCE_TYPE_LABEL } from "@/lib/sources/types";
@@ -13,7 +12,7 @@ export const dynamic = "force-dynamic";
 
 export default async function SourcesPage() {
   const db = getDb();
-  const [sources, { settings }, session, run] = await Promise.all([listSources(db), loadSettings(db), getSession(), latestRun(db)]);
+  const [sources, { settings }, run] = await Promise.all([listSources(db), loadSettings(db), latestRun(db)]);
   const tz = settings.timezone;
   const perSource = new Map(((run?.details as { sources?: Array<{ sourceId: string; candidates: number; new: number; duplicates: number; skipped: Record<string, number> }> } | null)?.sources ?? []).map((s) => [s.sourceId, s]));
   return (
@@ -52,7 +51,7 @@ export default async function SourcesPage() {
                 </div>
                 {s.retrieval_method !== "link_only" && (
                   <div className="flex items-center gap-2 text-xs text-ink-3">
-                    {session.signedIn ? <SourceToggle id={s.id} enabled={s.enabled} /> : <span>{s.enabled ? "Enabled" : "Disabled"}</span>}
+                    <SourceToggle id={s.id} enabled={s.enabled} />
                   </div>
                 )}
               </div>

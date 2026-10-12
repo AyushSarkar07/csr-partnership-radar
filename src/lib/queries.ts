@@ -1,5 +1,4 @@
 import { isGeminiConfigured } from "./ai/gemini";
-import { authConfigured } from "./auth";
 import { geminiModel } from "./config";
 import { DEMO_REFERENCE_TIME } from "./demo";
 import type { Db } from "./db/types";
@@ -144,7 +143,6 @@ export async function getOpportunityDetail(db: Db, id: string) {
 export async function getHealth(db: Db | null) {
   const checks = {
     gemini: { configured: isGeminiConfigured(), model: safeModel() },
-    writeAuth: authConfigured(),
     cronSecret: Boolean(process.env.CRON_SECRET && process.env.CRON_SECRET.length >= 16),
   };
   if (!db) return { ok: false, database: { configured: false }, ...checks };

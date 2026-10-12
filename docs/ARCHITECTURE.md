@@ -26,7 +26,7 @@ Mac launchd ──► scripts/collect-local.ts --prod ──► same pipeline fo
 | Read models | `src/lib/repo/{opportunities,filters}.ts`, `src/lib/queries.ts` | Load announcements with coverage, claims and latest review; score at read time; filter and sort |
 | Digest | `src/lib/digest/{build,generate}.ts` | Sections, Gemini overview with fallback, idempotent upsert, atomic delivery claim |
 | Delivery | `src/lib/delivery/email.ts` | Escaped HTML/text email template; Resend call with idempotency key |
-| Access control | `src/lib/auth.ts`, `src/lib/session.ts`, `src/lib/ratelimit.ts` | HMAC session cookie, cron bearer, same-origin check, DB-backed cooldowns |
+| Access control | `src/lib/auth.ts`, `src/lib/ratelimit.ts` | Same-origin check on mutations, cron bearer, DB-backed cooldowns (no user sign-in) |
 | UI | `src/app/*`, `src/components/*` | Tailwind v4 with design tokens and light/dark themes |
 
 ## Data model (Postgres)
@@ -66,8 +66,8 @@ user_settings (single row) · audit_events · rate_limits · schema_migrations
 - Deployment protection: standard. The production domain is public; preview deployments require Vercel login.
 
 ## Security posture
-Server-only secrets; `.env*` git-ignored except `.env.example`. Reads are public, but private notes need sign-in. All mutations need the signed session cookie plus a same-origin check, and fail closed if auth isn't configured. Bodies are validated with zod, JSON content type is required and size is capped. Refresh has a 120-second cooldown, digests 20 seconds, and failed logins 3 seconds. Retrieved HTML is never rendered: it is converted to text, links get `rel="noopener noreferrer nofollow"`, and email HTML is escaped with http(s)-only links. Error messages are sanitised, with no stack traces, connection strings or keys. Retrieved text is framed as untrusted for Gemini, closing-tag injection is stripped, and `injection_detected` is surfaced. Security headers: `nosniff`, `X-Frame-Options: DENY`, referrer policy.
+Server-only secrets; `.env*` git-ignored except `.env.example`. **No user sign-in** (owner's decision): reads and writes are open. Every mutation must come from the app's own origin (cross-origin requests get 403), and the scheduled job requires `CRON_SECRET`. Bodies are validated with zod, JSON content type is required and size is capped. Refresh has a 120-second cooldown and digests 20 seconds. Retrieved HTML is never rendered: it is converted to text, links get `rel="noopener noreferrer nofollow"`, and email HTML is escaped with http(s)-only links. Error messages are sanitised, with no stack traces, connection strings or keys. Retrieved text is framed as untrusted for Gemini, closing-tag injection is stripped, and `injection_detected` is surfaced. Security headers: `nosniff`, `X-Frame-Options: DENY`, referrer policy.
 
 **Database per environment:** `src/lib/db/url.ts` picks `DATABASE_URL` on Vercel production and `DEV_DATABASE_URL` locally. SQL `date` columns are returned as `YYYY-MM-DD` strings, so deadlines don't shift with the server timezone.
 
-**Known limitations:** a single shared access code rather than per-user identities (adequate for this single-user tool); no CSRF token beyond SameSite=Lax plus the Origin check; cloud-blocked sources depend on the Mac collector running.
+**Known limitations:** no authentication, so anyone with the URL can change settings or decisions and trigger Gemini usage (within cooldowns); requests without an Origin header (e.g. curl) are accepted; cloud-blocked sources depend on the Mac collector running.
