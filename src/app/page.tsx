@@ -3,6 +3,8 @@ import { ActionButtons } from "@/components/ActionButtons";
 import { FilterBar } from "@/components/FilterBar";
 import { ModeBanner, ModeSwitch } from "@/components/ModeSwitch";
 import { OpportunityCard } from "@/components/OpportunityCard";
+import { CountUp } from "@/components/CountUp";
+import { Radar } from "@/components/Radar";
 import { Card, EmptyState, PRIORITY_STYLE } from "@/components/ui";
 import type { Priority } from "@/lib/scoring/score";
 import { getDb, isDbConfigured } from "@/lib/db/client";
@@ -18,9 +20,9 @@ function Tile({ label, value, hint, tone = "default", example, href }: { label: 
   const ring = tone === "urgent" && positive ? "border-danger/60" : tone === "high" && positive ? "border-high/60" : "border-line";
   const num = tone === "urgent" && positive ? "text-danger" : tone === "high" && positive ? "text-high" : "";
   return (
-    <div className={`rounded-xl border bg-surface p-4 ${ring}`}>
+    <div className={`lift h-full rounded-xl border bg-surface p-4 ${ring}`}>
       <div className="text-xs font-medium uppercase tracking-wide text-ink-3">{label}</div>
-      <div className={`mt-1 text-3xl font-semibold tabular-nums ${num}`}>{value}</div>
+      <div className={`mt-1 text-3xl font-semibold tabular-nums ${num}`}>{typeof value === "number" ? <CountUp value={value} /> : value}</div>
       <div className="mt-0.5 text-xs text-ink-3">{hint}</div>
       {example && value === 0 && (
         <Link href={example} className="mt-2 inline-block text-xs text-accent hover:underline">See a tested example →</Link>
@@ -123,9 +125,15 @@ export default async function Dashboard({ searchParams }: PageProps<"/">) {
           d.metrics.policy === 0 && { text: "No CSR rule changes this week", example: "/?mode=demo&priority=policy" },
         ].filter(Boolean) as Array<{ text: string; example: string }>;
         return (
+          <div className="grid gap-4 lg:grid-cols-[1fr_380px]">
+          <div className="space-y-3">
           <div className="space-y-2" data-tour="tiles">
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-              {tiles.map((t) => <Tile key={t.key} tone={t.tone} example={t.example} href={t.href} label={t.label} value={t.value} hint={t.hint} />)}
+            <div className="grid grid-cols-2 gap-3">
+              {tiles.map((t, i) => (
+                <div key={t.key} className="fade-up h-full" style={{ animationDelay: `${i * 70}ms` }}>
+                  <Tile tone={t.tone} example={t.example} href={t.href} label={t.label} value={t.value} hint={t.hint} />
+                </div>
+              ))}
             </div>
             {quiet.length > 0 && (
               <p className="text-xs text-ink-3">
@@ -139,18 +147,34 @@ export default async function Dashboard({ searchParams }: PageProps<"/">) {
               </p>
             )}
           </div>
-        );
-      })()}
-
-      {digestSummary && d.digest && (
-            <Card className="p-4">
+          {digestSummary && d.digest && (
+            <Card className="fade-up p-4" style={{ animationDelay: "280ms" }}>
               <div className="flex flex-wrap items-baseline justify-between gap-2">
                 <h2 className="font-serif text-lg font-semibold">This week in brief</h2>
                 <Link className="text-xs text-accent hover:underline" href={`/digest/${d.digest.id}`}>Read the full digest →</Link>
               </div>
               <p className="mt-1 text-sm leading-relaxed text-ink-2">{digestSummary.overview}</p>
             </Card>
-      )}
+          )}
+          </div>
+          <Card className="fade-up relative overflow-hidden p-4" style={{ animationDelay: "120ms" }} data-tour="radar">
+            <div className="flex items-baseline justify-between gap-2">
+              <h2 className="font-serif text-lg font-semibold">This week on the radar</h2>
+              <span className="inline-flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wider text-high">
+                <span className="radar-centre inline-block h-1.5 w-1.5 rounded-full bg-high" aria-hidden /> Live scan
+              </span>
+            </div>
+            <Radar
+              sectors={settings.sectors.map((x) => ({ key: x.key, label: x.label }))}
+              thresholds={settings.thresholds}
+              points={d.all
+                .filter((o) => o.score.priority !== "low" && (o.score.freshness === "fresh" || o.score.freshness === "open_call" || o.score.freshness === "unknown"))
+                .map((o) => ({ id: o.id, label: o.company ?? o.headline, score: o.score.total, priority: o.score.priority, sector: o.sectors.find((k) => settings.sectors.some((x) => x.key === k)) ?? null }))}
+            />
+          </Card>
+          </div>
+        );
+      })()}
 
       {filters.mode === "live" && (
         <details className="group rounded-xl border border-line bg-surface">
@@ -243,7 +267,7 @@ export default async function Dashboard({ searchParams }: PageProps<"/">) {
         ) : (
           <div className="grid gap-3 xl:grid-cols-2">
             {d.shown.map((o, i) => (
-              <div key={o.id} className="h-full" data-tour={i === 0 ? "card" : undefined}>
+              <div key={o.id} className="fade-up h-full" style={{ animationDelay: `${Math.min(i, 10) * 45}ms` }} data-tour={i === 0 ? "card" : undefined}>
                 <OpportunityCard o={o} sectorLabels={labels} timezone={tz} refTime={ref} />
               </div>
             ))}

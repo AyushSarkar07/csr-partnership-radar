@@ -85,9 +85,51 @@
 }
 
 body {
-  background: var(--paper);
+  background-color: var(--paper);
+  /* Soft light from the top corners: accent blue on the left, green on the right. */
+  background-image:
+    radial-gradient(1100px 520px at 8% -12%, color-mix(in oklab, var(--accent) 16%, transparent), transparent 70%),
+    radial-gradient(900px 480px at 100% -8%, color-mix(in oklab, var(--high) 11%, transparent), transparent 70%);
+  background-repeat: no-repeat;
   color: var(--ink);
   font-family: var(--font-geist-sans), system-ui, sans-serif;
+}
+
+/* ---------- Motion ---------- */
+@keyframes radar-sweep { to { transform: rotate(360deg); } }
+@keyframes radar-ping {
+  0%, 82% { opacity: 0; transform: scale(0.4); }
+  86% { opacity: 0.9; transform: scale(1); }
+  100% { opacity: 0; transform: scale(2.6); }
+}
+@keyframes radar-glow {
+  0%, 82% { filter: brightness(0.85); }
+  86% { filter: brightness(1.6); }
+  100% { filter: brightness(0.85); }
+}
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes ring-draw { from { stroke-dashoffset: var(--ring-full); } }
+@keyframes centre-pulse {
+  0%, 100% { opacity: 0.55; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.35); }
+}
+
+.radar-sweep { animation: radar-sweep 6s linear infinite; transform-origin: 50% 50%; }
+.radar-ping { animation: radar-ping 6s linear infinite; transform-box: fill-box; transform-origin: center; }
+.radar-dot { animation: radar-glow 6s linear infinite; }
+.radar-centre { animation: centre-pulse 2.4s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+.fade-up { animation: fade-up 0.5s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+.ring-progress { animation: ring-draw 1.1s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+.lift { transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease; }
+.lift:hover { transform: translateY(-2px); box-shadow: 0 10px 30px -12px color-mix(in oklab, var(--ink) 35%, transparent); }
+
+@media (prefers-reduced-motion: reduce) {
+  .radar-sweep, .radar-ping, .radar-dot, .radar-centre, .fade-up, .ring-progress { animation: none !important; }
+  .radar-ping { opacity: 0; }
+  .lift:hover { transform: none; }
 }
 
 :focus-visible {
@@ -96,6 +138,7 @@ body {
 }
 
 @media print {
+  .fade-up, .ring-progress { animation: none !important; }
   header, nav, .no-print { display: none !important; }
   body { background: #fff; }
 }

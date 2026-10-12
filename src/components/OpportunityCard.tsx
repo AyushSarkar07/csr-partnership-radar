@@ -22,7 +22,7 @@ export function OpportunityCard({ o, sectorLabels, timezone, refTime }: { o: Opp
   ].filter(Boolean);
 
   return (
-    <article className="relative h-full overflow-hidden rounded-xl border border-line bg-surface p-4 pl-5 transition-colors hover:border-ink-3">
+    <article className="lift relative h-full overflow-hidden rounded-xl border border-line bg-surface p-4 pl-5 hover:border-ink-3">
       <span aria-hidden className={`absolute inset-y-0 left-0 w-1.5 ${PRIORITY_STYLE[o.score.priority].bar}`} title={PRIORITY_STYLE[o.score.priority].meaning} />
       <div className="flex gap-4">
         <div className="min-w-0 flex-1">

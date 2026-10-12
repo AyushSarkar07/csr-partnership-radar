@@ -41,12 +41,34 @@ export function VerificationBadge({ status }: { status: string }) {
   return <Pill className="bg-monitor-bg text-monitor" title="Check the original source before acting (date or details not yet confirmed)">Needs verification</Pill>;
 }
 
-export function ScoreBadge({ score, priority }: { score: number; priority: Priority }) {
-  const s = PRIORITY_STYLE[priority];
+/** Circular score ring that draws itself on load (static when reduced motion is on). */
+export function ScoreBadge({ score, priority, size = 56 }: { score: number; priority: Priority; size?: number }) {
+  const stroke = 5;
+  const r = (size - stroke) / 2;
+  const full = 2 * Math.PI * r;
+  const colour = { high: "var(--high)", monitor: "var(--monitor)", policy: "var(--policy)", background: "var(--background-c)", low: "var(--low)" }[priority];
   return (
-    <div className={cx("flex h-14 w-14 shrink-0 flex-col items-center justify-center rounded-xl", s.cls)} aria-label={`Score ${score} out of 100`}>
-      <span className="text-xl font-semibold leading-none tabular-nums">{score}</span>
-      <span className="text-[10px] opacity-80">/100</span>
+    <div className="relative shrink-0" style={{ width: size, height: size }} role="img" aria-label={`Score ${score} out of 100`}>
+      <svg viewBox={`0 0 ${size} ${size}`} className="h-full w-full -rotate-90">
+        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="var(--line)" strokeWidth={stroke} />
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={r}
+          fill="none"
+          stroke={colour}
+          strokeWidth={stroke}
+          strokeLinecap="round"
+          strokeDasharray={full}
+          strokeDashoffset={full * (1 - score / 100)}
+          className="ring-progress"
+          style={{ ["--ring-full" as string]: `${full}` }}
+        />
+      </svg>
+      <div className="absolute inset-0 flex flex-col items-center justify-center">
+        <span className="text-lg font-semibold leading-none tabular-nums" style={{ color: colour }}>{score}</span>
+        <span className="text-[9px] text-ink-3">/100</span>
+      </div>
     </div>
   );
 }
