@@ -32,10 +32,10 @@ Date: 2026-10-12 (Monday). **Updated the same day after fixing the blockers** (s
 | Configurable sectors and geographies | VERIFIED | `/settings`; Test 13; prod settings saved (v1) |
 | Delivered every Monday morning | **VERIFIED** | A temporary one-off schedule (`0 8 12 10 *`) was added so Vercel's scheduler could be observed. **Vercel triggered `/api/cron/weekly-digest` unattended at 08:38:43 UTC**: digest `live:2026-10-12` regenerated (generation 5, trigger `cron`), the refresh skipped by run key, no duplicate email. The one-off entry was then removed; the Monday schedule `30 0 * * 1` remains. Email delivery verified: Resend accepted the digest for ayush10ani@gmail.com. |
 
-All brief-level requirements (BR-1…BR-33) are tracked in `docs/REQUIREMENTS_TRACEABILITY.md`. Every one is VERIFIED except **BR-20, real email sending**, which is IMPLEMENTED-UNVERIFIED because no Resend credentials exist.
+All brief-level requirements (BR-1…BR-35) are tracked in `docs/REQUIREMENTS_TRACEABILITY.md`, and all are VERIFIED, including BR-20 (a real Resend send).
 
 ## Test results (run 2026-10-12, final audit)
-- `npm test`: **114 passed / 0 failed** across 9 files (unit, PGlite integration with real migrations, route-handler security, end-to-end).
+- `npm test`: **133 passed / 0 failed** across 10 files (unit, PGlite integration with real migrations, route-handler security, end-to-end).
 - `npm run lint`: 0 problems · `tsc --noEmit`: 0 errors · `next build`: success.
 - Mutation sanity check: deliberately breaking two rules made the corresponding tests fail; restored.
 - All 18 required functional tests map to passing tests (table in `docs/TEST_PLAN.md`).
