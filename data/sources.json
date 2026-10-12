@@ -221,7 +221,7 @@
       ],
       "geographic_coverage": "Global (filtered to items mentioning India)",
       "enabled": true,
-      "access_limitations": "Public RSS (HTTP 200, 25 items). Global coverage — only items that mention India or an Indian state/city are kept. Some full listings require a paid membership; we only use the public feed text.",
+      "access_limitations": "Public RSS (HTTP 200 from a residential connection in India, 25 items) but returned HTTP 403 when fetched from Vercel's servers on 2026-10-12 — likely bot protection for cloud IPs. Failure is isolated and reported; works when the pipeline runs locally (npm run pipeline:refresh). Only items mentioning India are kept.",
       "config": {
         "requireIndiaMention": true
       }
@@ -243,9 +243,9 @@
       ],
       "geographic_coverage": "India (sourcecountry:IN)",
       "enabled": true,
-      "access_limitations": "Free public API, limited to 1 request / 5 seconds and frequently returns a rate-limit notice from shared IPs (observed during development). Returns headline + URL + 'seendate' (first time GDELT saw the article — not the publisher's date). No article text, so evidence is headline-only and scored as weak.",
+      "access_limitations": "Free public API, limited to 1 request / 5 seconds and frequently returns a rate-limit notice from shared IPs (observed during development). Returns headline + URL + 'seendate' (first time GDELT saw the article — not the publisher's date). No article text, so evidence is headline-only and scored as weak. Note: GDELT rejects quoted phrases shorter than 4 characters (\"CSR\"), so CSR is unquoted.",
       "config": {
-        "query": "(\"CSR\" OR \"corporate social responsibility\") (skilling OR \"skill development\" OR education OR \"digital literacy\" OR employability) sourcecountry:IN sourcelang:english",
+        "query": "(CSR OR \"corporate social responsibility\") (skilling OR \"skill development\" OR education OR \"digital literacy\" OR employability) sourcecountry:IN sourcelang:english",
         "maxrecords": 50
       }
     },
