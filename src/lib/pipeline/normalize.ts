@@ -4,7 +4,7 @@ import { normGeo, stateOf } from "../geo";
 import type { Settings } from "../settings/schema";
 import type { RawItem, SourceRecord } from "../sources/types";
 import { canonicalizeUrl, htmlToText, normalizeHeadline, stripFeedBoilerplate, truncate } from "../text";
-import { parseDeadline, parseFeedDate } from "../time/window";
+import { deadlineEnd, parseDeadline, parseFeedDate } from "../time/window";
 
 export interface NormalizedItem {
   sourceId: string;
@@ -58,7 +58,7 @@ export function normalizeItem(raw: RawItem, source: SourceRecord): NormalizeOutc
       text: truncate(body, LIMITS.storedTextChars),
       excerpt: truncate(description || body, 400),
       categories: raw.categories.slice(0, 15),
-      deadline: parseDeadline(raw.deadlineRaw),
+      deadline: parseDeadline(raw.deadlineRaw) ?? extractDeadline(`${htmlToText(raw.title)}\n${body}`),
     },
   };
 }
@@ -109,4 +109,32 @@ export function prefilter(item: NormalizedItem, settings: Settings, source: Sour
   if (source.source_type === "partner_calls" && sector) return { candidate: true, reason: `partner_call+${sector}` };
   if (csr && sector) return { candidate: true, reason: `csr:${csr}+sector:${sector}` };
   return { candidate: false, reason: csr ? "no_sector_term" : "no_csr_term" };
+}
+
+const DEADLINE_PHRASE =
+  /(last date (?:for|of) (?:submission|application|applying)|submission deadline|application deadline|deadline for (?:submission|applications?|proposals?)|last date to apply|closing date|apply by|applications? (?:close|closes|are due) (?:on|by)?|proposals? (?:are )?due (?:on|by)?|deadline|last date)\s*(?:is|:|-|–|—)?\s*([^.;\n]{4,40})/gi;
+
+/**
+ * Deterministically reads a deadline the source itself states ("Last Date for
+ * Submission: 25 September 2026", "applications close on 16 October 2026").
+ * Query/clarification dates are ignored. Returns YYYY-MM-DD or null — never guessed.
+ */
+export function extractDeadline(text: string): string | null {
+  const re = new RegExp(DEADLINE_PHRASE.source, "gi");
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(text))) {
+    const before = text.slice(Math.max(0, m.index - 25), m.index).toLowerCase();
+    const lead = m[0].slice(0, Math.max(0, m[0].search(/\d/))).toLowerCase(); // words before the date
+    if (/quer(y|ies)|clarification|pre-bid/.test(before + lead)) {
+      re.lastIndex = m.index + m[1].length; // resume right after the skipped phrase
+      continue;
+    }
+    const d = parseDeadline(m[2]);
+    if (d) return d;
+  }
+  return null;
+}
+
+export function deadlinePassed(deadline: string | null, now: Date): boolean {
+  return Boolean(deadline && deadlineEnd(deadline).getTime() < now.getTime());
 }

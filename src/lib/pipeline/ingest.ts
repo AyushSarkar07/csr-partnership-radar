@@ -10,7 +10,7 @@ import { listSources, ADAPTERS } from "../sources/registry";
 import type { FetchLike, SourceRecord } from "../sources/types";
 import { headlineSimilarity, normalizeCompany, normalizeHeadline, sha256 } from "../text";
 import { reportingWindow } from "../time/window";
-import { normalizeItem, prefilter, type NormalizedItem } from "./normalize";
+import { deadlinePassed, normalizeItem, prefilter, type NormalizedItem } from "./normalize";
 
 export type Classifier = (
   input: ClassificationInput,
@@ -176,7 +176,10 @@ export async function ingestItems(
     const item = n.item;
     if (seenInBatch.has(item.canonicalUrl)) { skip("duplicate_in_feed"); continue; }
     seenInBatch.add(item.canonicalUrl);
-    if (item.publishedAt && now.getTime() - item.publishedAt.getTime() > LIMITS.ingestLookbackDays * DAY) { skip("older_than_lookback"); continue; }
+    // Calls for proposals stay actionable until their deadline, so partner-call sources look further back.
+    const lookbackDays = Number(source.config?.lookbackDays ?? LIMITS.ingestLookbackDays);
+    if (item.publishedAt && now.getTime() - item.publishedAt.getTime() > lookbackDays * DAY) { skip("older_than_lookback"); continue; }
+    if (source.source_type === "partner_calls" && deadlinePassed(item.deadline, now)) { skip("deadline_passed"); continue; }
     const pf = prefilter(item, settings, source);
     if (!pf.candidate) { skip(pf.reason); continue; }
     normalized.push(item);

@@ -13,7 +13,7 @@ import { formatDate, formatDateTime, nextDigestAt } from "@/lib/time/window";
 
 export const dynamic = "force-dynamic";
 
-function Tile({ label, value, hint, tone = "default" }: { label: string; value: number; hint: string; tone?: "default" | "high" | "urgent" }) {
+function Tile({ label, value, hint, tone = "default", example }: { label: string; value: number; hint: string; tone?: "default" | "high" | "urgent"; example?: string }) {
   const ring = tone === "urgent" && value > 0 ? "border-danger/60" : tone === "high" && value > 0 ? "border-high/60" : "border-line";
   const num = tone === "urgent" && value > 0 ? "text-danger" : tone === "high" && value > 0 ? "text-high" : "";
   return (
@@ -21,6 +21,9 @@ function Tile({ label, value, hint, tone = "default" }: { label: string; value: 
       <div className="text-xs font-medium uppercase tracking-wide text-ink-3">{label}</div>
       <div className={`mt-1 text-3xl font-semibold tabular-nums ${num}`}>{value}</div>
       <div className="mt-0.5 text-xs text-ink-3">{hint}</div>
+      {example && value === 0 && (
+        <Link href={example} className="mt-2 inline-block text-xs text-accent hover:underline">See a tested example →</Link>
+      )}
     </div>
   );
 }
@@ -76,10 +79,10 @@ export default async function Dashboard({ searchParams }: PageProps<"/">) {
       </div>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        <Tile tone="high" label="Worth a call this week" value={d.metrics.highPriority} hint={d.metrics.highPriority ? "ranked first in the list below" : "none met the bar this week"} />
-        <Tile tone="urgent" label="Calls closing in 7 days" value={d.metrics.closingSoon} hint={d.metrics.closingSoon ? "proposal deadlines coming up" : "no open NGO calls closing soon"} />
+        <Tile tone="high" example={filters.mode === "live" ? "/?mode=demo&priority=high" : undefined} label="Worth a call this week" value={d.metrics.highPriority} hint={d.metrics.highPriority ? "ranked first in the list below" : "none met the bar this week"} />
+        <Tile tone="urgent" example={filters.mode === "live" ? "/?mode=demo&q=Larkspur" : undefined} label="Calls closing in 7 days" value={d.metrics.closingSoon} hint={d.metrics.closingSoon ? "proposal deadlines coming up" : "no open NGO calls closing this week"} />
         <Tile label="On the watchlist" value={d.metrics.watchlist} hint="relevant, not yet a call" />
-        <Tile label="Policy developments" value={d.metrics.policy} hint={d.metrics.policy ? "affecting CSR spending" : "no CSR rule changes"} />
+        <Tile example={filters.mode === "live" ? "/?mode=demo&priority=policy" : undefined} label="Policy developments" value={d.metrics.policy} hint={d.metrics.policy ? "affecting CSR spending" : "no CSR rule changes this week"} />
       </div>
 
       {digestSummary && d.digest && (

@@ -176,3 +176,33 @@ describe("database selection (dev vs prod)", () => {
     expect(describeDatabaseUrl(resolveDatabaseUrl())).toBe("prod-host");
   });
 });
+
+describe("deadline stated in the source text", () => {
+  it("reads submission deadlines and ignores query dates", async () => {
+    const { extractDeadline } = await import("@/lib/pipeline/normalize");
+    expect(extractDeadline("Last Date for Queries: 24 September 2026 Last Date for Submission: 25 September 2026")).toBe("2026-09-25");
+    expect(extractDeadline("Applications close on 16 October 2026.")).toBe("2026-10-16");
+    expect(extractDeadline("The deadline for submission is May 22, 2026, at 23:59")).toBeNull(); // US-style month-first not parsed → no guess
+    expect(extractDeadline("Apply by 28 August 2026")).toBe("2026-08-28");
+    expect(extractDeadline("The company launched a programme for 2,000 youth.")).toBeNull();
+  });
+  it("expired partner calls are not stored; open ones are kept beyond 30 days", async () => {
+    const { createTestDb } = await import("./helpers/db");
+    const { syncRegistry, listSources } = await import("@/lib/sources/registry");
+    const { ingestItems } = await import("@/lib/pipeline/ingest");
+    const db = await createTestDb();
+    await syncRegistry(db);
+    const src = (await listSources(db)).find((s) => s.id === "ngoportal-csr")!;
+    const now = new Date("2026-10-12T00:30:00Z");
+    const mk = (title: string, date: string, body: string) => ({ url: `https://ngoportal.example/${encodeURIComponent(title)}`, title, publishedRaw: date, publishedProvenance: "feed_pubdate" as const, description: body, contentHtml: null, publisher: "NGOportal", categories: [] });
+    const out = await ingestItems(db, src, [
+      mk("Foundation RFP for NGO implementation partners in education", "Thu, 10 Sep 2026 12:00:00 +0000", "Education implementation partners in India. Last Date for Submission: 25 September 2026."),
+      mk("Foundation invites NGO proposals for youth skilling in Pune", "Mon, 24 Aug 2026 12:00:00 +0000", "Youth skilling programme in Pune, India. Applications close on 30 October 2026."),
+    ], DEFAULT_SETTINGS, null, now);
+    expect(out.skipped.deadline_passed).toBe(1);
+    expect(out.new).toBe(1); // 49 days old but still open → kept
+    const row = (await db.query<{ deadline: string }>("select deadline from announcements"))[0];
+    expect(row.deadline).toBe("2026-10-30");
+    await db.close();
+  });
+});

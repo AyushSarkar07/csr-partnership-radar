@@ -123,7 +123,8 @@
       "enabled": true,
       "access_limitations": "Public HTML listing behind CloudFront; HTTP 403 to Vercel's servers, HTTP 200 from a residential connection. No RSS feed; robots.txt returns 404 (no restrictions). Only the listing page is read (one request per run). Cards give title, organisation and deadline; no publication date, so the source-stated deadline determines open-call status. Fetched by the Mac collector (config.runner = \"local\"), not by Vercel: the site blocks datacenter IPs. Runs Mondays 05:15 IST and daily 09:00 IST while the Mac is awake.",
       "config": {
-        "runner": "local"
+        "runner": "local",
+        "lookbackDays": 120
       },
       "notes": "Open requests for proposals and expressions of interest addressed to NGOs, with deadlines."
     },
@@ -299,6 +300,51 @@
       "notes": "HCLTech's official newsroom."
     },
     {
+      "id": "ngoportal-funding",
+      "name": "NGOportal — funding opportunities",
+      "source_type": "partner_calls",
+      "base_url": "https://ngoportal.org",
+      "feed_url": "https://ngoportal.org/category/funding-opportunities/feed/",
+      "retrieval_method": "rss",
+      "is_official": false,
+      "credibility": 0.6,
+      "sector_relevance": [
+        "education",
+        "skill_development",
+        "youth_employment"
+      ],
+      "geographic_coverage": "Global (filtered to items mentioning India)",
+      "enabled": true,
+      "access_limitations": "Public WordPress RSS (HTTP 200); robots.txt only blocks /wp-json/. Global listings, so only items mentioning India are kept.",
+      "config": {
+        "lookbackDays": 120,
+        "requireIndiaMention": true
+      },
+      "notes": "Grants and funding calls for NGOs, filtered to India."
+    },
+    {
+      "id": "ngoportal-csr",
+      "name": "NGOportal — CSR project calls",
+      "source_type": "partner_calls",
+      "base_url": "https://ngoportal.org",
+      "feed_url": "https://ngoportal.org/tag/csr-projects/feed/",
+      "retrieval_method": "rss",
+      "is_official": false,
+      "credibility": 0.6,
+      "sector_relevance": [
+        "education",
+        "skill_development",
+        "youth_employment"
+      ],
+      "geographic_coverage": "India",
+      "enabled": true,
+      "access_limitations": "Public WordPress RSS (HTTP 200); robots.txt only blocks /wp-json/. Few items; calls are kept up to 120 days while their stated deadline is ahead.",
+      "config": {
+        "lookbackDays": 120
+      },
+      "notes": "CSR requests for proposals and partner empanelment calls addressed to NGOs."
+    },
+    {
       "id": "fundsforngos",
       "name": "FundsForNGOs — grants & calls for proposals",
       "source_type": "partner_calls",
@@ -317,7 +363,8 @@
       "access_limitations": "Public RSS (Cloudflare). Returns HTTP 403 to Vercel's servers but works from a residential connection in India; only items mentioning India are kept. Fetched by the Mac collector (config.runner = \"local\"), not by Vercel: the site blocks datacenter IPs. Runs Mondays 05:15 IST and daily 09:00 IST while the Mac is awake.",
       "config": {
         "requireIndiaMention": true,
-        "runner": "local"
+        "runner": "local",
+        "lookbackDays": 120
       },
       "notes": "Grants and calls for proposals relevant to Indian NGOs."
     },
