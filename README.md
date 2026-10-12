@@ -31,15 +31,15 @@ Sources that block Vercel's servers (the NGOBox RFP/EOI board and FundsForNGOs) 
 
 | Badge | Meaning |
 |---|---|
-| **Live · verified** | Retrieved from a real source; publication date known; ≥1 claim quoted verbatim from the source. |
-| **Live · needs verification** | Real retrieved item that is unclassified, has an unknown date, or has no verbatim evidence. |
-| **SYNTHETIC** | One of 30 fictional demo records ([`data/seed-opportunities.json`](data/seed-opportunities.json)) using `example.org` URLs. Shown only in **Synthetic demo** mode, which evaluates windows against a fixed reference time (Mon 12 Oct 2026 06:00 IST). Never counted in live metrics or live digests, and never emailed. |
+| **Verified** | Retrieved from a real source; publication date known; ≥1 claim quoted verbatim from the source. |
+| **Needs verification** | Real retrieved item that is unclassified, has an unknown date, or has no verbatim evidence. |
+| **Demo** | One of 30 fictional demo records ([`data/seed-opportunities.json`](data/seed-opportunities.json)) using `example.org` URLs. Shown only in **Demo data** mode, which evaluates windows against a fixed reference time (Mon 12 Oct 2026 06:00 IST). Never counted in live metrics or live digests, and never emailed. |
 
 ## Stack
 
 Next.js 16 (App Router, TypeScript, Tailwind v4) on **Vercel** · **Neon Postgres** (Vercel Marketplace) via `@neondatabase/serverless` · **Gemini Flash** over REST (server-side only) · Vercel Cron · zod · fast-xml-parser · Vitest + PGlite (in-process Postgres) for tests.
 
-Gemini Flash is the only LLM in the application. The repo has no Claude, OpenAI or other LLM SDK. Claude Code was the development environment only.
+The interface is written as product copy and doesn't name the AI vendor or internal tooling. Gemini Flash is the only LLM in the application. The repo has no Claude, OpenAI or other LLM SDK. Claude Code was the development environment only.
 
 ## Run locally
 
@@ -88,7 +88,7 @@ See [`docs/DEPLOYMENT_GUIDE.md`](docs/DEPLOYMENT_GUIDE.md). Short version: impor
 ## Demo workflow (5 minutes)
 
 1. Open the app. **Live data** shows real items collected from the feeds. A quiet week shows few or no high-priority items, and nothing is padded in.
-2. Switch to **Synthetic demo**. Orchid Pharma's explicit NGO call ranks first. Open it to see the verified quotes, score breakdown, confidence reasons and next action.
+2. Switch to **Demo data**. Orchid Pharma's explicit NGO call ranks first. Open it to see the verified quotes, score breakdown, confidence reasons and next action.
 3. Open **Lumen Telecom**: two publications, merged into one opportunity with two sources. Then open **Kestrel Digital**: the same company's tree-planting announcement is kept separate and ranked Low.
 4. Filter by **Evidence: weak**. Zenith Retail and Crestline Finance have "facts" whose quotes don't appear in the source, so they are flagged and downgraded.
 5. Set a decision with a note and reload: the decision persists with its history.
