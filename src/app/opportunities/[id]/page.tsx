@@ -12,10 +12,10 @@ import { formatDateTime } from "@/lib/time/window";
 export const dynamic = "force-dynamic";
 
 const PROVENANCE: Record<string, string> = {
-  feed_pubdate: "from the publisher's feed",
-  api_seendate: "first seen by GDELT (approximate)",
-  synthetic: "synthetic timestamp",
-  unknown: "not available — not substituted",
+  feed_pubdate: "from the publisher",
+  api_seendate: "first indexed, approximate",
+  synthetic: "demo date",
+  unknown: "not provided by the source",
 };
 
 export default async function OpportunityPage({ params }: PageProps<"/opportunities/[id]">) {
@@ -31,10 +31,10 @@ export default async function OpportunityPage({ params }: PageProps<"/opportunit
 
   return (
     <div className="mx-auto max-w-6xl px-4 sm:px-6 py-6 space-y-5">
-      <Link href={`/?mode=${d.mode}`} className="text-sm text-accent hover:underline">← Back to {d.mode === "demo" ? "synthetic demo" : "live"} opportunities</Link>
+      <Link href={`/?mode=${d.mode}`} className="text-sm text-accent hover:underline">← Back to {d.mode === "demo" ? "demo" : "live"} opportunities</Link>
       {o.dataOrigin === "synthetic" && (
         <div className="rounded-lg border border-synthetic/40 bg-synthetic-bg px-4 py-2.5 text-sm text-synthetic">
-          <strong>Synthetic record {o.seedId}.</strong> Fictional company and source, created to test: {(o.scenario as { description?: string })?.description}
+          <strong>Demo item.</strong> The company, announcement and source are fictional.
         </div>
       )}
       <div className="flex gap-4 items-start">
@@ -61,10 +61,10 @@ export default async function OpportunityPage({ params }: PageProps<"/opportunit
         <div className="space-y-5">
           <Card className="p-5 space-y-3">
             <SectionTitle>What was announced</SectionTitle>
-            <p>{a?.summary ?? "Not yet analysed by Gemini — read the original source below."}</p>
+            <p>{a?.summary ?? "Analysis pending. Read the original source below."}</p>
             {a && (
               <>
-                <h3 className="text-sm font-semibold mt-3">Why it matters to the NGO <span className="font-normal text-ink-3">(AI interpretation)</span></h3>
+                <h3 className="text-sm font-semibold mt-3">Why it matters</h3>
                 <p className="text-ink-2">{a.why_it_matters}</p>
                 <h3 className="text-sm font-semibold mt-3">Evidence of partnership / funding intent</h3>
                 <p className="text-ink-2">
@@ -78,8 +78,8 @@ export default async function OpportunityPage({ params }: PageProps<"/opportunit
                 )}
                 <h3 className="text-sm font-semibold mt-3">Recommended next action</h3>
                 <p>{o.nextAction}</p>
-                {a.outreach_angle && <p className="text-sm text-ink-2"><span className="text-ink-3">Outreach angle (verified facts only):</span> {a.outreach_angle}</p>}
-                {a.injection_detected && <p className="text-sm text-danger">⚠ The source text contained instructions aimed at the AI; they were ignored.</p>}
+                {a.outreach_angle && <p className="text-sm text-ink-2"><span className="text-ink-3">Suggested outreach angle:</span> {a.outreach_angle}</p>}
+                {a.injection_detected && <p className="text-sm text-danger">This source contained unusual embedded text and was treated with caution.</p>}
               </>
             )}
           </Card>
@@ -91,7 +91,7 @@ export default async function OpportunityPage({ params }: PageProps<"/opportunit
               {facts.map((c) => (
                 <li key={c.id} className="text-sm">
                   <div className="flex gap-2 items-start">
-                    {c.excerpt_verified ? <Pill className="bg-high-bg text-high">Verified quote</Pill> : <Pill className="bg-danger-bg text-danger">Not found in source</Pill>}
+                    {c.excerpt_verified ? <Pill className="bg-high-bg text-high">Confirmed in source</Pill> : <Pill className="bg-danger-bg text-danger">Not confirmed in source</Pill>}
                     <span className="font-medium">{c.claim}</span>
                   </div>
                   {c.excerpt && <blockquote className="mt-1 border-l-2 border-line pl-3 text-ink-2 italic">“{c.excerpt}”</blockquote>}
@@ -113,7 +113,7 @@ export default async function OpportunityPage({ params }: PageProps<"/opportunit
           </Card>
 
           <Card className="p-5">
-            <SectionTitle aside={<span className="text-xs text-ink-3">{o.coverage.length} source{o.coverage.length === 1 ? "" : "s"}</span>}>Sources & related coverage</SectionTitle>
+            <SectionTitle aside={<span className="text-xs text-ink-3">{o.coverage.length} source{o.coverage.length === 1 ? "" : "s"}</span>}>Sources & coverage</SectionTitle>
             <ul className="divide-y divide-line">
               {o.coverage.map((c) => (
                 <li key={c.id} className="py-3 text-sm">
@@ -133,7 +133,7 @@ export default async function OpportunityPage({ params }: PageProps<"/opportunit
             </ul>
             {d.related.length > 0 && (
               <>
-                <h3 className="text-sm font-semibold mt-3 mb-1">Other announcements from this company (not merged)</h3>
+                <h3 className="text-sm font-semibold mt-3 mb-1">Other announcements from this company</h3>
                 <ul className="text-sm space-y-1">{d.related.map((r) => <li key={r.id}><Link className="text-accent hover:underline" href={`/opportunities/${r.id}`}>{r.headline}</Link></li>)}</ul>
               </>
             )}
@@ -171,29 +171,19 @@ export default async function OpportunityPage({ params }: PageProps<"/opportunit
                 </li>
               ))}
             </ul>
-            <p className="mt-3 text-xs text-ink-3">Deterministic scoring from configurable weights (Settings). Window: {formatDateTime(window.start, tz)} → {formatDateTime(window.end, tz)}.</p>
+            <p className="mt-3 text-xs text-ink-3">Weights can be adjusted in Settings. Week: {formatDateTime(window.start, tz)} → {formatDateTime(window.end, tz)}.</p>
             <h3 className="text-sm font-semibold mt-3">Confidence: {o.score.confidence}</h3>
             <ul className="list-disc pl-5 text-xs text-ink-2">{o.score.confidenceReasons.map((r) => <li key={r}>{r}</li>)}</ul>
           </Card>
 
           <Card className="p-5 text-sm space-y-1">
-            <SectionTitle>Extracted entities</SectionTitle>
+            <SectionTitle>Key details</SectionTitle>
             <div><span className="text-ink-3">Company:</span> {o.company ?? "—"}</div>
             <div><span className="text-ink-3">Initiative:</span> {o.initiativeName ?? "—"}</div>
             <div><span className="text-ink-3">Sectors:</span> {o.sectors.map((s) => labels.get(s) ?? s).join(", ") || "—"}{a?.other_sectors?.length ? ` (other: ${a.other_sectors.join(", ")})` : ""}</div>
             <div><span className="text-ink-3">Geographies:</span> {o.geographies.join(", ") || "—"} <span className="text-ink-3">· {o.geoFitLabel}</span></div>
             <div><span className="text-ink-3">Beneficiaries:</span> {a?.beneficiary_groups?.join(", ") || "—"}</div>
-            <div className="pt-2 text-xs text-ink-3">
-              AI: {o.aiStatus === "fixture" ? "synthetic fixture (no AI call)" : o.aiModel ?? "not yet processed"}{o.aiError ? ` · last error: ${o.aiError}` : ""}
-            </div>
           </Card>
-          {o.dataOrigin === "synthetic" && o.scenario && (
-            <Card className="p-5 text-sm">
-              <SectionTitle>Test scenario</SectionTitle>
-              <p className="text-ink-2">{(o.scenario as { test_explanation?: string }).test_explanation}</p>
-              <pre className="mt-2 overflow-x-auto rounded bg-surface-2 p-2 text-xs">{JSON.stringify((o.scenario as { expected?: unknown }).expected, null, 1)}</pre>
-            </Card>
-          )}
         </aside>
       </div>
     </div>

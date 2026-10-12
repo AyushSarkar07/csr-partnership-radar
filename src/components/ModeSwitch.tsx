@@ -14,7 +14,7 @@ export function ModeSwitch({ mode, basePath = "/", showDemo }: { mode: "live" | 
   return (
     <div role="group" aria-label="Data mode" className="inline-flex rounded-lg border border-line bg-surface p-0.5">
       {item("live", "Live data")}
-      {showDemo && item("demo", "Synthetic demo")}
+      {showDemo && item("demo", "Demo data")}
     </div>
   );
 }
@@ -23,7 +23,7 @@ export function ModeBanner({ mode, refLabel }: { mode: "live" | "demo"; refLabel
   if (mode === "live") return null;
   return (
     <div className="rounded-lg border border-synthetic/40 bg-synthetic-bg px-4 py-2.5 text-sm text-synthetic">
-      <strong>Synthetic demonstration data.</strong> Every company, headline and source below is fictional and exists to demonstrate the scoring, deduplication and review workflow. Windows are evaluated against a fixed reference time ({refLabel}). Synthetic records never appear in Live mode or live digests.
+      <strong>You are viewing demo data.</strong> The companies, announcements and sources below are fictional and shown as of {refLabel}. Demo items never appear in live data or live digests.
     </div>
   );
 }

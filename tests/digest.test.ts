@@ -80,7 +80,7 @@ describe("digest idempotency (Test 15)", () => {
     expect((await db.query<{ n: number }>("select count(*)::int n from digests where digest_key like 'live:%'"))[0].n).toBe(1);
     expect(sent).toHaveLength(1);
     expect(b.delivery.status).toBe("sent");
-    expect(b.delivery.detail).toMatch(/not re-sent/);
+    expect(b.delivery.detail).toMatch(/already emailed/);
   });
 
   it("without an email provider the status is 'not_configured', never 'sent'", async () => {

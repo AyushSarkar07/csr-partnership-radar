@@ -244,8 +244,8 @@ export async function loadOpportunities(
 }
 
 function defaultNextAction(aiStatus: string) {
-  if (aiStatus === "pending") return "Awaiting AI analysis — open the source to review manually.";
-  if (aiStatus === "failed") return "AI analysis failed — review the source manually or retry the refresh.";
+  if (aiStatus === "pending") return "Analysis pending. Open the source to review it.";
+  if (aiStatus === "failed") return "Analysis unavailable. Review the source directly or refresh later.";
   return "Review the source.";
 }
 

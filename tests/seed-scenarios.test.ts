@@ -32,7 +32,7 @@ describe("seed dataset integrity", () => {
     const ids = new Set<string>();
     for (const r of SEED_RECORDS) {
       expect(r.source.url.startsWith("https://example.org/synthetic/")).toBe(true);
-      expect(r.source.publisher).toMatch(/synthetic/i);
+      expect(r.source.publisher).toMatch(/\(demo\)/i);
       expect(ids.has(r.seed_id)).toBe(false);
       ids.add(r.seed_id);
     }

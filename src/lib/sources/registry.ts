@@ -23,15 +23,15 @@ export async function syncRegistry(db: Db) {
   for (const s of REGISTRY) {
     await db.query(
       `insert into sources (id, name, source_type, base_url, feed_url, retrieval_method, is_official, credibility,
-         sector_relevance, geographic_coverage, enabled, access_limitations, config)
-       values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13::jsonb)
+         sector_relevance, geographic_coverage, enabled, access_limitations, config, notes)
+       values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13::jsonb,$14)
        on conflict (id) do update set name = excluded.name, source_type = excluded.source_type,
          base_url = excluded.base_url, feed_url = excluded.feed_url, retrieval_method = excluded.retrieval_method,
          is_official = excluded.is_official, credibility = excluded.credibility,
          sector_relevance = excluded.sector_relevance, geographic_coverage = excluded.geographic_coverage,
-         access_limitations = excluded.access_limitations, config = excluded.config, updated_at = now()`,
+         access_limitations = excluded.access_limitations, config = excluded.config, notes = excluded.notes, updated_at = now()`,
       [s.id, s.name, s.source_type, s.base_url, s.feed_url, s.retrieval_method, s.is_official, s.credibility,
-        s.sector_relevance, s.geographic_coverage, s.enabled, s.access_limitations, JSON.stringify(s.config ?? {})],
+        s.sector_relevance, s.geographic_coverage, s.enabled, s.access_limitations, JSON.stringify(s.config ?? {}), s.notes ?? null],
     );
   }
 }

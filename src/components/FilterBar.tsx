@@ -43,9 +43,9 @@ export function FilterBar({ f, settings }: { f: Filters; settings: Settings }) {
         <Select name="sourceType" label="Source type" value={f.sourceType} options={[["", "All sources"], ...Object.entries(SOURCE_TYPE_LABEL).filter(([k]) => k !== "synthetic")]} />
         <Select name="status" label="Workflow status" value={f.status} options={[["", "Any"], ["unreviewed", "Not yet reviewed"], ...REVIEW_STATUSES.map((s) => [s, REVIEW_LABEL[s]] as [string, string])]} />
         {f.mode === "live" ? (
-          <Select name="verification" label="Live data status" value={f.verification} options={[["", "Verified + needs verification"], ["verified", "Verified only"], ["needs_verification", "Needs verification"]]} />
+          <Select name="verification" label="Verification" value={f.verification} options={[["", "All"], ["verified", "Verified only"], ["needs_verification", "Needs verification"]]} />
         ) : (
-          <div className="flex flex-col gap-1 text-xs text-ink-3">Data<span className="rounded-md border border-line px-2 py-1.5 text-sm text-synthetic">Synthetic only</span></div>
+          <div className="flex flex-col gap-1 text-xs text-ink-3">Data<span className="rounded-md border border-line px-2 py-1.5 text-sm text-synthetic">Demo data only</span></div>
         )}
         <Select name="sort" label="Sort by" value={f.sort} options={[["score", "Score (high → low)"], ["date", "Publication date"], ["company", "Company A–Z"]]} />
       </div>

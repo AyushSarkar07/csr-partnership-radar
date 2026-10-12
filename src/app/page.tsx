@@ -27,7 +27,7 @@ export default async function Dashboard({ searchParams }: PageProps<"/">) {
   if (!isDbConfigured()) {
     return (
       <div className="mx-auto max-w-3xl p-6">
-        <EmptyState title="Database not configured">Set DATABASE_URL, run <code>npm run db:migrate</code> and <code>npm run db:seed</code>. See <Link className="underline" href="/status">Status</Link>.</EmptyState>
+        <EmptyState title="The radar is not set up yet">Please contact your administrator.</EmptyState>
       </div>
     );
   }
@@ -57,13 +57,13 @@ export default async function Dashboard({ searchParams }: PageProps<"/">) {
       <ModeBanner mode={filters.mode} refLabel={formatDateTime(ref, tz)} />
 
       <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3">
-        <Metric label={filters.mode === "live" ? "New live announcements in window" : "Synthetic announcements in window"} value={d.metrics.freshAnnouncements} hint={`${d.metrics.unknownDates} with unknown date`} />
+        <Metric label={filters.mode === "live" ? "New announcements this week" : "Demo announcements this week"} value={d.metrics.freshAnnouncements} hint={`${d.metrics.unknownDates} with unknown date`} />
         <Metric label="High priority (call this week)" value={d.metrics.highPriority} />
         <Metric label="Explicit NGO-partner requests" value={d.metrics.explicitRequests} />
         <Metric label="Policy developments" value={d.metrics.policy} />
-        <Metric label="Live sources checked OK" value={`${d.metrics.sourcesOk}/${d.metrics.sourcesEnabled}`} hint={filters.mode === "demo" ? "live registry (not used by demo data)" : "last attempt per enabled source"} />
+        <Metric label="Sources checked successfully" value={`${d.metrics.sourcesOk}/${d.metrics.sourcesEnabled}`} hint={filters.mode === "demo" ? "applies to live data" : "on the latest check"} />
         <Metric
-          label="Last successful live refresh"
+          label="Last updated"
           value={d.okRun?.finished_at ? formatDate(d.okRun.finished_at, tz).replace(/, \d{4}$/, "") : "Never"}
           hint={d.okRun?.finished_at ? formatDateTime(d.okRun.finished_at, tz) : "Run a refresh"}
         />
@@ -74,17 +74,17 @@ export default async function Dashboard({ searchParams }: PageProps<"/">) {
         <div className="text-sm text-ink-2 max-w-md">
           {d.digest ? (
             <>
-              Latest {filters.mode} digest: <Link className="text-accent hover:underline" href={`/digest/${d.digest.id}`}>{formatDateTime(d.digest.generated_at, tz)}</Link> ·{" "}
+              Latest digest: <Link className="text-accent hover:underline" href={`/digest/${d.digest.id}`}>{formatDateTime(d.digest.generated_at, tz)}</Link> ·{" "}
               {d.digest.content.counts.high_priority} high priority · delivery: <strong>{d.digest.delivery_status.replace("_", " ")}</strong>
               {digestSummary && <p className="mt-1 text-ink-3 line-clamp-2">{digestSummary.overview}</p>}
             </>
           ) : (
-            <>No {filters.mode} digest yet. The scheduled job runs Mondays 06:00 IST.</>
+            <>No digest yet. The weekly digest is prepared every Monday at 06:00 IST.</>
           )}
           {d.run && d.run.status !== "succeeded" && filters.mode === "live" && (
-            <p className="mt-1 text-monitor">Last run {d.run.status}{d.run.error ? `: ${d.run.error}` : ""} — previously collected data is preserved.</p>
+            <p className="mt-1 text-monitor">Some sources could not be checked on the last update; earlier results are still shown.</p>
           )}
-          {filters.mode === "live" && d.metrics.aiPending > 0 && <p className="mt-1 text-ink-3">{d.metrics.aiPending} live item(s) awaiting Gemini analysis (processed on the next refresh).</p>}
+          {filters.mode === "live" && d.metrics.aiPending > 0 && <p className="mt-1 text-ink-3">{d.metrics.aiPending} new item(s) queued for analysis on the next refresh.</p>}
         </div>
       </Card>
 
@@ -96,13 +96,13 @@ export default async function Dashboard({ searchParams }: PageProps<"/">) {
           {d.shown.length === 0 ? (
             filters.mode === "live" && d.metrics.liveTotal === 0 ? (
               <EmptyState title="No live announcements collected yet">
-                Use “Refresh intelligence” to fetch the configured sources, or explore the synthetic demo.{" "}
-                <Link href="/?mode=demo" className="underline">Open the synthetic demo</Link>.
+                Use “Refresh intelligence” to check the sources now, or explore the demo data.{" "}
+                <Link href="/?mode=demo" className="underline">Open the demo data</Link>.
               </EmptyState>
             ) : (
               <EmptyState title="Nothing matches these filters">
                 Widen the window, include background/low-priority items, or <Link href={`/?mode=${filters.mode}`} className="underline">reset filters</Link>.
-                {filters.mode === "live" && " A quiet week is a valid result: nothing is padded in."}
+                {filters.mode === "live" && " Some weeks are quiet. The list only shows announcements that meet the criteria."}
               </EmptyState>
             )
           ) : (
@@ -121,13 +121,12 @@ export default async function Dashboard({ searchParams }: PageProps<"/">) {
                 </li>
               ))}
             </ul>
-            <p className="mt-3 text-xs text-ink-3">{filters.mode === "live" ? `${d.metrics.verified} of ${d.metrics.totalStored} live records verified (date known + verbatim evidence).` : `${d.metrics.totalStored} synthetic records (after deduplication).`}</p>
+            <p className="mt-3 text-xs text-ink-3">{filters.mode === "live" ? `${d.metrics.verified} of ${d.metrics.totalStored} announcements verified against the original source.` : `${d.metrics.totalStored} demo announcements.`}</p>
           </Card>
           {filters.mode === "live" ? <SourceHealthPanel sources={d.sources} timezone={tz} /> : (
             <Card className="p-4 text-sm text-ink-2">
-              <SectionTitle>About this demo</SectionTitle>
-              30 fictional records exercise 16 scenarios: explicit partner calls, duplicates, missing dates, weak evidence, stale items, geographic mismatch, policy changes and review outcomes. Open any card to see its scenario and expected behaviour.
-            </Card>
+              <SectionTitle>About the demo data</SectionTitle>
+              The demo shows how the radar handles open calls for partners, duplicate news coverage, missing dates, weak evidence, older news, other regions, policy changes and recorded decisions. Open any item to explore it.</Card>
           )}
         </aside>
       </div>

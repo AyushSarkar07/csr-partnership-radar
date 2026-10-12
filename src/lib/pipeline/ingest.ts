@@ -297,7 +297,7 @@ export async function processPending(db: Db, settings: Settings, classify: Class
       if (kind === "missing_key") {
         // Do not burn attempts when the key is simply absent; keep items pending.
         stop = true;
-        note = "GEMINI_API_KEY not configured — items stay pending and are shown as unclassified.";
+        note = "Analysis is temporarily unavailable; new items are queued for the next update.";
         await db.query("update announcements set ai_error=$2, updated_at=now() where id=$1", [r.id, msg]);
         return;
       }

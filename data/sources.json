@@ -20,7 +20,8 @@
       "geographic_coverage": "India",
       "enabled": true,
       "access_limitations": "Public WordPress RSS (HTTP 200, 10 latest items). robots.txt has no rule against /feed/. Items include full text in content:encoded.",
-      "config": {}
+      "config": {},
+      "notes": "India's CSR news and interviews, checked several times a day."
     },
     {
       "id": "thecsrjournal",
@@ -41,7 +42,8 @@
       "geographic_coverage": "India",
       "enabled": true,
       "access_limitations": "Public WordPress RSS (HTTP 200, 10 latest items). robots.txt has no rule against /feed/.",
-      "config": {}
+      "config": {},
+      "notes": "CSR news, programmes and policy coverage."
     },
     {
       "id": "csrmandate",
@@ -60,7 +62,8 @@
       "geographic_coverage": "India",
       "enabled": true,
       "access_limitations": "Public WordPress RSS (HTTP 200, 10 items). robots.txt allows all.",
-      "config": {}
+      "config": {},
+      "notes": "CSR news and commentary, including regulation."
     },
     {
       "id": "thecsruniverse",
@@ -80,7 +83,8 @@
       "geographic_coverage": "India",
       "enabled": true,
       "access_limitations": "Public RSS (HTTP 200, ~100 items). robots.txt allows /.",
-      "config": {}
+      "config": {},
+      "notes": "CSR and social-impact news across India."
     },
     {
       "id": "taxguru-company-law",
@@ -97,7 +101,8 @@
       "geographic_coverage": "India",
       "enabled": true,
       "access_limitations": "Public WordPress RSS (HTTP 200, ~75 items). robots.txt only blocks admin/cache paths and feedburner. Secondary professional publication that republishes Ministry of Corporate Affairs notifications, used because mca.gov.in and pib.gov.in return HTTP 403. Only items matching CSR policy terms are kept.",
-      "config": {}
+      "config": {},
+      "notes": "Company-law updates, including Ministry of Corporate Affairs notifications on CSR rules."
     },
     {
       "id": "ngobox-rfp",
@@ -119,7 +124,8 @@
       "access_limitations": "Public HTML listing behind CloudFront; HTTP 403 to Vercel's servers, HTTP 200 from a residential connection. No RSS feed; robots.txt returns 404 (no restrictions). Only the listing page is read (one request per run). Cards give title, organisation and deadline; no publication date, so the source-stated deadline determines open-call status. Fetched by the Mac collector (config.runner = \"local\"), not by Vercel: the site blocks datacenter IPs. Runs Mondays 05:15 IST and daily 09:00 IST while the Mac is awake.",
       "config": {
         "runner": "local"
-      }
+      },
+      "notes": "Open requests for proposals and expressions of interest addressed to NGOs, with deadlines."
     },
     {
       "is_official": false,
@@ -138,7 +144,8 @@
         "skill_development",
         "policy"
       ],
-      "access_limitations": "Public WordPress category RSS (HTTP 200). Overlaps with the main India CSR feed; overlaps are removed by canonical-URL dedup."
+      "access_limitations": "Public WordPress category RSS (HTTP 200). Overlaps with the main India CSR feed; overlaps are removed by canonical-URL dedup.",
+      "notes": "CSR announcements section of India CSR."
     },
     {
       "is_official": false,
@@ -156,7 +163,8 @@
         "skill_development",
         "youth_employment"
       ],
-      "access_limitations": "Public WordPress tag RSS (HTTP 200). Low volume; most items are older than the 7-day window and are stored only if within the 30-day lookback."
+      "access_limitations": "Public WordPress tag RSS (HTTP 200). Low volume; most items are older than the 7-day window and are stored only if within the 30-day lookback.",
+      "notes": "India CSR stories on skill development."
     },
     {
       "is_official": false,
@@ -175,7 +183,8 @@
         "skill_development",
         "policy"
       ],
-      "access_limitations": "Second page of the public WordPress feed (items 11–20) so a busy week is not truncated to 10 items."
+      "access_limitations": "Second page of the public WordPress feed (items 11–20) so a busy week is not truncated to 10 items.",
+      "notes": "Older India CSR stories, so busy weeks aren't missed."
     },
     {
       "is_official": false,
@@ -192,7 +201,8 @@
       "sector_relevance": [
         "education"
       ],
-      "access_limitations": "Public WordPress category RSS (HTTP 200)."
+      "access_limitations": "Public WordPress category RSS (HTTP 200).",
+      "notes": "Education coverage from The CSR Journal."
     },
     {
       "is_official": false,
@@ -209,7 +219,8 @@
       "sector_relevance": [
         "skill_development"
       ],
-      "access_limitations": "Public WordPress tag RSS (HTTP 200)."
+      "access_limitations": "Public WordPress tag RSS (HTTP 200).",
+      "notes": "Skill development coverage from The CSR Journal."
     },
     {
       "is_official": false,
@@ -228,7 +239,8 @@
         "skill_development",
         "policy"
       ],
-      "access_limitations": "Second page of the public WordPress feed (items 11–20)."
+      "access_limitations": "Second page of the public WordPress feed (items 11–20).",
+      "notes": "Older CSR Journal stories, so busy weeks aren't missed."
     },
     {
       "id": "et-corporate-trends",
@@ -245,7 +257,8 @@
       "geographic_coverage": "India",
       "enabled": true,
       "access_limitations": "Public RSS (HTTP 200, ~50 items). Only headline + short description are available; full articles may be paywalled (ET Prime) and are NOT fetched. robots.txt disallows *rssarticleshow* pages, which we never request.",
-      "config": {}
+      "config": {},
+      "notes": "Corporate news headlines from The Economic Times."
     },
     {
       "id": "livemint-companies",
@@ -262,7 +275,8 @@
       "geographic_coverage": "India",
       "enabled": true,
       "access_limitations": "Public RSS (HTTP 200, ~35 items). Headline + summary only; article pages are not fetched.",
-      "config": {}
+      "config": {},
+      "notes": "Company news headlines from Mint."
     },
     {
       "id": "hcltech-newsroom",
@@ -281,7 +295,8 @@
       "geographic_coverage": "Global / India",
       "enabled": true,
       "access_limitations": "Official company RSS (HTTP 200). Mostly business/marketing content; CSR items (HCLFoundation) are rare, so most items are dropped by the relevance pre-filter. Other corporate newsrooms probed (Infosys, TCS, Tata, Wipro, Mahindra, Tech Mahindra, Reliance Foundation, Azim Premji Foundation) returned 403/404 or no feed on 2026-10-12.",
-      "config": {}
+      "config": {},
+      "notes": "HCLTech's official newsroom."
     },
     {
       "id": "fundsforngos",
@@ -303,7 +318,8 @@
       "config": {
         "requireIndiaMention": true,
         "runner": "local"
-      }
+      },
+      "notes": "Grants and calls for proposals relevant to Indian NGOs."
     },
     {
       "id": "gdelt-csr-education",
@@ -328,7 +344,8 @@
         "maxrecords": 50,
         "timeoutMs": 25000,
         "runner": "local"
-      }
+      },
+      "notes": "Global news index searched for CSR and skilling coverage in India."
     },
     {
       "id": "google-news-rss",
@@ -346,7 +363,8 @@
       "geographic_coverage": "India",
       "enabled": false,
       "access_limitations": "DISABLED: news.google.com/robots.txt disallows /rss for all user agents (only /, /topics/, /publications/, /stories/ etc. are allowed). The feed responds technically, but we respect robots.txt.",
-      "config": {}
+      "config": {},
+      "notes": "Paused: the provider does not permit automated access to this feed."
     },
     {
       "id": "pib",
@@ -363,7 +381,8 @@
       "geographic_coverage": "India",
       "enabled": false,
       "access_limitations": "DISABLED: returned HTTP 403 to automated requests during verification (2026-10-12). Enable from Settings to re-test; failures are isolated and recorded.",
-      "config": {}
+      "config": {},
+      "notes": "Government press releases. The site doesn't allow automated access; check it manually."
     },
     {
       "id": "mca-notifications",
@@ -380,7 +399,8 @@
       "geographic_coverage": "India",
       "enabled": false,
       "access_limitations": "LINK ONLY: mca.gov.in returned HTTP 403 to automated requests and offers no RSS/API for CSR notifications. Check manually; CSR rule changes are usually also reported by the CSR specialist feeds above.",
-      "config": {}
+      "config": {},
+      "notes": "Official CSR notifications. The site doesn't allow automated access; check it manually."
     },
     {
       "id": "csr-portal",
@@ -399,7 +419,8 @@
       "geographic_coverage": "India",
       "enabled": false,
       "access_limitations": "LINK ONLY: returned HTTP 403 to automated requests; the portal is a JavaScript dashboard of filed CSR spend (lagging annual data), not an announcement feed.",
-      "config": {}
+      "config": {},
+      "notes": "National CSR spending dashboard. Check it manually for annual spending data."
     },
     {
       "id": "businessline-companies",
@@ -416,7 +437,8 @@
       "geographic_coverage": "India",
       "enabled": false,
       "access_limitations": "DISABLED: feed responds (HTTP 200) but robots.txt contains multiple 'Disallow: /' groups whose scope for generic agents is ambiguous; disabled pending explicit permission.",
-      "config": {}
+      "config": {},
+      "notes": "Paused pending permission for automated access."
     }
   ]
 }

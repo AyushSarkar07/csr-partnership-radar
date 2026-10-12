@@ -28,8 +28,8 @@ export function PriorityPill({ priority }: { priority: Priority }) {
 
 export function SyntheticBadge({ className }: { className?: string }) {
   return (
-    <Pill className={cx("bg-synthetic-bg text-synthetic border border-synthetic/30 uppercase tracking-wide", className)} title="Fictional demonstration record — not a real announcement">
-      Synthetic
+    <Pill className={cx("bg-synthetic-bg text-synthetic border border-synthetic/30 uppercase tracking-wide", className)} title="Demo record — fictional company and source">
+      Demo
     </Pill>
   );
 }
@@ -37,8 +37,8 @@ export function SyntheticBadge({ className }: { className?: string }) {
 export function VerificationBadge({ status }: { status: string }) {
   if (status === "synthetic") return <SyntheticBadge />;
   if (status === "verified")
-    return <Pill className="bg-high-bg text-high" title="Live record: publication date known and at least one claim quoted verbatim from the source">Live · verified</Pill>;
-  return <Pill className="bg-monitor-bg text-monitor" title="Live record that still needs verification (date unknown, unclassified or no verbatim evidence)">Live · needs verification</Pill>;
+    return <Pill className="bg-high-bg text-high" title="Publication date known and key details confirmed against the original source">Verified</Pill>;
+  return <Pill className="bg-monitor-bg text-monitor" title="Check the original source before acting (date or details not yet confirmed)">Needs verification</Pill>;
 }
 
 export function ScoreBadge({ score, priority }: { score: number; priority: Priority }) {

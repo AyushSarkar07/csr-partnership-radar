@@ -43,8 +43,8 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <main id="main" className="flex-1">{children}</main>
         <footer className="border-t border-line text-xs text-ink-3">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 py-4 flex flex-wrap gap-x-6 gap-y-1">
-            <span>AI analysis: Gemini Flash. Scores are decision support, not a prediction of funding.</span>
-            <span>The AI recommends; Ananya decides. Verify facts on the original source before outreach.</span>
+            <span>Scores help prioritise outreach; they do not predict funding decisions.</span>
+            <span>Always confirm details on the original source before contacting a company.</span>
           </div>
         </footer>
       </body>

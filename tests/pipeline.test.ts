@@ -120,13 +120,13 @@ describe("Gemini failure handling inside the pipeline (Test 11)", () => {
     const missing: Classifier = async () => { throw new GeminiError("missing_key", "no key"); };
     const r = await runRefresh(db2, { trigger: "test", now: NOW, fetchImpl: fixtureFetch(), classify: missing, sourceIds: ["indiacsr"] });
     expect(r.classified).toBe(0);
-    expect(r.aiNote).toMatch(/GEMINI_API_KEY/);
+    expect(r.aiNote).toMatch(/queued/);
     const pending = await db2.query<{ ai_status: string; ai_attempts: number }>("select ai_status, ai_attempts from announcements");
     expect(pending.every((p) => p.ai_status === "pending" && p.ai_attempts === 0)).toBe(true);
     // Dashboard still loads unclassified items.
     const opps = await loadOpportunities(db2, "live", DEFAULT_SETTINGS, w);
     expect(opps.length).toBeGreaterThan(0);
-    expect(opps[0].nextAction).toMatch(/Awaiting AI/);
+    expect(opps[0].nextAction).toMatch(/Analysis pending/);
 
     const timeout: Classifier = async () => { throw new GeminiError("timeout", "slow"); };
     const r2 = await runRefresh(db2, { trigger: "test", now: NOW, fetchImpl: fixtureFetch(), classify: timeout, sourceIds: ["indiacsr"] });

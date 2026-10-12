@@ -15,9 +15,9 @@ export const SOURCE_TYPE_LABEL: Record<SourceType | "synthetic", string> = {
   csr_specialist_news: "CSR specialist news",
   government: "Government / regulator",
   partner_calls: "Grant & partner-call listing",
-  news_api: "News index API",
+  news_api: "News index",
   regulatory_news: "Regulatory / legal news",
-  synthetic: "Synthetic",
+  synthetic: "Demo",
 };
 
 export interface SourceRecord {
@@ -33,6 +33,8 @@ export interface SourceRecord {
   geographic_coverage: string;
   enabled: boolean;
   access_limitations: string | null;
+  /** Short, user-facing description shown on the Sources page. */
+  notes?: string | null;
   config: Record<string, unknown>;
   last_attempt_at?: string | null;
   last_success_at?: string | null;

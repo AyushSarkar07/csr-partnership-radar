@@ -112,7 +112,7 @@ export function scoreOpportunity(input: ScoringInput, settings: Settings, window
   if (input.fundingSignal && type !== "not_csr" && type !== "historical_activity") intentFraction += 0.04;
   intentFraction = Math.min(1, relevant ? intentFraction : 0);
   const intentExplanation = !type
-    ? "Not yet classified"
+    ? "Not yet analysed"
     : input.partnerSignal === "explicit"
       ? "Explicitly seeking NGO / implementation partners"
       : `${typeLabel(type)}${input.partnerSignal === "implied" ? "; works with NGOs (no open call stated)" : "; does not establish that it is seeking an NGO"}`;
@@ -233,7 +233,7 @@ export function scoreOpportunity(input: ScoringInput, settings: Settings, window
     confidenceReasons.push(`${verifiedFacts} claim(s) quoted verbatim from the source`);
   } else confidenceReasons.push("no claim could be verified against source text");
   if (input.aiStatus === "done" || input.aiStatus === "fixture") c++;
-  else confidenceReasons.push("AI classification incomplete");
+  else confidenceReasons.push("analysis not yet complete");
   if (unsupported > 0) c--;
   const confidence: Confidence = c >= 4 ? "high" : c >= 2 ? "medium" : "low";
 

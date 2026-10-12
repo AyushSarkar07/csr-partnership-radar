@@ -22,8 +22,8 @@ export function OpportunityCard({ o, sectorLabels, timezone, refTime }: { o: Opp
             {o.announcementType && <Pill className="bg-surface-2 text-ink-2">{ANNOUNCEMENT_TYPE_LABEL[o.announcementType]}</Pill>}
             {o.review && <Pill className="border border-line text-ink-2">✓ {REVIEW_LABEL[o.review.status]}</Pill>}
             {o.deadline && <Pill className={o.score.flags.includes("deadline_passed") ? "bg-low-bg text-low" : "bg-monitor-bg text-monitor"}>Deadline {o.deadline}{o.score.flags.includes("deadline_passed") ? " (passed)" : ""}</Pill>}
-            {o.aiStatus === "pending" && <Pill className="bg-surface-2 text-ink-3">Awaiting AI analysis</Pill>}
-            {o.aiStatus === "failed" && <Pill className="bg-danger-bg text-danger">AI analysis failed</Pill>}
+            {o.aiStatus === "pending" && <Pill className="bg-surface-2 text-ink-3">Analysis pending</Pill>}
+            {o.aiStatus === "failed" && <Pill className="bg-danger-bg text-danger">Analysis unavailable</Pill>}
           </div>
           <h3 className="font-medium leading-snug">
             <Link href={`/opportunities/${o.id}`} className="hover:underline">

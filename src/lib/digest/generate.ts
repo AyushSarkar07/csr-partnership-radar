@@ -68,7 +68,7 @@ export function fallbackSummary(content: DigestContent): DigestSummary {
   return {
     overview,
     top_actions: hp.slice(0, 3).map((i) => ({ item_id: i.announcementId, action: i.nextAction })),
-    caveats: "Summary generated deterministically because the AI summary was unavailable.",
+    caveats: "",
   };
 }
 
@@ -153,19 +153,19 @@ async function deliver(
 ): Promise<{ status: string; detail: string }> {
   if (opts.mode === "demo") {
     await db.query("update digests set delivery_status='not_attempted', delivery_error='Demo digests are never emailed' where id=$1 and delivery_status <> 'sent'", [digestId]);
-    return { status: "not_attempted", detail: "Demo digests are never emailed." };
+    return { status: "not_attempted", detail: "Demo digests are not emailed." };
   }
   const cfg = emailConfigStatus(emailEnabled, emailTo);
   if (!cfg.configured && !opts.send) {
     await db.query("update digests set delivery_status='not_configured', delivery_error=$2 where id=$1 and delivery_status <> 'sent'", [digestId, `Missing: ${cfg.missing.join(", ")}`]);
-    return { status: "not_configured", detail: `Stored in the app only. Missing: ${cfg.missing.join(", ")}` };
+    return { status: "not_configured", detail: "Email delivery is off; the digest is available in the app." };
   }
   // Atomic claim: only one run may send a given digest, and never twice.
   const claimed = await db.query<{ id: string }>(
     "update digests set delivery_status='pending' where id=$1 and delivery_status not in ('sent','pending') returning id",
     [digestId],
   );
-  if (!claimed.length) return { status: "sent", detail: "Already delivered for this digest — not re-sent." };
+  if (!claimed.length) return { status: "sent", detail: "This digest was already emailed." };
   try {
     const email = renderDigestEmail(content, summary.overview, digestId);
     const send = opts.send ?? ((to, e, key) => sendViaResend(to, e, key));
@@ -174,10 +174,10 @@ async function deliver(
       "update digests set delivery_status='sent', delivery_channel='email:resend', delivered_at=now(), delivery_message_id=$2, delivery_error=null where id=$1",
       [digestId, messageId],
     );
-    return { status: "sent", detail: `Email accepted by provider (id ${messageId}).` };
+    return { status: "sent", detail: "Emailed to the recipient in Settings." };
   } catch (err) {
     const msg = (err as Error).message.slice(0, 300);
     await db.query("update digests set delivery_status='failed', delivery_error=$2 where id=$1", [digestId, msg]);
-    return { status: "failed", detail: msg };
+    return { status: "failed", detail: `Email could not be sent: ${msg}` };
   }
 }

@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { DigestItemPayload } from "@/lib/digest/build";
 import { parseSummary, type DigestRow } from "@/lib/queries";
 import { REVIEW_LABEL, type ReviewStatus } from "@/lib/repo/opportunities";
+import { friendlySourceError } from "@/lib/friendly";
 import { formatDate, formatDateTime } from "@/lib/time/window";
 import { PrintButton } from "./PrintButton";
 import { Card, Pill, SyntheticBadge } from "./ui";
@@ -73,14 +74,14 @@ export function DigestView({ d }: { d: DigestRow }) {
     <div className="space-y-5">
       {d.data_mode === "demo" && (
         <div className="rounded-lg border border-synthetic/40 bg-synthetic-bg px-4 py-2.5 text-sm text-synthetic">
-          <strong>DEMO DIGEST — synthetic data.</strong> Every item below is fictional and exists only to demonstrate the digest format.
+          <strong>Demo digest.</strong> The companies and sources below are fictional.
         </div>
       )}
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <p className="text-sm text-ink-3">{d.data_mode === "live" ? "Live" : "Demo"} digest · {formatDate(c.window.start, tz)} → {formatDate(c.window.end, tz)} ({tz})</p>
+          <p className="text-sm text-ink-3">{d.data_mode === "live" ? "Weekly" : "Demo"} digest · {formatDate(c.window.start, tz)} → {formatDate(c.window.end, tz)} ({tz})</p>
           <h1 className="font-serif text-3xl font-semibold">Weekly CSR intelligence digest</h1>
-          <p className="text-xs text-ink-3">Generated {formatDateTime(d.generated_at, tz)} ({d.trigger}){d.generation_count > 1 ? ` · regenerated ${d.generation_count}× for this window (same digest, no duplicates)` : ""}</p>
+          <p className="text-xs text-ink-3">Prepared {formatDateTime(d.generated_at, tz)}{d.generation_count > 1 ? ` · updated ${d.generation_count - 1}×` : ""}</p>
         </div>
         <PrintButton />
       </div>
@@ -91,27 +92,27 @@ export function DigestView({ d }: { d: DigestRow }) {
         {summary && summary.top_actions.length > 0 && (
           <ol className="mt-3 list-decimal pl-5 text-sm space-y-1">
             {summary.top_actions.map((t) => (
-              <li key={t.item_id}><strong>{byId.get(t.item_id)?.company ?? byId.get(t.item_id)?.headline.replace(/^Synthetic scenario: /, "").slice(0, 70) ?? "Item"}:</strong> {t.action}</li>
+              <li key={t.item_id}><strong>{byId.get(t.item_id)?.company ?? byId.get(t.item_id)?.headline.slice(0, 70) ?? "Item"}:</strong> {t.action}</li>
             ))}
           </ol>
         )}
         {summary?.caveats && <p className="mt-2 text-xs text-ink-3">{summary.caveats}</p>}
         {c.limitedEvidenceNote && <p className="mt-2 text-sm text-monitor">{c.limitedEvidenceNote}</p>}
         <p className="mt-3 text-xs text-ink-3">
-          Overview written by {d.summary_source === "gemini" ? `Gemini (${d.ai_model})` : "deterministic fallback"}{d.ai_error ? ` — Gemini error: ${d.ai_error}` : ""}. Delivery: <strong>{d.delivery_status.replace("_", " ")}</strong> — {DELIVERY[d.delivery_status]}{d.delivery_error && d.delivery_status === "failed" ? ` (${d.delivery_error})` : ""}
+          Delivery: <strong>{d.delivery_status.replace("_", " ")}</strong> — {DELIVERY[d.delivery_status]}{d.delivery_error && d.delivery_status === "failed" ? ` (${d.delivery_error})` : ""}
         </p>
       </Card>
 
-      <Section title="High priority — worth a call this week" hint="Fresh, relevant, credible intent and non-weak evidence. Not padded to a target count." items={c.sections.high_priority} tz={tz} empty="No opportunity met the high-priority bar this week." />
-      <Section title="Opportunities to monitor" hint="Relevant but missing something: date, geography fit, explicit intent or strong evidence." items={c.sections.monitor} tz={tz} empty="Nothing to monitor." />
-      <Section title="Policy & regulatory developments" hint="Changes affecting how companies deploy CSR funds, labelled confirmed or needing interpretation." items={c.sections.policy} tz={tz} empty="No policy developments found in the window." />
-      <Section title="Background developments" hint="Relevant but outside the window or historical only — context, not outreach triggers." items={c.sections.background} tz={tz} empty="No background items." />
+      <Section title="High priority — worth a call this week" hint="Recent, relevant announcements with credible intent and solid evidence." items={c.sections.high_priority} tz={tz} empty="No opportunity met the high-priority bar this week." />
+      <Section title="Opportunities to monitor" hint="Relevant, but missing something: a confirmed date, a geography fit, clear intent or strong evidence." items={c.sections.monitor} tz={tz} empty="Nothing to monitor." />
+      <Section title="Policy & regulatory developments" hint="Changes that affect how companies spend CSR funds." items={c.sections.policy} tz={tz} empty="No policy developments found in the window." />
+      <Section title="Background developments" hint="Useful context from earlier announcements; not a reason to call this week." items={c.sections.background} tz={tz} empty="No background items." />
       <Card className="p-5">
         <h2 className="font-serif text-xl font-semibold">Sources that failed or could not be checked</h2>
-        {d.data_mode === "demo" ? <p className="text-sm text-ink-3">Not applicable to synthetic data.</p> : c.failedSources.length ? (
-          <ul className="mt-2 text-sm space-y-1">{c.failedSources.map((f) => <li key={f.sourceId}><strong>{f.name}</strong>: <span className="text-danger">{f.error}</span>{f.at ? <span className="text-ink-3"> · {formatDateTime(f.at, tz)}</span> : null}</li>)}</ul>
+        {d.data_mode === "demo" ? <p className="text-sm text-ink-3">Not applicable to demo data.</p> : c.failedSources.length ? (
+          <ul className="mt-2 text-sm space-y-1">{c.failedSources.map((f) => <li key={f.sourceId}><strong>{f.name}</strong>: <span className="text-danger">{friendlySourceError(f.error)}</span>{f.at ? <span className="text-ink-3"> · {formatDateTime(f.at, tz)}</span> : null}</li>)}</ul>
         ) : <p className="text-sm text-ink-3">All enabled sources were checked successfully on the last attempt.</p>}
-        <p className="mt-2 text-xs text-ink-3">Disabled and link-only sources (robots.txt or access restrictions) are listed on the <Link href="/sources" className="underline">Sources</Link> page.</p>
+        <p className="mt-2 text-xs text-ink-3">Sources that need to be checked manually are listed on the <Link href="/sources" className="underline">Sources</Link> page.</p>
       </Card>
     </div>
   );

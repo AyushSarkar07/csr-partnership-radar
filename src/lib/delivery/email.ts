@@ -56,8 +56,8 @@ export function renderDigestEmail(content: DigestContent, summary: string, diges
   ${section("High priority — worth a call this week", content.sections.high_priority)}
   ${section("Monitor", content.sections.monitor)}
   ${section("Policy & regulatory", content.sections.policy)}
-  <p style="font:13px system-ui;margin-top:24px"><a href="${esc(link)}">Open the full digest with evidence and review controls</a></p>
-  <p style="font:11px system-ui;color:#9ca3af">Scores are decision support, not a prediction of funding. AI analysis by Gemini Flash; verify facts on the original source before outreach.</p>
+  <p style="font:13px system-ui;margin-top:24px"><a href="${esc(link)}">Open the full digest with sources and decision tracking</a></p>
+  <p style="font:11px system-ui;color:#9ca3af">Scores help prioritise outreach; they do not predict funding decisions. Confirm details on the original source before contacting a company.</p>
   </div>`;
   const text = [
     subject,

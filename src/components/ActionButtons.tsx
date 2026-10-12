@@ -29,13 +29,13 @@ export function ActionButtons({ mode }: { mode: "live" | "demo" }) {
             type="button"
             disabled={refresh.kind === "busy"}
             onClick={async () => {
-              setRefresh({ kind: "busy", message: "Fetching sources and classifying with Gemini — this can take up to a minute…" });
+              setRefresh({ kind: "busy", message: "Checking sources and analysing new announcements. This can take up to a minute…" });
               try {
                 const r = await post("/api/refresh");
                 const failed = r.sources.filter((s: { ok: boolean }) => !s.ok).length;
                 setRefresh({
                   kind: failed && failed === r.sources.length ? "error" : "ok",
-                  message: `Run ${r.status}: ${r.itemsFetched} items fetched, ${r.itemsNew} new, ${r.itemsDuplicate} duplicates, ${r.classified} classified${r.aiPendingRemaining ? `, ${r.aiPendingRemaining} still awaiting AI` : ""}${failed ? `, ${failed} source(s) failed` : ""}.${r.aiNote ? " " + r.aiNote : ""}`,
+                  message: `Update complete: ${r.itemsNew} new announcement${r.itemsNew === 1 ? "" : "s"}, ${r.classified} analysed${r.aiPendingRemaining ? `, ${r.aiPendingRemaining} queued for the next update` : ""}${failed ? `. ${failed} source${failed === 1 ? "" : "s"} could not be checked` : ""}.${r.aiNote ? " " + r.aiNote : ""}`,
                 });
                 router.refresh();
               } catch (e) {
@@ -54,7 +54,7 @@ export function ActionButtons({ mode }: { mode: "live" | "demo" }) {
             setDigest({ kind: "busy", message: "Building the digest…" });
             try {
               const r = await post("/api/digest/generate", { mode });
-              setDigest({ kind: "ok", message: `Digest ready (${r.items} items, overview by ${r.summarySource === "gemini" ? "Gemini" : "deterministic fallback"}). Delivery: ${r.delivery.detail}` });
+              setDigest({ kind: "ok", message: `Digest ready (${r.items} items). ${r.delivery.detail}` });
               router.push(`/digest/${r.digestId}`);
             } catch (e) {
               setDigest({ kind: "error", message: (e as Error).message });

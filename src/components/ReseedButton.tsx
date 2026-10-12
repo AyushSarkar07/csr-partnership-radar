@@ -10,16 +10,16 @@ export function ReseedButton() {
       <button
         type="button"
         onClick={async () => {
-          if (!confirm("Reset the synthetic demo data? This deletes synthetic records and their demo reviews, then reloads the seed file. Live data is not touched.")) return;
+          if (!confirm("Reset the demo data? Demo items and any decisions recorded on them return to their original state. Live data is not affected.")) return;
           setMsg("Resetting…");
           const res = await fetch("/api/demo/reseed", { method: "POST", headers: { "content-type": "application/json" }, body: "{}" });
           const j = await res.json().catch(() => ({}));
-          setMsg(res.ok ? `Reloaded ${j.inserted} synthetic records (${j.merged} merged as duplicates).` : j.error ?? "Failed");
+          setMsg(res.ok ? `Demo data restored (${j.inserted - j.merged} items).` : j.error ?? "Failed");
           router.refresh();
         }}
         className="rounded-lg border border-synthetic/50 px-4 py-2 text-sm text-synthetic hover:bg-synthetic-bg"
       >
-        Reset synthetic demo data
+        Reset demo data
       </button>
       {msg && <span role="status" className="text-sm text-ink-2">{msg}</span>}
     </div>
