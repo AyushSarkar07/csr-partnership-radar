@@ -1,0 +1,135 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2000 1340" width="2000" height="1340" font-family="Inter, Helvetica, Arial, sans-serif">
+<defs><marker id="arr-4b5578" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#4b5578"/></marker><marker id="arr-15803d" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#15803d"/></marker><marker id="arr-e11d48" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#e11d48"/></marker><marker id="arr-7c3aed" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#7c3aed"/></marker><linearGradient id="actor" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0f5f73"/><stop offset="1" stop-color="#0b4a5c"/></linearGradient></defs>
+<rect width="2000" height="1340" fill="#f7f8fb"/>
+<text x="1000.0" y="62" font-size="38" font-weight="800" fill="#13294b" text-anchor="middle">Ananya / CSR Partnership Radar — Components Map</text>
+<rect x="24" y="104" width="1952" height="1146" rx="14" fill="#ffffff" stroke="#dfe4ee"/>
+<path d="M 24 118 a 14 14 0 0 1 14 -14 H 1962 a 14 14 0 0 1 14 14 V 188 H 24 Z" fill="#13294b"/>
+<text x="159.0" y="158" font-size="26" font-weight="700" fill="#ffffff" text-anchor="middle">Actor</text>
+<text x="434.2" y="158" font-size="26" font-weight="700" fill="#ffffff" text-anchor="middle">Trigger</text>
+<line x1="294.0" y1="104" x2="294.0" y2="1250" stroke="#e3e7ef" stroke-dasharray="4 4"/>
+<text x="714.5" y="158" font-size="26" font-weight="700" fill="#ffffff" text-anchor="middle">Input</text>
+<line x1="574.3" y1="104" x2="574.3" y2="1250" stroke="#e3e7ef" stroke-dasharray="4 4"/>
+<text x="994.8" y="158" font-size="26" font-weight="700" fill="#ffffff" text-anchor="middle">Context</text>
+<line x1="854.7" y1="104" x2="854.7" y2="1250" stroke="#e3e7ef" stroke-dasharray="4 4"/>
+<text x="1275.2" y="158" font-size="26" font-weight="700" fill="#ffffff" text-anchor="middle">Processing</text>
+<line x1="1135.0" y1="104" x2="1135.0" y2="1250" stroke="#e3e7ef" stroke-dasharray="4 4"/>
+<text x="1555.5" y="158" font-size="26" font-weight="700" fill="#ffffff" text-anchor="middle">AI</text>
+<line x1="1415.3" y1="104" x2="1415.3" y2="1250" stroke="#e3e7ef" stroke-dasharray="4 4"/>
+<text x="1835.8" y="158" font-size="26" font-weight="700" fill="#ffffff" text-anchor="middle">Output</text>
+<line x1="1695.7" y1="104" x2="1695.7" y2="1250" stroke="#e3e7ef" stroke-dasharray="4 4"/>
+<path d="M 24 188 H 294 V 1250 H 38 a 14 14 0 0 1 -14 -14 Z" fill="url(#actor)"/>
+<text x="48" y="250.0" font-size="25" font-weight="700" fill="#ffffff">Ananya</text>
+<text x="48" y="276.0" font-size="16" fill="#cdeef3">(Head of Partnerships)</text>
+<line x1="24" y1="316" x2="1976" y2="316" stroke="#e3e7ef"/>
+<line x1="24" y1="316" x2="294" y2="316" stroke="#ffffff" stroke-opacity="0.25"/>
+<text x="48" y="378.0" font-size="25" font-weight="700" fill="#ffffff">Vercel Cron</text>
+<text x="48" y="404.0" font-size="16" fill="#cdeef3">(weekly scheduler)</text>
+<line x1="24" y1="444" x2="1976" y2="444" stroke="#e3e7ef"/>
+<line x1="24" y1="444" x2="294" y2="444" stroke="#ffffff" stroke-opacity="0.25"/>
+<text x="48" y="506.0" font-size="25" font-weight="700" fill="#ffffff">Public sources</text>
+<text x="48" y="532.0" font-size="16" fill="#cdeef3">(18 live feeds)</text>
+<line x1="24" y1="572" x2="1976" y2="572" stroke="#e3e7ef"/>
+<line x1="24" y1="572" x2="294" y2="572" stroke="#ffffff" stroke-opacity="0.25"/>
+<text x="48" y="634.0" font-size="25" font-weight="700" fill="#ffffff">Radar memory</text>
+<text x="48" y="660.0" font-size="16" fill="#cdeef3">(Context)</text>
+<line x1="24" y1="700" x2="1976" y2="700" stroke="#e3e7ef"/>
+<line x1="24" y1="700" x2="294" y2="700" stroke="#ffffff" stroke-opacity="0.25"/>
+<text x="48" y="814.0" font-size="25" font-weight="700" fill="#ffffff">Rules engine</text>
+<text x="48" y="840.0" font-size="16" fill="#cdeef3">(scoring in code)</text>
+<line x1="24" y1="932" x2="1976" y2="932" stroke="#e3e7ef"/>
+<line x1="24" y1="932" x2="294" y2="932" stroke="#ffffff" stroke-opacity="0.25"/>
+<text x="48" y="1019.0" font-size="25" font-weight="700" fill="#ffffff">Gemini Flash</text>
+<text x="48" y="1045.0" font-size="16" fill="#cdeef3">(read &amp; summarise)</text>
+<line x1="24" y1="1110" x2="1976" y2="1110" stroke="#e3e7ef"/>
+<line x1="24" y1="1110" x2="294" y2="1110" stroke="#ffffff" stroke-opacity="0.25"/>
+<text x="48" y="1178.0" font-size="25" font-weight="700" fill="#ffffff">Digest &amp; dashboard</text>
+<text x="48" y="1204.0" font-size="16" fill="#cdeef3">(+ email via Resend)</text>
+<rect x="311.0" y="204.5" width="246.3" height="95.0" rx="10" fill="#fff4e0" stroke="#d97706" stroke-width="2"/>
+<text x="434.2" y="230.5" font-size="16" font-weight="600" fill="#152036" text-anchor="middle">Clicks “Refresh</text>
+<text x="434.2" y="251.5" font-size="16" font-weight="600" fill="#152036" text-anchor="middle">intelligence”</text>
+<text x="434.2" y="274.5" font-size="12.5" fill="#46536b" text-anchor="middle">any time, from the dashboard</text>
+<rect x="311.0" y="334.5" width="246.3" height="91.0" rx="10" fill="#fff4e0" stroke="#d97706" stroke-width="2"/>
+<text x="434.2" y="360.5" font-size="16" font-weight="600" fill="#152036" text-anchor="middle">Every Monday, 06:00 IST</text>
+<text x="434.2" y="383.5" font-size="12.5" fill="#46536b" text-anchor="middle">scan + digest · a repeat run the</text>
+<text x="434.2" y="400.5" font-size="12.5" fill="#46536b" text-anchor="middle">same day is skipped</text>
+<rect x="591.3" y="454.0" width="246.3" height="108.0" rx="10" fill="#e8f1ff" stroke="#2563eb" stroke-width="2"/>
+<text x="714.5" y="480.0" font-size="16" font-weight="600" fill="#152036" text-anchor="middle">Pulls 18 public feeds</text>
+<text x="714.5" y="503.0" font-size="12.5" fill="#46536b" text-anchor="middle">CSR news · NGO partner calls · MCA</text>
+<text x="714.5" y="520.0" font-size="12.5" fill="#46536b" text-anchor="middle">rule updates → headline, text, date,</text>
+<text x="714.5" y="537.0" font-size="12.5" fill="#46536b" text-anchor="middle">link</text>
+<rect x="871.7" y="578.0" width="246.3" height="116.0" rx="10" fill="#e6f6ee" stroke="#059669" stroke-width="2"/>
+<text x="994.8" y="604.0" font-size="16" font-weight="600" fill="#152036" text-anchor="middle">Focus sectors · Pune +</text>
+<text x="994.8" y="625.0" font-size="16" font-weight="600" fill="#152036" text-anchor="middle">target regions · scoring</text>
+<text x="994.8" y="646.0" font-size="16" font-weight="600" fill="#152036" text-anchor="middle">weights</text>
+<text x="994.8" y="669.0" font-size="12.5" fill="#46536b" text-anchor="middle">+ past items &amp; decisions in Neon</text>
+<rect x="1152.0" y="716.5" width="246.3" height="95.0" rx="10" fill="#fff7d1" stroke="#ca8a04" stroke-width="2"/>
+<text x="1275.2" y="742.5" font-size="16" font-weight="600" fill="#152036" text-anchor="middle">Keyword filter · duplicate</text>
+<text x="1275.2" y="763.5" font-size="16" font-weight="600" fill="#152036" text-anchor="middle">merge · 7-day IST window</text>
+<text x="1275.2" y="786.5" font-size="12.5" fill="#46536b" text-anchor="middle">only new, relevant items go on</text>
+<rect x="1152.0" y="818.0" width="246.3" height="112.0" rx="10" fill="#fff7d1" stroke="#ca8a04" stroke-width="2"/>
+<text x="1275.2" y="844.0" font-size="16" font-weight="600" fill="#152036" text-anchor="middle">Checks every quote against</text>
+<text x="1275.2" y="865.0" font-size="16" font-weight="600" fill="#152036" text-anchor="middle">the source · 100-pt score</text>
+<text x="1275.2" y="888.0" font-size="12.5" fill="#46536b" text-anchor="middle">→ Call this week / Watchlist /</text>
+<text x="1275.2" y="905.0" font-size="12.5" fill="#46536b" text-anchor="middle">Policy / Context only</text>
+<rect x="1432.3" y="948.0" width="246.3" height="146.0" rx="10" fill="#fdecef" stroke="#e11d48" stroke-width="2"/>
+<text x="1555.5" y="974.0" font-size="16" font-weight="600" fill="#152036" text-anchor="middle">Reads each article → strict</text>
+<text x="1555.5" y="995.0" font-size="16" font-weight="600" fill="#152036" text-anchor="middle">JSON</text>
+<text x="1555.5" y="1018.0" font-size="12.5" fill="#46536b" text-anchor="middle">sector · company · type ·</text>
+<text x="1555.5" y="1035.0" font-size="12.5" fill="#46536b" text-anchor="middle">NGO-partner signal + exact quotes ·</text>
+<text x="1555.5" y="1052.0" font-size="12.5" fill="#46536b" text-anchor="middle">never the score · writes the weekly</text>
+<text x="1555.5" y="1069.0" font-size="12.5" fill="#46536b" text-anchor="middle">brief</text>
+<rect x="1712.7" y="818.0" width="246.3" height="112.0" rx="10" fill="#f1f3f6" stroke="#94a3b8" stroke-width="2"/>
+<text x="1835.8" y="844.0" font-size="16" font-weight="600" fill="#152036" text-anchor="middle">Low relevance / expired</text>
+<text x="1835.8" y="865.0" font-size="16" font-weight="600" fill="#152036" text-anchor="middle">calls</text>
+<text x="1835.8" y="888.0" font-size="12.5" fill="#46536b" text-anchor="middle">kept as context, never padded into</text>
+<text x="1835.8" y="905.0" font-size="12.5" fill="#46536b" text-anchor="middle">the shortlist</text>
+<rect x="1712.7" y="1132.5" width="246.3" height="95.0" rx="10" fill="#f1ebff" stroke="#7c3aed" stroke-width="2"/>
+<text x="1835.8" y="1158.5" font-size="16" font-weight="600" fill="#152036" text-anchor="middle">Ranked dashboard + Monday</text>
+<text x="1835.8" y="1179.5" font-size="16" font-weight="600" fill="#152036" text-anchor="middle">digest</text>
+<text x="1835.8" y="1202.5" font-size="12.5" fill="#46536b" text-anchor="middle">emailed via Resend · printable</text>
+<rect x="1712.7" y="206.5" width="246.3" height="91.0" rx="10" fill="#dcfce7" stroke="#15803d" stroke-width="3.2"/>
+<text x="1835.8" y="232.5" font-size="16" font-weight="700" fill="#152036" text-anchor="middle">Reviews &amp; decides</text>
+<text x="1835.8" y="255.5" font-size="12.5" fill="#46536b" text-anchor="middle">call · monitor · won — AI</text>
+<text x="1835.8" y="272.5" font-size="12.5" fill="#46536b" text-anchor="middle">recommends, Ananya decides</text>
+<path d="M 434.2 425.5 L 434.2 508.0 L 589.3 508.0" fill="none" stroke="#4b5578" stroke-width="1.8" stroke-dasharray="6 5" marker-end="url(#arr-4b5578)"/>
+<text x="442.2" y="500.0" font-size="12.5" font-style="italic" fill="#4b5578" text-anchor="start">weekly run</text>
+<path d="M 557.3 252.0 L 566.3 252.0 L 566.3 494.0 L 589.3 494.0" fill="none" stroke="#4b5578" stroke-width="1.8" stroke-dasharray="6 5" marker-end="url(#arr-4b5578)"/>
+<text x="572.3" y="244.0" font-size="12.5" font-style="italic" fill="#4b5578" text-anchor="start">on demand</text>
+<path d="M 837.7 508.0 L 1235.2 508.0 L 1235.2 714.5" fill="none" stroke="#4b5578" stroke-width="1.8" stroke-dasharray="6 5" marker-end="url(#arr-4b5578)"/>
+<text x="851.7" y="500.0" font-size="12.5" font-style="italic" fill="#4b5578" text-anchor="start">raw items</text>
+<path d="M 1118.0 636.0 L 1175.0 636.0 L 1175.0 714.5" fill="none" stroke="#4b5578" stroke-width="1.8" stroke-dasharray="6 5" marker-end="url(#arr-4b5578)"/>
+<text x="1130.0" y="628.0" font-size="12.5" font-style="italic" fill="#4b5578" text-anchor="start">sectors · regions · weights</text>
+<path d="M 994.8 694.0 L 994.8 1053.1 L 1430.3 1053.1" fill="none" stroke="#4b5578" stroke-width="1.8" stroke-dasharray="6 5" marker-end="url(#arr-4b5578)"/>
+<text x="1004.8" y="1045.1" font-size="12.5" font-style="italic" fill="#4b5578" text-anchor="start">sector list for the prompt</text>
+<path d="M 1398.3 764.0 L 1555.5 764.0 L 1555.5 946.0" fill="none" stroke="#4b5578" stroke-width="1.8" stroke-dasharray="6 5" marker-end="url(#arr-4b5578)"/>
+<text x="1412.3" y="756.0" font-size="12.5" font-style="italic" fill="#4b5578" text-anchor="start">new items only</text>
+<path d="M 1462.3 948.0 L 1462.3 860.0 L 1400.3 860.0" fill="none" stroke="#e11d48" stroke-width="1.8" stroke-dasharray="6 5" marker-end="url(#arr-e11d48)"/>
+<text x="1470.3" y="938.0" font-size="12.5" font-style="italic" fill="#e11d48" text-anchor="start">facts + quotes</text>
+<path d="M 1398.3 896.0 L 1710.7 896.0" fill="none" stroke="#4b5578" stroke-width="1.8" stroke-dasharray="6 5" marker-end="url(#arr-4b5578)"/>
+<text x="1700.7" y="890.0" font-size="12.5" font-style="italic" fill="#4b5578" text-anchor="end">low / expired</text>
+<path d="M 1275.2 930.0 L 1275.2 1190.0 L 1710.7 1190.0" fill="none" stroke="#4b5578" stroke-width="1.8" stroke-dasharray="6 5" marker-end="url(#arr-4b5578)"/>
+<text x="1285.2" y="1182.0" font-size="12.5" font-style="italic" fill="#4b5578" text-anchor="start">ranked shortlist</text>
+<path d="M 1678.7 1021.0 L 1835.8 1021.0 L 1835.8 1130.5" fill="none" stroke="#e11d48" stroke-width="1.8" stroke-dasharray="6 5" marker-end="url(#arr-e11d48)"/>
+<text x="1690.7" y="1013.0" font-size="12.5" font-style="italic" fill="#e11d48" text-anchor="start">weekly brief</text>
+<path d="M 1959.0 1180.0 L 1968.0 1180.0 L 1968.0 252.0 L 1961.0 252.0" fill="none" stroke="#7c3aed" stroke-width="1.8" stroke-dasharray="6 5" marker-end="url(#arr-7c3aed)"/>
+<text x="1960.0" y="376.0" font-size="12.5" font-style="italic" fill="#7c3aed" text-anchor="end">Monday 06:00 email</text>
+<path d="M 1712.7 252.0 L 994.8 252.0 L 994.8 576.0" fill="none" stroke="#15803d" stroke-width="1.8" stroke-dasharray="6 5" marker-end="url(#arr-15803d)"/>
+<text x="1004.8" y="242.0" font-size="12.5" font-style="italic" fill="#15803d" text-anchor="start">decision saved — never overwritten by the next scan</text>
+<rect x="30" y="1271" width="22" height="16" rx="4" fill="#fff4e0" stroke="#d97706" stroke-width="2"/>
+<text x="60" y="1284" font-size="14" fill="#33405a">Trigger</text>
+<rect x="143.2" y="1271" width="22" height="16" rx="4" fill="#e8f1ff" stroke="#2563eb" stroke-width="2"/>
+<text x="173.2" y="1284" font-size="14" fill="#33405a">Live data</text>
+<rect x="271.59999999999997" y="1271" width="22" height="16" rx="4" fill="#e6f6ee" stroke="#059669" stroke-width="2"/>
+<text x="301.59999999999997" y="1284" font-size="14" fill="#33405a">Context</text>
+<rect x="384.79999999999995" y="1271" width="22" height="16" rx="4" fill="#fff7d1" stroke="#ca8a04" stroke-width="2"/>
+<text x="414.79999999999995" y="1284" font-size="14" fill="#33405a">Rules in code</text>
+<rect x="543.5999999999999" y="1271" width="22" height="16" rx="4" fill="#fdecef" stroke="#e11d48" stroke-width="2"/>
+<text x="573.5999999999999" y="1284" font-size="14" fill="#33405a">Gemini Flash (only AI)</text>
+<rect x="770.8" y="1271" width="22" height="16" rx="4" fill="#f1ebff" stroke="#7c3aed" stroke-width="2"/>
+<text x="800.8" y="1284" font-size="14" fill="#33405a">Output</text>
+<rect x="876.4" y="1271" width="22" height="16" rx="4" fill="#dcfce7" stroke="#15803d" stroke-width="2"/>
+<text x="906.4" y="1284" font-size="14" fill="#33405a">Human decision</text>
+<rect x="1042.8" y="1271" width="22" height="16" rx="4" fill="#f1f3f6" stroke="#94a3b8" stroke-width="2"/>
+<text x="1072.8" y="1284" font-size="14" fill="#33405a">Held back</text>
+<text x="1000.0" y="1324" font-size="15" fill="#5b6780" text-anchor="middle">Monday cron or Refresh → 18 public feeds → rules in code (filter, dedupe, 7-day window) → Gemini Flash (facts &amp; quotes only) → score in code → digest + email → Ananya decides</text>
+</svg>
