@@ -5,7 +5,8 @@ export type SourceType =
   | "csr_specialist_news"
   | "government"
   | "partner_calls"
-  | "news_api";
+  | "news_api"
+  | "regulatory_news";
 
 export const SOURCE_TYPE_LABEL: Record<SourceType | "synthetic", string> = {
   corporate_official: "Official company source",
@@ -15,6 +16,7 @@ export const SOURCE_TYPE_LABEL: Record<SourceType | "synthetic", string> = {
   government: "Government / regulator",
   partner_calls: "Grant & partner-call listing",
   news_api: "News index API",
+  regulatory_news: "Regulatory / legal news",
   synthetic: "Synthetic",
 };
 
@@ -24,7 +26,7 @@ export interface SourceRecord {
   source_type: SourceType;
   base_url: string;
   feed_url: string | null;
-  retrieval_method: "rss" | "gdelt_api" | "link_only";
+  retrieval_method: "rss" | "gdelt_api" | "ngobox_html" | "link_only";
   is_official: boolean;
   credibility: number;
   sector_relevance: string[];
@@ -45,6 +47,8 @@ export interface RawItem {
   title: string;
   publishedRaw: string | null;
   publishedProvenance: "feed_pubdate" | "api_seendate";
+  /** Application deadline exactly as printed by the source (structured field, never AI-inferred). */
+  deadlineRaw?: string | null;
   description: string | null;
   contentHtml: string | null;
   publisher: string | null;

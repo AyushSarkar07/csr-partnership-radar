@@ -11,6 +11,8 @@ export interface ClassificationInput {
   publishedAt: string | null;
   url: string;
   text: string;
+  /** Source-stated deadline (YYYY-MM-DD), if the listing provides one. */
+  deadline?: string | null;
 }
 
 export const CLASSIFIER_VERSION = "classify-v1";
@@ -62,6 +64,7 @@ export function buildUserPrompt(input: ClassificationInput): string {
 - source_type: ${input.sourceType}
 - publication_date: ${input.publishedAt ?? "UNKNOWN (do not assume a date)"}
 - url: ${input.url}
+- application_deadline (structured field from the source listing): ${input.deadline ?? "not provided"}
 
 <untrusted_article>
 ${text.replace(/<\/?untrusted_article>/gi, "")}

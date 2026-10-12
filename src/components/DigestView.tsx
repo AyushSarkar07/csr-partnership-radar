@@ -28,7 +28,7 @@ function Item({ i, tz }: { i: DigestItemPayload; tz: string }) {
         <Link href={`/opportunities/${i.announcementId}`} className="hover:underline"><span className="font-semibold">{i.company ?? "Unknown company"}</span> — {i.headline}</Link>
       </h3>
       <p className="text-xs text-ink-3">
-        {i.publishedAt ? formatDate(i.publishedAt, tz) : "Publication date unknown"} · {i.sectors.join(", ") || "No focus sector"} · {i.geographies.join(", ") || "Geography not stated"} ({i.geoFit})
+        {i.publishedAt ? formatDate(i.publishedAt, tz) : "Publication date unknown"}{i.deadline ? ` · Deadline ${i.deadline}` : ""} · {i.sectors.join(", ") || "No focus sector"} · {i.geographies.join(", ") || "Geography not stated"} ({i.geoFit})
       </p>
       <dl className="mt-2 grid gap-1.5 text-sm">
         <div><dt className="inline font-semibold">Verdict: </dt><dd className="inline">{i.verdict}. {i.primaryReason}</dd></div>

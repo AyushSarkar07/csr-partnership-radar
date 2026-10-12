@@ -103,7 +103,7 @@ export async function getDashboard(db: Db, filters: Filters) {
     latestDigest(db, filters.mode),
     db.query<{ n: number }>("select count(*)::int as n from announcements where data_origin='live'"),
   ]);
-  const fresh = all.filter((o) => o.score.freshness === "fresh");
+  const fresh = all.filter((o) => o.score.freshness === "fresh" || o.score.freshness === "open_call");
   const metrics = {
     freshAnnouncements: fresh.filter((o) => o.isRelevant !== false).length,
     highPriority: all.filter((o) => o.score.priority === "high").length,

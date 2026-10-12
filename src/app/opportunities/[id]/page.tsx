@@ -49,6 +49,11 @@ export default async function OpportunityPage({ params }: PageProps<"/opportunit
           </div>
           <h1 className="font-serif text-2xl font-semibold leading-tight">{o.headline}</h1>
           <p className="mt-1 text-ink-2">{o.company ?? "Company not identified"}{o.initiativeName ? ` · ${o.initiativeName}` : ""}</p>
+          {o.deadline && (
+            <p className="mt-1 text-sm">
+              <strong>Application deadline: {o.deadline}</strong> <span className="text-ink-3">(as stated by the source listing{o.score.flags.includes("deadline_passed") ? " — passed" : ""})</span>
+            </p>
+          )}
           <p className="mt-2 text-lg"><strong>{o.score.verdict}.</strong> <span className="text-ink-2">{o.score.primaryReason}</span></p>
         </div>
       </div>

@@ -23,7 +23,28 @@ export function reportingWindow(end: Date, days: number, timezone: string): Repo
   return { start: new Date(end.getTime() - days * DAY), end, days, timezone };
 }
 
-export type Freshness = "fresh" | "stale" | "unknown" | "future";
+/** "open_call" is only assigned by scoring: an explicit call whose source-stated deadline has not passed. */
+export type Freshness = "fresh" | "stale" | "unknown" | "future" | "open_call";
+
+/** Parses a source-printed deadline such as "19 Oct. 2026" or "2026-10-19" into YYYY-MM-DD. */
+export function parseDeadline(raw: string | null | undefined): string | null {
+  if (!raw) return null;
+  const s = raw.trim();
+  const iso = /^(\d{4})-(\d{2})-(\d{2})/.exec(s);
+  if (iso) return `${iso[1]}-${iso[2]}-${iso[3]}`;
+  const m = /(\d{1,2})(?:st|nd|rd|th)?[\s-]+([A-Za-z]{3})[a-z]*\.?,?[\s-]+(\d{4})/.exec(s);
+  if (!m) return null;
+  const mon = ["jan","feb","mar","apr","may","jun","jul","aug","sep","oct","nov","dec"].indexOf(m[2].toLowerCase());
+  if (mon < 0) return null;
+  const d = Number(m[1]);
+  if (d < 1 || d > 31) return null;
+  return `${m[3]}-${String(mon + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
+}
+
+/** End of the deadline day in the given timezone offset (IST is +05:30). */
+export function deadlineEnd(dateIso: string, utcOffset = "+05:30"): Date {
+  return new Date(`${dateIso}T23:59:59${utcOffset}`);
+}
 
 /** Classifies a publication date against the window. Unknown dates are never "fresh". */
 export function freshness(publishedAt: Date | null, w: ReportingWindow): Freshness {

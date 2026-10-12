@@ -44,6 +44,82 @@
       "config": {}
     },
     {
+      "id": "csrmandate",
+      "name": "CSR Mandate",
+      "source_type": "csr_specialist_news",
+      "base_url": "https://csrmandate.org",
+      "feed_url": "https://csrmandate.org/feed/",
+      "retrieval_method": "rss",
+      "is_official": false,
+      "credibility": 0.7,
+      "sector_relevance": [
+        "education",
+        "skill_development",
+        "policy"
+      ],
+      "geographic_coverage": "India",
+      "enabled": true,
+      "access_limitations": "Public WordPress RSS (HTTP 200, 10 items). robots.txt allows all.",
+      "config": {}
+    },
+    {
+      "id": "thecsruniverse",
+      "name": "The CSR Universe",
+      "source_type": "csr_specialist_news",
+      "base_url": "https://www.thecsruniverse.com",
+      "feed_url": "https://www.thecsruniverse.com/feed",
+      "retrieval_method": "rss",
+      "is_official": false,
+      "credibility": 0.7,
+      "sector_relevance": [
+        "education",
+        "skill_development",
+        "digital_literacy",
+        "youth_employment"
+      ],
+      "geographic_coverage": "India",
+      "enabled": true,
+      "access_limitations": "Public RSS (HTTP 200, ~100 items). robots.txt allows /.",
+      "config": {}
+    },
+    {
+      "id": "taxguru-company-law",
+      "name": "TaxGuru — Company Law (MCA notifications incl. CSR rules)",
+      "source_type": "regulatory_news",
+      "base_url": "https://taxguru.in",
+      "feed_url": "https://taxguru.in/category/company-law/feed/",
+      "retrieval_method": "rss",
+      "is_official": false,
+      "credibility": 0.7,
+      "sector_relevance": [
+        "policy"
+      ],
+      "geographic_coverage": "India",
+      "enabled": true,
+      "access_limitations": "Public WordPress RSS (HTTP 200, ~75 items). robots.txt only blocks admin/cache paths and feedburner. Secondary professional publication that republishes Ministry of Corporate Affairs notifications, used because mca.gov.in and pib.gov.in return HTTP 403. Only items matching CSR policy terms are kept.",
+      "config": {}
+    },
+    {
+      "id": "ngobox-rfp",
+      "name": "NGOBox — RFP/EOI board (calls for NGOs & agencies)",
+      "source_type": "partner_calls",
+      "base_url": "https://www.ngobox.org",
+      "feed_url": "https://www.ngobox.org/rfp_eoi_listing.php",
+      "retrieval_method": "ngobox_html",
+      "is_official": false,
+      "credibility": 0.65,
+      "sector_relevance": [
+        "education",
+        "skill_development",
+        "youth_employment",
+        "digital_literacy"
+      ],
+      "geographic_coverage": "India",
+      "enabled": true,
+      "access_limitations": "Public HTML listing (HTTP 200); no RSS feed; robots.txt returns 404 (no restrictions). We read only the listing page (one request per run), never individual call pages. Each card gives title, issuing organisation and deadline; no publication date is shown, so dates stay 'unknown' and the source-stated deadline is used for open-call status. Many calls are vendor/consultant procurements, which the relevance filter and Gemini classify as non-relevant.",
+      "config": {}
+    },
+    {
       "is_official": false,
       "credibility": 0.7,
       "geographic_coverage": "India",
@@ -220,8 +296,8 @@
         "youth_employment"
       ],
       "geographic_coverage": "Global (filtered to items mentioning India)",
-      "enabled": true,
-      "access_limitations": "Public RSS (HTTP 200 from a residential connection in India, 25 items) but returned HTTP 403 when fetched from Vercel's servers on 2026-10-12 — likely bot protection for cloud IPs. Failure is isolated and reported; works when the pipeline runs locally (npm run pipeline:refresh). Only items mentioning India are kept.",
+      "enabled": false,
+      "access_limitations": "DISABLED (2026-10-12): public RSS works from a residential connection in India but returns HTTP 403 to Vercel's servers (bot protection for cloud IPs), so production runs always failed. Replaced by the NGOBox RFP/EOI board, which is reachable from Vercel. Only items mentioning India were used.",
       "config": {
         "requireIndiaMention": true
       }
@@ -243,10 +319,11 @@
       ],
       "geographic_coverage": "India (sourcecountry:IN)",
       "enabled": true,
-      "access_limitations": "Free public API, limited to 1 request / 5 seconds and frequently returns a rate-limit notice from shared IPs (observed during development). Returns headline + URL + 'seendate' (first time GDELT saw the article — not the publisher's date). No article text, so evidence is headline-only and scored as weak. Note: GDELT rejects quoted phrases shorter than 4 characters (\"CSR\"), so CSR is unquoted.",
+      "access_limitations": "Free public API, limited to 1 request / 5 seconds and frequently returns a rate-limit notice from shared IPs (observed during development). Returns headline + URL + 'seendate' (first time GDELT saw the article — not the publisher's date). No article text, so evidence is headline-only and scored as weak. Note: GDELT rejects quoted phrases shorter than 4 characters (\"CSR\"), so CSR is unquoted. Timeout raised to 25 s and one polite retry after 6 s when the rate-limit notice is returned.",
       "config": {
         "query": "(CSR OR \"corporate social responsibility\") (skilling OR \"skill development\" OR education OR \"digital literacy\" OR employability) sourcecountry:IN sourcelang:english",
-        "maxrecords": 50
+        "maxrecords": 50,
+        "timeoutMs": 25000
       }
     },
     {

@@ -1,7 +1,7 @@
 import type { AnnouncementType } from "../ai/analysis";
 import { GEO_FIT_FRACTION, GEO_FIT_LABEL, geographicFit, type GeoFit } from "../geo";
 import type { Settings } from "../settings/schema";
-import { freshness, hoursBetween, type Freshness, type ReportingWindow } from "../time/window";
+import { deadlineEnd, freshness, hoursBetween, type Freshness, type ReportingWindow } from "../time/window";
 
 /**
  * Deterministic, explainable 100-point opportunity score. No AI is used here:
@@ -21,6 +21,8 @@ export interface ScoringInput {
   claims: Array<{ kind: "fact" | "interpretation" | "unknown"; excerptVerified: boolean }>;
   aiStatus: string;
   fundingSignal: boolean;
+  /** Application deadline stated by the source (YYYY-MM-DD), never AI-inferred. */
+  deadline?: string | null;
 }
 
 export type Priority = "high" | "monitor" | "policy" | "background" | "low";
@@ -116,10 +118,22 @@ export function scoreOpportunity(input: ScoringInput, settings: Settings, window
       : `${typeLabel(type)}${input.partnerSignal === "implied" ? "; works with NGOs (no open call stated)" : "; does not establish that it is seeking an NGO"}`;
 
   // 3. Recency ----------------------------------------------------------------
-  const fresh = freshness(input.publishedAt, window);
+  const pubFresh = freshness(input.publishedAt, window);
+  const isExplicitCall = type === "explicit_partner_request" && input.partnerSignal === "explicit";
+  const deadlineOpen = Boolean(input.deadline && deadlineEnd(input.deadline).getTime() >= window.end.getTime());
+  const deadlinePassed = Boolean(input.deadline && !deadlineOpen);
+  // An explicit call whose source-stated deadline is still ahead is current even
+  // when the listing shows no publication date (or the post is older than the window).
+  const openCall = isExplicitCall && deadlineOpen && pubFresh !== "fresh";
+  const fresh: Freshness = openCall ? "open_call" : pubFresh;
+  if (deadlinePassed) flags.push("deadline_passed");
   let recencyFraction = 0;
   let recencyExplanation: string;
-  if (fresh === "unknown") {
+  if (openCall) {
+    recencyFraction = 0.75;
+    recencyExplanation = `Open call — application deadline ${input.deadline} (stated by source)${pubFresh === "unknown" ? "; publication date not shown" : ""}`;
+    if (pubFresh === "unknown") flags.push("date_unknown");
+  } else if (fresh === "unknown") {
     recencyFraction = settings.recency.unknownDateFraction;
     recencyExplanation = "Publication date could not be verified";
     flags.push("date_unknown");
@@ -188,10 +202,10 @@ export function scoreOpportunity(input: ScoringInput, settings: Settings, window
   let priority: Priority;
   if (type === "policy_change" && relevant) priority = fresh === "stale" ? "background" : "policy";
   else if (!relevant || sectorFraction === 0) priority = "low";
-  else if (fresh === "stale" || type === "historical_activity") priority = "background";
+  else if (fresh === "stale" || type === "historical_activity" || (deadlinePassed && isExplicitCall)) priority = "background";
   else if (
     total >= settings.thresholds.high &&
-    fresh === "fresh" &&
+    (fresh === "fresh" || fresh === "open_call") &&
     intentFraction >= 0.6 &&
     evidenceStrength !== "weak" &&
     !outsideGeography
@@ -203,9 +217,12 @@ export function scoreOpportunity(input: ScoringInput, settings: Settings, window
   // Confidence ----------------------------------------------------------------
   const confidenceReasons: string[] = [];
   let c = 0;
-  if (fresh === "fresh" || fresh === "stale") {
+  if (pubFresh === "fresh" || pubFresh === "stale") {
     c++;
     confidenceReasons.push("publication date verified from source metadata");
+  } else if (openCall) {
+    c++;
+    confidenceReasons.push("application deadline stated by the source (publication date not shown)");
   } else confidenceReasons.push("publication date unknown");
   if (officialSource || publishers.size >= 2) {
     c++;
@@ -266,8 +283,8 @@ function primaryReason(
     return `Low priority: ${weakest.label.toLowerCase()} is weak (${weakest.explanation}).`;
   }
   if (priority === "policy") return "Regulatory development that may change how companies deploy CSR funds.";
-  if (priority === "background") return fresh === "stale" ? "Relevant but outside the reporting window — background only." : "Historical activity with no current signal.";
-  if (partner === "explicit") return "Company is explicitly seeking implementation partners in a focus sector.";
+  if (priority === "background") return fresh === "stale" ? "Relevant but outside the reporting window — background only." : type === "explicit_partner_request" ? "Call for proposals whose deadline has passed." : "Historical activity with no current signal.";
+  if (partner === "explicit") return fresh === "open_call" ? "Open call for implementation partners in a focus sector — deadline still ahead." : "Company is explicitly seeking implementation partners in a focus sector.";
   const parts: string[] = [];
   if (type) parts.push(typeLabel(type).toLowerCase());
   if (fresh === "fresh") parts.push("announced within the window");

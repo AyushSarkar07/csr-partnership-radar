@@ -4,7 +4,7 @@ import { normGeo, stateOf } from "../geo";
 import type { Settings } from "../settings/schema";
 import type { RawItem, SourceRecord } from "../sources/types";
 import { canonicalizeUrl, htmlToText, normalizeHeadline, stripFeedBoilerplate, truncate } from "../text";
-import { parseFeedDate } from "../time/window";
+import { parseDeadline, parseFeedDate } from "../time/window";
 
 export interface NormalizedItem {
   sourceId: string;
@@ -21,6 +21,8 @@ export interface NormalizedItem {
   text: string;
   excerpt: string;
   categories: string[];
+  /** YYYY-MM-DD as printed by the source, or null. */
+  deadline: string | null;
 }
 
 const itemSchema = z.object({
@@ -56,6 +58,7 @@ export function normalizeItem(raw: RawItem, source: SourceRecord): NormalizeOutc
       text: truncate(body, LIMITS.storedTextChars),
       excerpt: truncate(description || body, 400),
       categories: raw.categories.slice(0, 15),
+      deadline: parseDeadline(raw.deadlineRaw),
     },
   };
 }

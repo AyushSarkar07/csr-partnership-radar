@@ -190,9 +190,10 @@ export async function ingestItems(
         annId = (
           await q.query<{ id: string }>(
             `insert into announcements (data_origin, verification_status, headline, normalized_headline, published_at,
-               published_at_provenance, first_seen_at, primary_text, content_hash)
-             values ('live','needs_verification',$1,$2,$3,$4,$5,$6,$7) returning id`,
-            [item.title, item.normalizedHeadline, item.publishedAt, item.provenance, now, item.text || item.excerpt, sha256(item.title + item.text)],
+               published_at_provenance, first_seen_at, primary_text, content_hash, deadline, deadline_provenance)
+             values ('live','needs_verification',$1,$2,$3,$4,$5,$6,$7,$8,$9) returning id`,
+            [item.title, item.normalizedHeadline, item.publishedAt, item.provenance, now, item.text || item.excerpt, sha256(item.title + item.text),
+              item.deadline, item.deadline ? "source_listing" : null],
           )
         )[0].id;
         outcome.new++;
@@ -202,12 +203,12 @@ export async function ingestItems(
       await q.query(
         `insert into announcement_sources (announcement_id, source_id, fetch_run_id, data_origin, url, canonical_url, publisher,
            headline, normalized_headline, published_at, published_at_provenance, retrieved_at, excerpt, raw_text, source_type, is_primary,
-           credibility, is_official)
-         values ($1,$2,$3,'live',$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17)
+           credibility, is_official, deadline)
+         values ($1,$2,$3,'live',$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18)
          on conflict (canonical_url) do nothing`,
         [annId, source.id, runId, item.url, item.canonicalUrl, item.publisher, item.title, item.normalizedHeadline,
           item.publishedAt, item.provenance, now, item.excerpt, item.text, source.source_type, !clusterId,
-          item.credibility, item.isOfficial],
+          item.credibility, item.isOfficial, item.deadline],
       );
     });
   }
@@ -247,12 +248,13 @@ interface PendingRow {
   publisher: string | null;
   source_type: string;
   is_official: boolean;
+  deadline: string | null;
 }
 
 /** Classifies pending/failed live announcements with Gemini Flash, bounded per run. */
 export async function processPending(db: Db, settings: Settings, classify: Classifier, limit: number) {
   const rows = await db.query<PendingRow>(
-    `select a.id, a.headline, a.published_at, a.primary_text, a.ai_input_hash, a.ai_status,
+    `select a.id, a.headline, a.published_at, a.primary_text, a.ai_input_hash, a.ai_status, a.deadline,
             s.id as src_id, s.url, s.publisher, s.source_type, s.is_official
        from announcements a
        join announcement_sources s on s.announcement_id = a.id and s.is_primary
@@ -275,6 +277,7 @@ export async function processPending(db: Db, settings: Settings, classify: Class
       publishedAt: r.published_at ? new Date(r.published_at).toISOString() : null,
       url: r.url,
       text: r.primary_text ?? "",
+      deadline: r.deadline ? isoDate(r.deadline) : null,
     };
     const hash = classificationInputHash(input, settings);
     try {
@@ -389,4 +392,8 @@ async function runPool(tasks: Array<() => Promise<void>>, concurrency: number) {
     while (i < tasks.length) await tasks[i++]();
   });
   await Promise.all(workers);
+}
+
+function isoDate(v: unknown): string {
+  return v instanceof Date ? v.toISOString().slice(0, 10) : String(v).slice(0, 10);
 }

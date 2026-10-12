@@ -34,7 +34,7 @@ function itemHtml(i: DigestItemPayload, tz: string) {
   const src = i.sources.find((s) => s.isPrimary) ?? i.sources[0];
   return `<tr><td style="padding:14px 0;border-bottom:1px solid #e5e7eb">
   <div style="font:600 15px system-ui">${esc(i.company ?? "Unknown company")} — ${esc(i.headline)}</div>
-  <div style="font:12px system-ui;color:#6b7280">${esc(formatDate(i.publishedAt, tz))} · Score ${i.score}/100 · ${esc(i.verdict)}</div>
+  <div style="font:12px system-ui;color:#6b7280">${esc(formatDate(i.publishedAt, tz))}${i.deadline ? ` · Deadline ${esc(i.deadline)}` : ""} · Score ${i.score}/100 · ${esc(i.verdict)}</div>
   <p style="font:14px system-ui;margin:8px 0"><b>What was announced:</b> ${esc(i.whatWasAnnounced)}</p>
   <p style="font:14px system-ui;margin:8px 0"><b>Why it matters:</b> ${esc(i.whyItMatters)}</p>
   <p style="font:14px system-ui;margin:8px 0"><b>Next action:</b> ${esc(i.nextAction)}</p>

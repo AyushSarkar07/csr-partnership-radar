@@ -1,16 +1,17 @@
 import "server-only";
 import { createNeonDb } from "./neon";
+import { resolveDatabaseUrl } from "./url";
 import type { Db } from "./types";
 
 let current: Db | null = null;
 
 export function isDbConfigured(): boolean {
-  return Boolean(current || process.env.DATABASE_URL);
+  return Boolean(current || resolveDatabaseUrl());
 }
 
 export function getDb(): Db {
   if (current) return current;
-  const url = process.env.DATABASE_URL;
+  const url = resolveDatabaseUrl();
   if (!url) throw new DbNotConfiguredError();
   current = createNeonDb(url);
   return current;

@@ -16,6 +16,7 @@ export interface DigestItemPayload {
   publishedAt: string | null;
   publishedAtProvenance: string;
   freshness: string;
+  deadline: string | null;
   sources: Array<{ publisher: string | null; url: string; sourceType: string; isPrimary: boolean }>;
   sectors: string[];
   geographies: string[];
@@ -71,6 +72,7 @@ export function toPayload(o: Opportunity, section: DigestSection, rank: number, 
     publishedAt: o.publishedAt,
     publishedAtProvenance: o.publishedAtProvenance,
     freshness: o.score.freshness,
+    deadline: o.deadline,
     sources: o.coverage.map((c) => ({ publisher: c.publisher, url: c.url, sourceType: c.source_type, isPrimary: c.is_primary })),
     sectors: o.sectors.map((s) => sectorLabels.get(s) ?? s),
     geographies: o.geographies,
@@ -137,7 +139,7 @@ export function buildDigestContent(
     policy: mk(policy, "policy"),
     background: mk(background, "background"),
   };
-  const consideredInWindow = opps.filter((o) => o.score.freshness === "fresh").length;
+  const consideredInWindow = opps.filter((o) => o.score.freshness === "fresh" || o.score.freshness === "open_call").length;
   let limitedEvidenceNote: string | null = null;
   if (sections.high_priority.length === 0) {
     limitedEvidenceNote = `No opportunity met the high-priority bar (score ≥ ${settings.thresholds.high}, fresh, credible intent, non-weak evidence) this week. Nothing has been padded in.`;

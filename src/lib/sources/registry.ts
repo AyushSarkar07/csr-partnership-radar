@@ -1,6 +1,7 @@
 import registry from "../../../data/sources.json";
 import type { Db } from "../db/types";
 import { fetchGdelt } from "./adapters/gdelt";
+import { fetchNgobox } from "./adapters/ngobox";
 import { fetchRss } from "./adapters/rss";
 import type { AdapterResult, FetchLike, SourceRecord } from "./types";
 
@@ -8,7 +9,8 @@ export const REGISTRY = registry.sources as SourceRecord[];
 
 export const ADAPTERS: Record<string, ((s: SourceRecord, f?: FetchLike) => Promise<AdapterResult>) | undefined> = {
   rss: fetchRss,
-  gdelt_api: fetchGdelt,
+  gdelt_api: (s, f) => fetchGdelt(s, f),
+  ngobox_html: fetchNgobox,
   link_only: undefined,
 };
 

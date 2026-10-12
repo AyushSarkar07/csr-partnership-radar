@@ -35,7 +35,11 @@ export function parseGdelt(body: string): RawItem[] {
   }));
 }
 
-export async function fetchGdelt(source: SourceRecord, fetchImpl?: FetchLike): Promise<AdapterResult> {
+export async function fetchGdelt(
+  source: SourceRecord,
+  fetchImpl?: FetchLike,
+  sleepImpl?: (ms: number) => Promise<void>,
+): Promise<AdapterResult> {
   const query = String(source.config.query ?? "");
   if (!query) throw new SourceFetchError("No GDELT query configured");
   const params = new URLSearchParams({
@@ -46,6 +50,24 @@ export async function fetchGdelt(source: SourceRecord, fetchImpl?: FetchLike): P
     sort: "datedesc",
     maxrecords: String(Math.min(Number(source.config.maxrecords ?? 50), 75)),
   });
-  const body = await boundedGet(`${source.feed_url}?${params}`, fetchImpl, "application/json");
+  const url = `${source.feed_url}?${params}`;
+  const timeoutMs = Number(source.config.timeoutMs ?? 25_000);
+  const sleep = sleepImpl ?? ((ms: number) => new Promise<void>((r) => setTimeout(r, ms)));
+  let body: string;
+  try {
+    body = await boundedGet(url, fetchImpl, "application/json", timeoutMs);
+  } catch (err) {
+    if (!(err instanceof SourceFetchError) || !/HTTP 429/.test(err.message)) throw err;
+    body = "Please limit requests to one every 5 seconds"; // treat HTTP 429 like the text notice
+  }
+  if (isRateLimitNotice(body)) {
+    // GDELT asks for ≤1 request per 5 s. Wait 6 s and retry exactly once.
+    await sleep(6_000);
+    return { items: parseGdelt(await boundedGet(url, fetchImpl, "application/json", timeoutMs)) };
+  }
   return { items: parseGdelt(body) };
+}
+
+export function isRateLimitNotice(body: string): boolean {
+  return /limit requests to one every/i.test(body.slice(0, 300));
 }

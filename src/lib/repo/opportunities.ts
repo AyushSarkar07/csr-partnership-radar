@@ -84,6 +84,8 @@ export interface Opportunity {
   partnerSignal: "explicit" | "implied" | "none" | null;
   analysis: Analysis | null;
   scenario: Record<string, unknown> | null;
+  /** Source-stated application deadline (YYYY-MM-DD) or null. */
+  deadline: string | null;
   coverage: CoverageRow[];
   claims: ClaimRow[];
   review: ReviewRow | null;
@@ -114,9 +116,12 @@ interface AnnRow {
   partner_signal: Opportunity["partnerSignal"];
   analysis: Analysis | null;
   scenario: Record<string, unknown> | null;
+  deadline: string | Date | null;
 }
 
 const iso = (v: unknown) => (v == null ? null : new Date(v as string).toISOString());
+const dateOnly = (v: unknown): string | null =>
+  v == null ? null : v instanceof Date ? v.toISOString().slice(0, 10) : String(v).slice(0, 10);
 
 /** Loads every announcement for an origin (optionally specific ids) with coverage, claims and latest review. */
 export async function loadOpportunities(
@@ -195,12 +200,14 @@ export async function loadOpportunities(
         claims: cl.map((c) => ({ kind: c.kind, excerptVerified: c.excerpt_verified })),
         aiStatus: a.ai_status,
         fundingSignal: Boolean(a.analysis?.funding_signal?.present),
+        deadline: dateOnly(a.deadline),
       },
       settings,
       window,
     );
     const missing = [...(a.analysis?.missing_information ?? [])];
-    if (score.freshness === "unknown") missing.unshift("Publication date not verified — confirm on the original source.");
+    if (score.freshness === "unknown" || (score.freshness === "open_call" && !a.published_at)) missing.unshift("Publication date not verified — confirm on the original source.");
+    if (score.flags.includes("deadline_passed")) missing.unshift(`Application deadline (${dateOnly(a.deadline)}) has passed.`);
     if (score.geoFit === "unknown") missing.push("Programme geography not stated.");
     if (cov.length === 1 && !cov[0].is_official && a.data_origin === "live") missing.push("Single secondary source — look for the company's own announcement.");
     return {
@@ -224,6 +231,7 @@ export async function loadOpportunities(
       partnerSignal: a.partner_signal,
       analysis: a.analysis,
       scenario: a.scenario,
+      deadline: dateOnly(a.deadline),
       coverage: cov,
       claims: cl,
       review: rev ? { ...rev, created_at: iso(rev.created_at)! } : null,

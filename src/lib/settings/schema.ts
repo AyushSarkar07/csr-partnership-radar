@@ -96,7 +96,7 @@ export const DEFAULT_SETTINGS: Settings = {
       key: "education",
       label: "Education",
       priority: "high",
-      keywords: ["education", "school", "learning", "scholarship", "classroom", "teacher", "stem"],
+      keywords: ["education", "school", "learning", "literacy", "scholarship", "classroom", "teacher", "stem"],
     },
     {
       key: "skill_development",

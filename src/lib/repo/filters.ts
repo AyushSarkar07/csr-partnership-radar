@@ -49,8 +49,8 @@ export function parseFilters(p: Params, defaults: { mode: "live" | "demo"; days:
 export function applyFilters(opps: Opportunity[], f: Filters): Opportunity[] {
   const lc = (s: string | null | undefined) => (s ?? "").toLowerCase();
   const out = opps.filter((o) => {
-    if (f.freshness === "fresh" && o.score.freshness !== "fresh") return false;
-    if (f.freshness === "window" && !(o.score.freshness === "fresh" || o.score.freshness === "unknown" || o.score.freshness === "future")) return false;
+    if (f.freshness === "fresh" && o.score.freshness !== "fresh" && o.score.freshness !== "open_call") return false;
+    if (f.freshness === "window" && !(o.score.freshness === "fresh" || o.score.freshness === "open_call" || o.score.freshness === "unknown" || o.score.freshness === "future")) return false;
     if (f.sector && !o.sectors.includes(f.sector)) return false;
     if (f.company && !lc(o.company).includes(lc(f.company)) && !lc(o.headline).includes(lc(f.company))) return false;
     if (f.geography && !o.geographies.some((g) => lc(g).includes(lc(f.geography)))) return false;
