@@ -280,7 +280,7 @@
     },
     {
       "id": "hcltech-newsroom",
-      "name": "HCLTech — official newsroom & insights RSS",
+      "name": "HCLTech newsroom",
       "source_type": "corporate_official",
       "base_url": "https://www.hcltech.com",
       "feed_url": "https://www.hcltech.com/rss.xml",
@@ -323,7 +323,7 @@
     },
     {
       "id": "gdelt-csr-education",
-      "name": "GDELT DOC 2.0 API — CSR × education/skilling (India)",
+      "name": "Global news index — CSR & skilling in India",
       "source_type": "news_api",
       "base_url": "https://api.gdeltproject.org",
       "feed_url": "https://api.gdeltproject.org/api/v2/doc/doc",
@@ -349,7 +349,7 @@
     },
     {
       "id": "google-news-rss",
-      "name": "Google News RSS search",
+      "name": "Google News search",
       "source_type": "news_api",
       "base_url": "https://news.google.com",
       "feed_url": "https://news.google.com/rss/search?q=CSR+skilling+India",

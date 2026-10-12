@@ -6,7 +6,9 @@ import { Card, EmptyState } from "@/components/ui";
 import { getDb } from "@/lib/db/client";
 import { latestDigest, listDigests } from "@/lib/queries";
 import { loadSettings } from "@/lib/settings/store";
-import { formatDateTime } from "@/lib/time/window";
+import { formatDate, formatDateTime } from "@/lib/time/window";
+
+const DELIVERY_LABEL: Record<string, string> = { sent: "emailed", failed: "email failed", not_configured: "not emailed", not_attempted: "", pending: "sending" };
 
 export const dynamic = "force-dynamic";
 
@@ -28,15 +30,15 @@ export default async function DigestPage({ searchParams }: PageProps<"/digest">)
         </EmptyState>
       )}
       <Card className="no-print p-5">
-        <h2 className="font-serif text-lg font-semibold mb-2">Digest archive</h2>
+        <h2 className="font-serif text-lg font-semibold mb-2">Past digests</h2>
         {archive.length ? (
           <ul className="divide-y divide-line text-sm">
             {archive.map((a) => (
               <li key={a.id} className="py-2 flex flex-wrap gap-x-4">
-                <Link className="text-accent hover:underline" href={`/digest/${a.id}`}>{a.digest_key}</Link>
-                <span className="text-ink-3">generated {formatDateTime(a.generated_at, settings.timezone)} ({a.trigger})</span>
-                <span className="text-ink-3">delivery: {a.delivery_status.replace("_", " ")}</span>
-                {a.data_mode === "demo" && <span className="text-synthetic">synthetic</span>}
+                <Link className="text-accent hover:underline" href={`/digest/${a.id}`}>Week ending {formatDate(a.window_end, settings.timezone)}</Link>
+                <span className="text-ink-3">prepared {formatDateTime(a.generated_at, settings.timezone)}</span>
+                <span className="text-ink-3">{DELIVERY_LABEL[a.delivery_status] ?? ""}</span>
+                {a.data_mode === "demo" && <span className="text-synthetic">Demo</span>}
               </li>
             ))}
           </ul>

@@ -8,11 +8,11 @@ import { PrintButton } from "./PrintButton";
 import { Card, Pill, SyntheticBadge } from "./ui";
 
 const DELIVERY: Record<string, string> = {
-  not_configured: "Not emailed — email delivery is not configured. This digest is stored here and can be printed or saved as PDF.",
-  not_attempted: "Not emailed (demo digests are never emailed).",
-  pending: "Email delivery in progress.",
-  sent: "Email accepted by the provider.",
-  failed: "Email delivery failed.",
+  not_configured: "This digest was not emailed. It is available here and can be printed or saved as PDF.",
+  not_attempted: "Demo digests are not emailed.",
+  pending: "Sending by email…",
+  sent: "Emailed to the recipient in Settings.",
+  failed: "The email could not be sent.",
 };
 
 function Item({ i, tz }: { i: DigestItemPayload; tz: string }) {
@@ -99,7 +99,7 @@ export function DigestView({ d }: { d: DigestRow }) {
         {summary?.caveats && <p className="mt-2 text-xs text-ink-3">{summary.caveats}</p>}
         {c.limitedEvidenceNote && <p className="mt-2 text-sm text-monitor">{c.limitedEvidenceNote}</p>}
         <p className="mt-3 text-xs text-ink-3">
-          Delivery: <strong>{d.delivery_status.replace("_", " ")}</strong> — {DELIVERY[d.delivery_status]}{d.delivery_error && d.delivery_status === "failed" ? ` (${d.delivery_error})` : ""}
+          {DELIVERY[d.delivery_status]}{d.delivery_error && d.delivery_status === "failed" ? ` (${d.delivery_error})` : ""}
         </p>
       </Card>
 

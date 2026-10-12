@@ -142,9 +142,9 @@ export function buildDigestContent(
   const consideredInWindow = opps.filter((o) => o.score.freshness === "fresh" || o.score.freshness === "open_call").length;
   let limitedEvidenceNote: string | null = null;
   if (sections.high_priority.length === 0) {
-    limitedEvidenceNote = `No opportunity met the high-priority bar (score ≥ ${settings.thresholds.high}, fresh, credible intent, non-weak evidence) this week. Nothing has been padded in.`;
+    limitedEvidenceNote = "No announcement this week was strong enough to recommend a call. The items below are worth monitoring.";
   } else if (sections.high_priority.length < 3) {
-    limitedEvidenceNote = `Only ${sections.high_priority.length} opportunit${sections.high_priority.length === 1 ? "y" : "ies"} met the high-priority bar this week; the shortlist is intentionally short.`;
+    limitedEvidenceNote = `Only ${sections.high_priority.length} announcement${sections.high_priority.length === 1 ? " was" : "s were"} strong enough to recommend a call this week.`;
   }
   return {
     window: { start: window.start.toISOString(), end: window.end.toISOString(), days: window.days, timezone: window.timezone },
