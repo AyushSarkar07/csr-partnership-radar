@@ -38,16 +38,16 @@ out.append('<text x="1380" y="27" font-size="12" fill="#5b6577" text-anchor="end
 
 # Triggers
 box(20,150,180,78,'trigger',['Vercel Cron','Mon 00:30 UTC = 06:00 IST','GET /api/cron/weekly-digest','Bearer CRON_SECRET'])
-box(20,250,180,66,'trigger',['Ananya: Refresh','POST /api/refresh','signed session · 2-min cooldown'])
+box(20,250,180,66,'trigger',['Ananya: Refresh','POST /api/refresh','same-origin only · 2-min cooldown'])
 box(20,340,180,92,'trigger',['Mac collector (launchd)','Mon 05:15 + daily 09:00 IST','sources that block Vercel IPs','scripts/collect-local.ts --prod'])
-box(20,700,180,66,'trigger',['Ananya: Generate digest','POST /api/digest/generate','signed session'])
+box(20,700,180,66,'trigger',['Ananya: Generate digest','POST /api/digest/generate','same-origin only · 20-s cooldown'])
 # Inputs
 box(230,160,190,70,'input',['CSR specialist RSS','India CSR ×4 · CSR Journal ×4','CSR Universe · CSR Mandate'])
 box(230,240,190,56,'input',['Business & regulatory RSS','ET · Mint · TaxGuru (MCA)'])
 box(230,306,190,56,'input',['Official corporate RSS','HCLTech newsroom'])
-box(230,372,190,56,'input',['Partner calls (via Mac)','NGOBox RFP/EOI · FundsForNGOs'])
-box(230,438,190,56,'input',['News index API (via Mac)','GDELT DOC 2.0'])
-box(230,510,190,74,'off',['Not fetched (recorded)','PIB · MCA · CSR portal: 403','Google News · BusinessLine:','robots.txt'],dashed=True)
+box(230,372,190,70,'input',['Partner-call feeds','NGOportal ×2 (Vercel)','NGOBox · FundsForNGOs (Mac)'])
+box(230,452,190,56,'input',['News index API (via Mac)','GDELT DOC 2.0'])
+box(230,518,190,74,'off',['Not fetched (recorded)','PIB · MCA · CSR portal: 403','Google News · BusinessLine:','robots.txt'],dashed=True)
 # Context
 box(450,68,195,62,'context',['Source registry','data/sources.json → sources','enabled · limits · last error'])
 box(450,230,195,70,'context',["Ananya's settings",'sectors · geographies · weights','window · thresholds','(user_settings, validated)'])
@@ -71,7 +71,7 @@ box(940,700,195,78,'ai',['Gemini Flash','Digest overview','validated items only'
 box(1165,150,215,78,'error',['Source health & errors','per-source last_error','fetch_runs · audit_events','shown on dashboard + digest'])
 box(1165,300,215,70,'out',['Ranked dashboard + detail','score breakdown · evidence','links · filters · live/demo'])
 box(1165,400,215,96,'human',['HUMAN DECISION GATE','AI recommends, Ananya decides','contact · monitor · research','not relevant · contacted','discussion · won/closed'],sw=3)
-box(1165,640,215,70,'out',['Weekly digest','digests + digest_items','in-app · print / PDF'])
+box(1165,640,215,70,'out',['Weekly digest','digests + digest_items','in-app · print / PDF · email'])
 box(1165,740,215,56,'out',['Email via Resend','once per digest (atomic claim)'])
 
 D='#18212f'
@@ -83,8 +83,8 @@ path('M200,386 H212 V283',D,head=False)
 path('M200,215 H224 V741 H673',D,label='generate digest',lx=440,ly=736)
 path('M200,733 H224',D,head=False)
 # inputs -> P1
-for y in (195,268,334,400,466): path(f'M420,{y} H436',D,head=False)
-path('M436,466 V181 H673',D,label='RSS / HTML / JSON over HTTPS',lx=452,ly=176)
+for y in (195,268,334,407,480): path(f'M420,{y} H436',D,head=False)
+path('M436,480 V181 H673',D,label='RSS / HTML / JSON over HTTPS',lx=452,ly=176)
 # registry -> P1
 path('M645,101 H660 V165 H673','#1d4ed8',dash=True,label='enabled sources',lx=560,ly=150)
 # chain
