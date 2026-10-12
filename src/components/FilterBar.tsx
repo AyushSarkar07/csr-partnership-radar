@@ -44,7 +44,7 @@ export function FilterBar({ f, settings }: { f: Filters; settings: Settings }) {
         <div className="mt-3 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
           <Select name="days" label="Period" value={String(f.days)} options={[["3", "Last 3 days"], ["7", "Last 7 days"], ["14", "Last 14 days"], ["30", "Last 30 days"]]} />
           <Select name="freshness" label="Include" value={f.freshness} options={[["window", "This period (incl. undated)"], ["fresh", "Dated this period only"], ["all", "Everything, incl. older"]]} />
-          <Select name="priority" label="Priority" value={f.priority} options={[["", "All except low"], ["high", "Worth a call"], ["monitor", "Watchlist"], ["policy", "Policy"], ["background", "Background"], ["low", "Low"]]} />
+          <Select name="priority" label="Priority" value={f.priority} options={[["", "All except low relevance"], ["high", "Call this week"], ["monitor", "Watchlist"], ["policy", "Policy"], ["background", "Context only"], ["low", "Low relevance"]]} />
           <Select name="type" label="Announcement type" value={f.type} options={[["", "All types"], ...ANNOUNCEMENT_TYPES.map((t) => [t, ANNOUNCEMENT_TYPE_LABEL[t]] as [string, string])]} />
           <Select name="evidence" label="Evidence" value={f.evidence} options={[["", "Any"], ["strong", "Strong"], ["moderate", "Moderate"], ["weak", "Weak"]]} />
           <label className="flex flex-col gap-1 text-xs text-ink-3">

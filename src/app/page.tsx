@@ -3,7 +3,8 @@ import { ActionButtons } from "@/components/ActionButtons";
 import { FilterBar } from "@/components/FilterBar";
 import { ModeBanner, ModeSwitch } from "@/components/ModeSwitch";
 import { OpportunityCard } from "@/components/OpportunityCard";
-import { Card, EmptyState, SectionTitle } from "@/components/ui";
+import { Card, EmptyState, PRIORITY_STYLE } from "@/components/ui";
+import type { Priority } from "@/lib/scoring/score";
 import { getDb, isDbConfigured } from "@/lib/db/client";
 import { getDashboard, parseSummary, referenceTime } from "@/lib/queries";
 import { explainHidden, filtersToQuery, parseFilters } from "@/lib/repo/filters";
@@ -26,6 +27,32 @@ function Tile({ label, value, hint, tone = "default", example, href }: { label: 
       )}
       {href && <Link href={href} className="mt-2 inline-block text-xs text-accent hover:underline">View sources →</Link>}
     </div>
+  );
+}
+
+function ColourLegend() {
+  const order: Priority[] = ["high", "monitor", "policy", "background", "low"];
+  return (
+    <details className="group text-xs" data-tour="legend">
+      <summary className="flex cursor-pointer list-none flex-wrap items-center gap-x-3 gap-y-1 text-ink-2">
+        {order.map((p) => (
+          <span key={p} className="inline-flex items-center gap-1.5" title={PRIORITY_STYLE[p].meaning}>
+            <span aria-hidden className={`h-2.5 w-2.5 rounded-full ${PRIORITY_STYLE[p].bar}`} />
+            {PRIORITY_STYLE[p].label}
+          </span>
+        ))}
+        <span className="text-accent group-open:hidden">What do the colours mean?</span>
+        <span className="hidden text-accent group-open:inline">Hide</span>
+      </summary>
+      <dl className="mt-2 grid gap-1.5 rounded-lg border border-line bg-surface p-3 sm:grid-cols-2">
+        {order.map((p) => (
+          <div key={p} className="flex gap-2">
+            <dt className={`shrink-0 rounded-full px-2 py-0.5 font-medium ${PRIORITY_STYLE[p].cls}`}>{PRIORITY_STYLE[p].label}</dt>
+            <dd className="text-ink-2">{PRIORITY_STYLE[p].meaning}</dd>
+          </div>
+        ))}
+      </dl>
+    </details>
   );
 }
 
@@ -63,7 +90,7 @@ export default async function Dashboard({ searchParams }: PageProps<"/">) {
       </div>
       <ModeBanner mode={filters.mode} refLabel={formatDateTime(ref, tz)} />
 
-      <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-line bg-surface px-4 py-3">
+      <div data-tour="status" className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-line bg-surface px-4 py-3">
         <p className="text-sm text-ink-2">
           {filters.mode === "live" ? (
             <>
@@ -96,7 +123,7 @@ export default async function Dashboard({ searchParams }: PageProps<"/">) {
           d.metrics.policy === 0 && { text: "No CSR rule changes this week", example: "/?mode=demo&priority=policy" },
         ].filter(Boolean) as Array<{ text: string; example: string }>;
         return (
-          <div className="space-y-2">
+          <div className="space-y-2" data-tour="tiles">
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
               {tiles.map((t) => <Tile key={t.key} tone={t.tone} example={t.example} href={t.href} label={t.label} value={t.value} hint={t.hint} />)}
             </div>
@@ -154,53 +181,75 @@ export default async function Dashboard({ searchParams }: PageProps<"/">) {
       )}
       {filters.mode === "live" && d.metrics.aiPending > 0 && <p className="text-sm text-ink-3">{d.metrics.aiPending} new item(s) queued for analysis on the next update.</p>}
 
-      <FilterBar f={filters} settings={settings} />
-
-      <div className="grid gap-5 lg:grid-cols-[1fr_320px]">
-        <div className="space-y-3">
-          <SectionTitle>Opportunities</SectionTitle>
-          <p className="-mt-1 text-xs text-ink-3">
-            Showing {hidden.shown} of {d.all.length}
-            {hidden.lowHidden > 0 && <> · {hidden.lowHidden} low-relevance hidden (<Link className="underline" href={`/?${filtersToQuery({ ...filters, showLow: true })}`}>show</Link>)</>}
-            {hidden.olderHidden > 0 && <> · {hidden.olderHidden} older hidden (<Link className="underline" href={`/?${filtersToQuery({ ...filters, showLow: true, freshness: "all" })}`}>show</Link>)</>}
-          </p>
-          {d.shown.length === 0 ? (
-            filters.mode === "live" && d.metrics.liveTotal === 0 ? (
-              <EmptyState title="No live announcements collected yet">
-                Use “Refresh intelligence” to check the sources now, or explore the demo data.{" "}
-                <Link href="/?mode=demo" className="underline">Open the demo data</Link>.
-              </EmptyState>
-            ) : (
-              <EmptyState title="Nothing matches these filters">
-                Widen the window, include background/low-priority items, or <Link href={`/?mode=${filters.mode}`} className="underline">reset filters</Link>.
-                {filters.mode === "live" && " Some weeks are quiet. The list only shows announcements that meet the criteria."}
-              </EmptyState>
-            )
-          ) : (
-            d.shown.map((o) => <OpportunityCard key={o.id} o={o} sectorLabels={labels} timezone={tz} refTime={ref} />)
-          )}
+      <Card className="p-4" data-tour="sectors">
+        <div className="flex flex-wrap items-baseline justify-between gap-2">
+          <h2 className="font-serif text-lg font-semibold">Where opportunities come from</h2>
+          <span className="text-xs text-ink-3">
+            {filters.mode === "live" ? `${d.metrics.verified} of ${d.metrics.totalStored} announcements verified against the original source` : `${d.metrics.totalStored} demo announcements`}
+          </span>
         </div>
-        <aside className="space-y-4">
-          <Card className="p-4">
-            <SectionTitle>Where opportunities come from</SectionTitle>
-            <p className="text-xs text-ink-3 mb-2">Relevant announcements in the window, by focus sector</p>
-            <ul className="space-y-2 text-sm">
-              {d.sectorCounts.map((s) => (
-                <li key={s.key}>
-                  <div className="flex justify-between"><span>{s.label}</span><span className="tabular-nums text-ink-2">{s.count}</span></div>
-                  <div className="h-1.5 rounded-full bg-surface-2"><div className="h-1.5 rounded-full bg-high" style={{ width: `${(s.count / maxSector) * 100}%` }} /></div>
-                </li>
-              ))}
-            </ul>
-            <p className="mt-3 text-xs text-ink-3">{filters.mode === "live" ? `${d.metrics.verified} of ${d.metrics.totalStored} announcements verified against the original source.` : `${d.metrics.totalStored} demo announcements.`}</p>
-          </Card>
-          {filters.mode === "demo" && (
-            <Card className="p-4 text-sm text-ink-2">
-              <SectionTitle>About the demo data</SectionTitle>
-              The demo shows how the radar handles open calls for partners, duplicate news coverage, missing dates, weak evidence, older news, other regions, policy changes and recorded decisions. Open any item to explore it.</Card>
-          )}
-        </aside>
+        <ul className="mt-3 grid grid-cols-2 gap-3 lg:grid-cols-4">
+          {d.sectorCounts.map((s) => {
+            const activeSector = filters.sector === s.key;
+            return (
+              <li key={s.key}>
+                <Link
+                  href={`/?${filtersToQuery({ ...filters, sector: activeSector ? "" : s.key })}`}
+                  aria-current={activeSector ? "true" : undefined}
+                  className={`block rounded-lg border px-3 py-2 transition-colors hover:border-accent ${activeSector ? "border-accent bg-accent-bg" : "border-line bg-surface-2"}`}
+                >
+                  <div className="flex items-baseline justify-between gap-2 text-sm">
+                    <span>{s.label}</span>
+                    <span className="text-lg font-semibold tabular-nums">{s.count}</span>
+                  </div>
+                  <div className="mt-1.5 h-1.5 rounded-full bg-line">
+                    <div className="h-1.5 rounded-full bg-accent" style={{ width: `${(s.count / maxSector) * 100}%` }} />
+                  </div>
+                </Link>
+              </li>
+            );
+          })}
+        </ul>
+      </Card>
+
+      <div data-tour="filters">
+        <FilterBar f={filters} settings={settings} />
       </div>
+
+      <section className="space-y-3" aria-labelledby="opps-title">
+        <div className="flex flex-wrap items-end justify-between gap-x-4 gap-y-2">
+          <div>
+            <h2 id="opps-title" className="font-serif text-lg font-semibold">Opportunities</h2>
+            <p className="text-xs text-ink-3">
+              Showing {hidden.shown} of {d.all.length}
+              {hidden.lowHidden > 0 && <> · {hidden.lowHidden} low-relevance hidden (<Link className="underline" href={`/?${filtersToQuery({ ...filters, showLow: true })}`}>show</Link>)</>}
+              {hidden.olderHidden > 0 && <> · {hidden.olderHidden} older hidden (<Link className="underline" href={`/?${filtersToQuery({ ...filters, showLow: true, freshness: "all" })}`}>show</Link>)</>}
+            </p>
+          </div>
+          <ColourLegend />
+        </div>
+        {d.shown.length === 0 ? (
+          filters.mode === "live" && d.metrics.liveTotal === 0 ? (
+            <EmptyState title="No live announcements collected yet">
+              Use “Refresh intelligence” to check the sources now, or explore the demo data.{" "}
+              <Link href="/?mode=demo" className="underline">Open the demo data</Link>.
+            </EmptyState>
+          ) : (
+            <EmptyState title="Nothing matches these filters">
+              Widen the period, include older or low-relevance items, or <Link href={`/?mode=${filters.mode}`} className="underline">clear the filters</Link>.
+              {filters.mode === "live" && " Some weeks are quiet. The list only shows announcements that meet the criteria."}
+            </EmptyState>
+          )
+        ) : (
+          <div className="grid gap-3 xl:grid-cols-2">
+            {d.shown.map((o, i) => (
+              <div key={o.id} className="h-full" data-tour={i === 0 ? "card" : undefined}>
+                <OpportunityCard o={o} sectorLabels={labels} timezone={tz} refTime={ref} />
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
     </div>
   );
 }

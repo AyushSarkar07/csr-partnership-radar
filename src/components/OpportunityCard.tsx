@@ -2,7 +2,7 @@ import Link from "next/link";
 import { ANNOUNCEMENT_TYPE_LABEL } from "@/lib/ai/analysis";
 import { REVIEW_LABEL, type Opportunity } from "@/lib/repo/opportunities";
 import { formatDate, relativeAge } from "@/lib/time/window";
-import { Pill, PriorityPill, ScoreBadge, SyntheticBadge } from "./ui";
+import { Pill, PRIORITY_STYLE, PriorityPill, ScoreBadge, SyntheticBadge } from "./ui";
 
 export function OpportunityCard({ o, sectorLabels, timezone, refTime }: { o: Opportunity; sectorLabels: Map<string, string>; timezone: string; refTime: Date }) {
   const primary = o.coverage.find((c) => c.is_primary) ?? o.coverage[0];
@@ -22,7 +22,8 @@ export function OpportunityCard({ o, sectorLabels, timezone, refTime }: { o: Opp
   ].filter(Boolean);
 
   return (
-    <article className="rounded-xl border border-line bg-surface p-4 transition-colors hover:border-ink-3">
+    <article className="relative h-full overflow-hidden rounded-xl border border-line bg-surface p-4 pl-5 transition-colors hover:border-ink-3">
+      <span aria-hidden className={`absolute inset-y-0 left-0 w-1.5 ${PRIORITY_STYLE[o.score.priority].bar}`} title={PRIORITY_STYLE[o.score.priority].meaning} />
       <div className="flex gap-4">
         <div className="min-w-0 flex-1">
           <div className="mb-1.5 flex flex-wrap items-center gap-1.5">

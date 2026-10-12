@@ -87,6 +87,8 @@ See [`docs/DEPLOYMENT_GUIDE.md`](docs/DEPLOYMENT_GUIDE.md). Short version: impor
 
 ## Demo workflow (5 minutes)
 
+New users can click **Take the tour** (top right) for an 8-step guided walkthrough on the demo data.
+
 1. Open the app. **Live data** shows real items collected from the feeds. A quiet week shows few or no high-priority items, and nothing is padded in.
 2. Switch to **Demo data**. Orchid Pharma's explicit NGO call ranks first. Open it to see the verified quotes, score breakdown, confidence reasons and next action.
 3. Open **Lumen Telecom**: two publications, merged into one opportunity with two sources. Then open **Kestrel Digital**: the same company's tree-planting announcement is kept separate and ranked Low.

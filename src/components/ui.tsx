@@ -1,16 +1,16 @@
-import type { ReactNode } from "react";
+import type { HTMLAttributes, ReactNode } from "react";
 import type { Priority } from "@/lib/scoring/score";
 
 export function cx(...c: Array<string | false | null | undefined>) {
   return c.filter(Boolean).join(" ");
 }
 
-export const PRIORITY_STYLE: Record<Priority, { label: string; cls: string }> = {
-  high: { label: "Call this week", cls: "bg-high-bg text-high" },
-  monitor: { label: "Monitor", cls: "bg-monitor-bg text-monitor" },
-  policy: { label: "Policy", cls: "bg-policy-bg text-policy" },
-  background: { label: "Background", cls: "bg-bgc-bg text-bgc" },
-  low: { label: "Low", cls: "bg-low-bg text-low" },
+export const PRIORITY_STYLE: Record<Priority, { label: string; cls: string; bar: string; meaning: string }> = {
+  high: { label: "Call this week", cls: "bg-high-bg text-high", bar: "bg-high", meaning: "Recent, relevant and credible: worth contacting this week." },
+  monitor: { label: "Watchlist", cls: "bg-monitor-bg text-monitor", bar: "bg-monitor", meaning: "Relevant, but something is missing (date, location fit, clear intent or strong evidence). Keep an eye on it." },
+  policy: { label: "Policy", cls: "bg-policy-bg text-policy", bar: "bg-policy", meaning: "A rule or policy change that affects how companies spend CSR funds." },
+  background: { label: "Context only", cls: "bg-bgc-bg text-bgc", bar: "bg-bgc", meaning: "Useful background, such as past spending or older news. Not a reason to call now." },
+  low: { label: "Low relevance", cls: "bg-low-bg text-low", bar: "bg-low", meaning: "Outside your focus sectors, or not about CSR." },
 };
 
 export function Pill({ children, className, title }: { children: ReactNode; className?: string; title?: string }) {
@@ -23,7 +23,7 @@ export function Pill({ children, className, title }: { children: ReactNode; clas
 
 export function PriorityPill({ priority }: { priority: Priority }) {
   const s = PRIORITY_STYLE[priority];
-  return <Pill className={s.cls}>{s.label}</Pill>;
+  return <Pill className={s.cls} title={s.meaning}>{s.label}</Pill>;
 }
 
 export function SyntheticBadge({ className }: { className?: string }) {
@@ -51,8 +51,8 @@ export function ScoreBadge({ score, priority }: { score: number; priority: Prior
   );
 }
 
-export function Card({ children, className }: { children: ReactNode; className?: string }) {
-  return <section className={cx("rounded-xl border border-line bg-surface", className)}>{children}</section>;
+export function Card({ children, className, ...rest }: { children: ReactNode; className?: string } & Omit<HTMLAttributes<HTMLElement>, "className" | "children"> & { [key: `data-${string}`]: string | undefined }) {
+  return <section {...rest} className={cx("rounded-xl border border-line bg-surface", className)}>{children}</section>;
 }
 
 export function SectionTitle({ children, aside }: { children: ReactNode; aside?: ReactNode }) {

@@ -106,7 +106,7 @@ export function DigestView({ d }: { d: DigestRow }) {
       <Section title="High priority — worth a call this week" hint="Recent, relevant announcements with credible intent and solid evidence." items={c.sections.high_priority} tz={tz} empty="No opportunity met the high-priority bar this week." />
       <Section title="Opportunities to monitor" hint="Relevant, but missing something: a confirmed date, a geography fit, clear intent or strong evidence." items={c.sections.monitor} tz={tz} empty="Nothing to monitor." />
       <Section title="Policy & regulatory developments" hint="Changes that affect how companies spend CSR funds." items={c.sections.policy} tz={tz} empty="No policy developments found in the window." />
-      <Section title="Background developments" hint="Useful context from earlier announcements; not a reason to call this week." items={c.sections.background} tz={tz} empty="No background items." />
+      <Section title="Context only" hint="Useful context from earlier announcements; not a reason to call this week." items={c.sections.background} tz={tz} empty="No background items." />
       <Card className="p-5">
         <h2 className="font-serif text-xl font-semibold">Sources that failed or could not be checked</h2>
         {d.data_mode === "demo" ? <p className="text-sm text-ink-3">Not applicable to demo data.</p> : c.failedSources.length ? (

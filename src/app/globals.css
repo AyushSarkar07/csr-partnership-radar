@@ -1,51 +1,53 @@
 @import "tailwindcss";
 
-/* Research-desk palette: warm paper, ink navy, restrained signal colours. */
+/* Research-desk palette: cool paper, deep navy ink, clear signal colours. */
 :root {
-  --paper: #f6f5f1;
+  --paper: #f4f6fa;
   --surface: #ffffff;
-  --surface-2: #f0eee8;
-  --ink: #18212f;
-  --ink-2: #4a5466;
-  --ink-3: #7a8394;
-  --line: #e3e0d8;
-  --accent: #1d4ed8;
-  --high: #0f7b54;
-  --high-bg: #e3f4ec;
-  --monitor: #a15c07;
-  --monitor-bg: #fbf0dc;
-  --policy: #6d3fc0;
-  --policy-bg: #efe8fb;
-  --background-c: #5b6577;
-  --background-bg: #eceef2;
-  --low: #8a909c;
-  --low-bg: #f1f2f4;
-  --danger: #b42318;
+  --surface-2: #edf1f7;
+  --ink: #0f1b2d;
+  --ink-2: #44536b;
+  --ink-3: #6f7d94;
+  --line: #dce3ed;
+  --accent: #2f5bea;
+  --accent-bg: #e8eefe;
+  --high: #08875c;
+  --high-bg: #dff5ec;
+  --monitor: #b26500;
+  --monitor-bg: #fff1d6;
+  --policy: #6f42d8;
+  --policy-bg: #efe8fe;
+  --background-c: #23708f;
+  --background-bg: #e0f0f6;
+  --low: #758197;
+  --low-bg: #eef1f5;
+  --danger: #c4321f;
   --danger-bg: #fdecea;
-  --synthetic: #9a3412;
-  --synthetic-bg: #fff1e6;
+  --synthetic: #b4520f;
+  --synthetic-bg: #fff0e3;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --paper: #0f141c;
-    --surface: #161d28;
-    --surface-2: #1c2431;
-    --ink: #e8ebf0;
-    --ink-2: #b4bccb;
-    --ink-3: #8690a2;
-    --line: #2a3342;
-    --accent: #7aa2ff;
-    --high: #4fd1a1;
-    --high-bg: #12342a;
-    --monitor: #f2b155;
-    --monitor-bg: #3a2a12;
-    --policy: #b89cff;
-    --policy-bg: #2a2142;
-    --background-c: #a3adbf;
-    --background-bg: #232b38;
-    --low: #8a93a3;
-    --low-bg: #1f2632;
+    --paper: #0a101d;
+    --surface: #111a2b;
+    --surface-2: #17223a;
+    --ink: #e8edf6;
+    --ink-2: #b2bdd2;
+    --ink-3: #8290aa;
+    --line: #253149;
+    --accent: #7c9dff;
+    --accent-bg: #1b2752;
+    --high: #3ddc9b;
+    --high-bg: #0e3326;
+    --monitor: #f6b94e;
+    --monitor-bg: #3a2a0e;
+    --policy: #b69cff;
+    --policy-bg: #2a2050;
+    --background-c: #6cc3e6;
+    --background-bg: #0f2e3d;
+    --low: #8b97ac;
+    --low-bg: #1b2436;
     --danger: #ff8a7a;
     --danger-bg: #3d1b18;
     --synthetic: #ffb37a;
@@ -62,6 +64,7 @@
   --color-ink-3: var(--ink-3);
   --color-line: var(--line);
   --color-accent: var(--accent);
+  --color-accent-bg: var(--accent-bg);
   --color-high: var(--high);
   --color-high-bg: var(--high-bg);
   --color-monitor: var(--monitor);
