@@ -8,7 +8,8 @@ Browser ──► Next.js pages (server components) ──► src/lib (queries, 
    │                                                    ▲
    └── client components ──► /api/* route handlers ─────┤
 Vercel Cron ──► /api/cron/weekly-digest ──► pipeline + digest ──► Gemini Flash (REST)
-                                         └► RSS feeds / GDELT (HTTPS GET)
+                                         └► RSS feeds / HTML listing (HTTPS GET)
+Mac launchd ──► scripts/collect-local.ts --prod ──► same pipeline for cloud-blocked sources ──► Neon (prod)
 ```
 
 ## Module boundaries
@@ -67,4 +68,6 @@ user_settings (single row) · audit_events · rate_limits · schema_migrations
 ## Security posture
 Server-only secrets; `.env*` git-ignored except `.env.example`. Reads are public, but private notes need sign-in. All mutations need the signed session cookie plus a same-origin check, and fail closed if auth isn't configured. Bodies are validated with zod, JSON content type is required and size is capped. Refresh has a 120-second cooldown, digests 20 seconds, and failed logins 3 seconds. Retrieved HTML is never rendered: it is converted to text, links get `rel="noopener noreferrer nofollow"`, and email HTML is escaped with http(s)-only links. Error messages are sanitised, with no stack traces, connection strings or keys. Retrieved text is framed as untrusted for Gemini, closing-tag injection is stripped, and `injection_detected` is surfaced. Security headers: `nosniff`, `X-Frame-Options: DENY`, referrer policy.
 
-**Known limitations:** a single shared access code rather than per-user identities; no CSRF token beyond SameSite=Lax plus the Origin check; local dev and production share one Neon database.
+**Database per environment:** `src/lib/db/url.ts` picks `DATABASE_URL` on Vercel production and `DEV_DATABASE_URL` locally. SQL `date` columns are returned as `YYYY-MM-DD` strings, so deadlines don't shift with the server timezone.
+
+**Known limitations:** a single shared access code rather than per-user identities (adequate for this single-user tool); no CSRF token beyond SameSite=Lax plus the Origin check; cloud-blocked sources depend on the Mac collector running.

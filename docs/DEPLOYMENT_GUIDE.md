@@ -4,7 +4,10 @@
 - Production URL: **https://csr-partnership-radar-six.vercel.app** (public)
 - Vercel project: `mesa-dbb9/csr-partnership-radar`, framework preset **Next.js**, Node 24, Git-connected to `main`
 - Database: Neon `csr-radar-db` (Vercel Marketplace, free plan, region `sin1`), connected to all environments
+- Development database: Neon `csr-radar-dev`, connected to the Development environment with prefix `DEV_`
 - Cron: `/api/cron/weekly-digest` at `30 0 * * 1` (Monday 06:00 IST)
+- Email: Resend (`RESEND_API_KEY`, `DIGEST_FROM_EMAIL=CSR Radar <onboarding@resend.dev>`), recipient set in Settings: ayush10ani@gmail.com
+- Mac collector: launchd `com.csrradar.collector` (Mon 05:15 + daily 09:00 IST)
 
 ## Fresh setup from scratch
 1. **Fork or clone** `https://github.com/AyushSarkar07/csr-partnership-radar`.
@@ -27,8 +30,8 @@
 5. **Migrate and seed** (from a machine with the env vars, e.g. after `vercel env pull .env.local`):
    ```bash
    npm install
-   npm run db:migrate
-   npm run db:seed
+   npm run db:migrate -- --prod   # scripts default to the DEV database; --prod targets production
+   npm run db:seed -- --prod
    ```
 6. **Deploy**: push to `main` (Git integration) or run `vercel deploy --prod`.
 7. **Deployment protection**: for a public URL, use Standard Protection (Settings → Deployment Protection → Vercel Authentication: "Standard"), which leaves the production domain public. The API equivalent is `ssoProtection: { deploymentType: "prod_deployment_urls_and_all_previews" }`.
@@ -43,7 +46,16 @@
 ## Operational notes
 - **Idempotency:** a second cron call on the same IST date returns `skipped: already_ran` for the refresh and updates, rather than duplicates, the digest, with no second email.
 - **Function duration:** a full run took about 37 to 85 seconds in production (13 sources plus up to 16 Gemini calls). The limit is 300 seconds.
-- **Source behaviour from Vercel:** FundsForNGOs answers 403 to Vercel IPs, and GDELT is often rate-limited or slow. Both are isolated per source and listed in the digest.
+- **Source behaviour from Vercel:** NGOBox and FundsForNGOs return 403 to Vercel IPs and GDELT is rate-limited there, so those three carry `config.runner = "local"` and only the Mac collector fetches them. Any failure is isolated per source and listed in the digest.
 - **Rollback:** Vercel → Deployments → promote a previous deployment. Database migrations are additive (`create … if not exists`).
 - **Rotating secrets:** update the env var and redeploy. Changing `SESSION_SECRET` signs everyone out.
-- **Email:** create a Resend account, verify a sending domain, set `RESEND_API_KEY` and `DIGEST_FROM_EMAIL`, then in Settings enable "Email the live digest" and enter the recipient. The status changes from `not_configured` to `sent` only after Resend returns a message id.
+- **Email:** set `RESEND_API_KEY` and `DIGEST_FROM_EMAIL`, then in Settings enable "Email the live digest" and enter the recipient. With the shared test sender `onboarding@resend.dev`, Resend only delivers to the account owner's address (here ayush10ani@gmail.com). Verify a domain at resend.com/domains to send elsewhere. The status becomes `sent` only after Resend returns a message id; a rejected send is stored as `failed` with Resend's reason.
+- **Mac collector** (sources that block Vercel IPs):
+  ```bash
+  scripts/install-mac-collector.sh     # installs + loads ~/Library/LaunchAgents/com.csrradar.collector.plist
+  launchctl kickstart gui/$(id -u)/com.csrradar.collector   # run once now
+  tail ~/Library/Logs/csr-radar-collector.log
+  scripts/uninstall-mac-collector.sh   # remove
+  ```
+  It needs `.env.local` containing the production `DATABASE_URL` and `GEMINI_API_KEY` (`vercel env pull` provides the database URL).
+- **Separate dev database:** `vercel integration add neon --name csr-radar-dev -e development --prefix DEV_` provisions it; `npm run db:migrate && npm run db:seed` (no flag) set it up.

@@ -12,7 +12,7 @@ The automated suites use deterministic fixtures: two fixture RSS feeds (`tests/f
 ## Results (2026-10-12)
 | Check | Result |
 |---|---|
-| `npm test` | **114 passed, 0 failed** (9 files, ~4 s) |
+| `npm test` | **133 passed, 0 failed** (10 files; also run with `TZ=Asia/Kolkata`) |
 | `npm run lint` | 0 problems |
 | `tsc --noEmit` | 0 errors |
 | `next build` | success, 22 dynamic routes |
@@ -39,6 +39,9 @@ The automated suites use deterministic fixtures: two fixture RSS feeds (`tests/f
 | 15 | Digest idempotency, no duplicate emails | `digest.test.ts` › "re-running for the same window…" (1 email, same digest id); production regeneration → `generation_count` 2, same key | PASS |
 | 16 | Security: unauthorised calls rejected | `api-security.test.ts` (7 endpoints + cron + forged cookie + cross-origin + fail-closed); production curl → 401 on all | PASS |
 | 17 | Evidence traceability | `normalize.test.ts` › excerpt verification; `gemini.test.ts` › "verifies excerpts and flags fabricated facts"; UI shows "Verified quote" / "Not found in source" | PASS |
+| 19 | Partner-call listing with deadline (NGOBox) | `partner-calls.test.ts`: parser, deadline parsing, open-call rule, passed deadline, DB round-trip of the exact date | PASS |
+| 20 | Cloud vs Mac-collector source split; dev vs prod database selection | `partner-calls.test.ts` › "cloud vs local runner split", "database selection" | PASS |
+| 21 | Bounded retries (network reset once; GDELT 429 once after 6 s) | `partner-calls.test.ts` › "bounded HTTP retry", "GDELT polite retry" | PASS |
 | 18 | End-to-end journey | `settings-e2e.test.ts` › "retrieve → process → open → inspect evidence → decide → digest → persists"; manual browser run locally + production API run | PASS |
 
 ## Additional coverage
@@ -58,8 +61,12 @@ The automated suites use deterministic fixtures: two fixture RSS feeds (`tests/f
 | Production digest | Gemini overview; 0 high priority (no padding), 7 monitor, 4 background; failed sources listed; delivery `not_configured` |
 | UI | Login, demo digest generation, review save + reload, settings form, sources page, mobile 375px (no horizontal scroll), dark theme |
 
+| Real email (Resend) | Test digest `live:2026-10-12` accepted by Resend for ayush10ani@gmail.com (message id `01a12ee8-e435-7474-8ca8-67d1386106fc`). The first attempt to ayush_sarkar@pg27.mesaschool.co was rejected (403, test-sender restriction) and recorded as `failed`. |
+| Mac collector (launchd) | `launchctl kickstart` run against production: FundsForNGOs 25 items, NGOBox 6 items (1 relevant new), GDELT failed (rate limit); exit code 0 |
+| Date bug found and fixed | The NGOBox deadline 16 Oct was read back as 15 Oct when the process ran in IST, because the driver parses SQL `date` into a local-midnight JS Date. Fixed with a string type parser plus a regression test run under `TZ=Asia/Kolkata` |
+
 ## Not run / unverified
-- **Email delivery through Resend**: no provider credentials. The code path is tested with an injected sender; a real send is unverified.
+- **Email to addresses other than ayush10ani@gmail.com**: blocked by Resend's test-sender rule until a domain is verified.
 - **An unattended Vercel Cron trigger**: the first scheduled run after deployment will be Monday 19 Oct 2026 06:00 IST. The cron route itself was invoked in production with the secret. Check Vercel → Cron Jobs / Logs after that date.
 - **GDELT success path from production**: rate-limited or timed out in every attempt so far. The parsing is unit-tested.
 - **No browser automation suite** (Playwright) is included. UI flows were checked manually.

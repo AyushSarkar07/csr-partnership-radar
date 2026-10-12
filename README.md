@@ -21,7 +21,9 @@ Reading is public. Recording decisions, editing settings, refreshing sources and
 2. **Normalises, validates and deduplicates deterministically.** HTML becomes text, URLs are canonicalised and publication-date provenance is kept, never faked. A keyword pre-filter runs before any AI call. Deduplication works in three layers: URL, headline similarity, then company + date + initiative.
 3. **Classifies with Gemini Flash** (`gemini-3.8-flash`) into schema-validated JSON: sectors, company, initiative, announcement type, explicit-partner-request signal, geographies, funding signal and evidence claims. Each "fact" must quote the source verbatim, and the code checks that the quote really appears in the retrieved text.
 4. **Scores each opportunity out of 100 in code.** The weights are sector 25, intent 25, recency 20, geography 15 and evidence 15, all configurable. Each item gets a priority (Call this week / Monitor / Policy / Background / Low), a confidence level, a primary reason, missing information and a next action.
-5. **Builds the weekly digest.** It has five sections: high priority, monitor, policy & regulatory, background, and sources that failed. Gemini writes a grounded overview, with a code-generated fallback. The digest is stored in the database, printable, and optionally emailed through Resend.
+5. **Builds the weekly digest.** It has five sections: high priority, monitor, policy & regulatory, background, and sources that failed. Gemini writes a grounded overview, with a code-generated fallback. The digest is stored in the database, printable, and **emailed through Resend** (once per digest).
+
+Sources that block Vercel's servers (the NGOBox RFP/EOI board and FundsForNGOs) or rate-limit it (GDELT) are fetched by a **Mac-side collector**: a launchd job on Mondays at 05:15 IST and daily at 09:00 IST, running the same pipeline.
 6. **Keeps a human decision gate.** Ananya records one of 7 statuses plus private notes. Decisions are append-only and never overwritten by reprocessing.
 7. **Is configurable.** Sectors, keywords, priorities, operating/expansion/excluded geographies, weights, thresholds, window, timezone, digest options and data mode are all validated and persisted in Postgres.
 
@@ -50,7 +52,7 @@ npm run pipeline:refresh     # optional: run the live pipeline once from the CLI
 npm run dev                  # http://localhost:3000
 ```
 
-Other scripts: `npm run digest:live`, `npm run digest:demo`, `npm run db:reset-demo`, `npm run test:gemini` (one real Gemini call on a synthetic sample), and `python3 scripts/build-components-map.py` (regenerates the diagram).
+Scripts act on the **dev database** by default; append `-- --prod` to target production. Other scripts: `npm run collect:local` (cloud-blocked sources), `npm run digest:live`, `npm run digest:demo`, `npm run db:reset-demo`, `npm run test:gemini` (one real Gemini call on a synthetic sample), and `python3 scripts/build-components-map.py` (regenerates the diagram).
 
 ## How the pipeline works
 

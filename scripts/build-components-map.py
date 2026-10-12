@@ -39,14 +39,15 @@ out.append('<text x="1380" y="27" font-size="12" fill="#5b6577" text-anchor="end
 # Triggers
 box(20,150,180,78,'trigger',['Vercel Cron','Mon 00:30 UTC = 06:00 IST','GET /api/cron/weekly-digest','Bearer CRON_SECRET'])
 box(20,250,180,66,'trigger',['Ananya: Refresh','POST /api/refresh','signed session · 2-min cooldown'])
+box(20,340,180,92,'trigger',['Mac collector (launchd)','Mon 05:15 + daily 09:00 IST','sources that block Vercel IPs','scripts/collect-local.ts --prod'])
 box(20,700,180,66,'trigger',['Ananya: Generate digest','POST /api/digest/generate','signed session'])
 # Inputs
-box(230,160,190,56,'input',['CSR specialist RSS','India CSR ×4 · CSR Journal ×4'])
-box(230,226,190,56,'input',['Business news RSS','Economic Times · Mint'])
-box(230,292,190,56,'input',['Official corporate RSS','HCLTech newsroom'])
-box(230,358,190,56,'input',['Partner-call RSS','FundsForNGOs (India only)'])
-box(230,424,190,56,'input',['News index API','GDELT DOC 2.0'])
-box(230,500,190,74,'off',['Not fetched (recorded)','PIB · MCA · CSR portal: 403','Google News · BusinessLine:','robots.txt'],dashed=True)
+box(230,160,190,70,'input',['CSR specialist RSS','India CSR ×4 · CSR Journal ×4','CSR Universe · CSR Mandate'])
+box(230,240,190,56,'input',['Business & regulatory RSS','ET · Mint · TaxGuru (MCA)'])
+box(230,306,190,56,'input',['Official corporate RSS','HCLTech newsroom'])
+box(230,372,190,56,'input',['Partner calls (via Mac)','NGOBox RFP/EOI · FundsForNGOs'])
+box(230,438,190,56,'input',['News index API (via Mac)','GDELT DOC 2.0'])
+box(230,510,190,74,'off',['Not fetched (recorded)','PIB · MCA · CSR portal: 403','Google News · BusinessLine:','robots.txt'],dashed=True)
 # Context
 box(450,68,195,62,'context',['Source registry','data/sources.json → sources','enabled · limits · last error'])
 box(450,230,195,70,'context',["Ananya's settings",'sectors · geographies · weights','window · thresholds','(user_settings, validated)'])
@@ -71,18 +72,19 @@ box(1165,150,215,78,'error',['Source health & errors','per-source last_error','f
 box(1165,300,215,70,'out',['Ranked dashboard + detail','score breakdown · evidence','links · filters · live/demo'])
 box(1165,400,215,96,'human',['HUMAN DECISION GATE','AI recommends, Ananya decides','contact · monitor · research','not relevant · contacted','discussion · won/closed'],sw=3)
 box(1165,640,215,70,'out',['Weekly digest','digests + digest_items','in-app · print / PDF'])
-box(1165,740,215,56,'off',['Email via Resend (optional)','not configured: status says so'],dashed=True)
+box(1165,740,215,56,'out',['Email via Resend','once per digest (atomic claim)'])
 
 D='#18212f'
 # triggers -> P1 (fetch)
 path('M200,189 H212 V141 H792 V148',D,label='start refresh run',lx=440,ly=136)
 path('M200,283 H212 V189',D,head=False)
+path('M200,386 H212 V283',D,head=False)
 # cron + manual -> digest builder
 path('M200,215 H224 V741 H673',D,label='generate digest',lx=440,ly=736)
 path('M200,733 H224',D,head=False)
 # inputs -> P1
-for y in (188,254,320,386,452): path(f'M420,{y} H436',D,head=False)
-path('M436,452 V181 H673',D,label='RSS / JSON over HTTPS',lx=452,ly=176)
+for y in (195,268,334,400,466): path(f'M420,{y} H436',D,head=False)
+path('M436,466 V181 H673',D,label='RSS / HTML / JSON over HTTPS',lx=452,ly=176)
 # registry -> P1
 path('M645,101 H660 V165 H673','#1d4ed8',dash=True,label='enabled sources',lx=560,ly=150)
 # chain
@@ -109,7 +111,7 @@ path('M1135,739 H1146 V675 H1163','#6d3fc0')
 # dashboard -> human gate
 path('M1272,370 V398','#0f7b54',w=2.2)
 # digest -> email
-path('M1272,710 V738',D,dash=True)
+path('M1272,710 V738',D)
 # human -> db
 path('M1380,448 H1392 V815 H625 V502','#0f7b54',w=2.2,label='decision + note stored (append-only; never overwritten by reprocessing)',lx=700,ly=810)
 # errors
@@ -118,7 +120,7 @@ path('M910,170 H1163','#b42318',dash=True,label='fetch / AI failures recorded',l
 ly=845
 out.append(f'<text x="20" y="{ly}" font-size="12" font-weight="700" fill="#18212f">Legend</text>')
 items=[('line',D,False,'data flow'),('line','#1d4ed8',True,'configuration / context'),('line','#b42318',True,'error path'),('line','#0f7b54',False,'human decision'),
-       ('box','proc','deterministic code'),('box','ai','Gemini Flash (only AI)'),('box','human','human gate'),('box','off','optional / not fetched (dashed)'),('box','synthetic','synthetic demo data')]
+       ('box','proc','deterministic code'),('box','ai','Gemini Flash (only AI)'),('box','human','human gate'),('box','off','not fetched (dashed)'),('box','synthetic','synthetic demo data')]
 x=70
 for it in items:
     if it[0]=='line':
