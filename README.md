@@ -1,36 +1,110 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# CSR Partnership Radar
 
-## Getting Started
+**An AI-powered weekly CSR intelligence digest for Ananya, Head of Corporate Partnerships at a Pune-based education & skilling NGO.**
 
-First, run the development server:
+Every Monday morning it answers one question for each development from the past seven days: **is this worth a call this week, and why?**
+
+| | |
+|---|---|
+| **Live app** | https://csr-partnership-radar-six.vercel.app |
+| **Repository** | https://github.com/AyushSarkar07/csr-partnership-radar |
+| **Components Map** | [`docs/COMPONENTS_MAP.md`](docs/COMPONENTS_MAP.md) · diagram [`docs/components-map.svg`](docs/components-map.svg) (also served at [/components-map.svg](https://csr-partnership-radar-six.vercel.app/components-map.svg)) |
+| **Acceptance report** | [`docs/FINAL_ACCEPTANCE_REPORT.md`](docs/FINAL_ACCEPTANCE_REPORT.md) |
+
+Reading is public. Recording decisions, editing settings, refreshing sources and generating digests need the access code, which is supplied separately and never committed.
+
+---
+
+## What it does
+
+1. **Retrieves live data.** It reads public RSS feeds and a news API listed in a source registry: CSR specialist news, business news, an official corporate newsroom, grant/partner-call listings and GDELT.
+2. **Normalises, validates and deduplicates deterministically.** HTML becomes text, URLs are canonicalised and publication-date provenance is kept, never faked. A keyword pre-filter runs before any AI call. Deduplication works in three layers: URL, headline similarity, then company + date + initiative.
+3. **Classifies with Gemini Flash** (`gemini-3.8-flash`) into schema-validated JSON: sectors, company, initiative, announcement type, explicit-partner-request signal, geographies, funding signal and evidence claims. Each "fact" must quote the source verbatim, and the code checks that the quote really appears in the retrieved text.
+4. **Scores each opportunity out of 100 in code.** The weights are sector 25, intent 25, recency 20, geography 15 and evidence 15, all configurable. Each item gets a priority (Call this week / Monitor / Policy / Background / Low), a confidence level, a primary reason, missing information and a next action.
+5. **Builds the weekly digest.** It has five sections: high priority, monitor, policy & regulatory, background, and sources that failed. Gemini writes a grounded overview, with a code-generated fallback. The digest is stored in the database, printable, and optionally emailed through Resend.
+6. **Keeps a human decision gate.** Ananya records one of 7 statuses plus private notes. Decisions are append-only and never overwritten by reprocessing.
+7. **Is configurable.** Sectors, keywords, priorities, operating/expansion/excluded geographies, weights, thresholds, window, timezone, digest options and data mode are all validated and persisted in Postgres.
+
+### Live vs synthetic data
+
+| Badge | Meaning |
+|---|---|
+| **Live · verified** | Retrieved from a real source; publication date known; ≥1 claim quoted verbatim from the source. |
+| **Live · needs verification** | Real retrieved item that is unclassified, has an unknown date, or has no verbatim evidence. |
+| **SYNTHETIC** | One of 30 fictional demo records ([`data/seed-opportunities.json`](data/seed-opportunities.json)) using `example.org` URLs. Shown only in **Synthetic demo** mode, which evaluates windows against a fixed reference time (Mon 12 Oct 2026 06:00 IST). Never counted in live metrics or live digests, and never emailed. |
+
+## Stack
+
+Next.js 16 (App Router, TypeScript, Tailwind v4) on **Vercel** · **Neon Postgres** (Vercel Marketplace) via `@neondatabase/serverless` · **Gemini Flash** over REST (server-side only) · Vercel Cron · zod · fast-xml-parser · Vitest + PGlite (in-process Postgres) for tests.
+
+Gemini Flash is the only LLM in the application. The repo has no Claude, OpenAI or other LLM SDK. Claude Code was the development environment only.
+
+## Run locally
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+cp .env.example .env.local   # fill DATABASE_URL, GEMINI_API_KEY, ACCESS_CODE, SESSION_SECRET, CRON_SECRET
+npm run db:migrate           # apply db/migrations/*.sql
+npm run db:seed              # sync source registry + load synthetic demo data
+npm run pipeline:refresh     # optional: run the live pipeline once from the CLI
+npm run dev                  # http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Other scripts: `npm run digest:live`, `npm run digest:demo`, `npm run db:reset-demo`, `npm run test:gemini` (one real Gemini call on a synthetic sample), and `python3 scripts/build-components-map.py` (regenerates the diagram).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## How the pipeline works
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```
+Vercel Cron (Mon 06:00 IST) / "Refresh intelligence"
+  → source adapters (RSS, GDELT) — per-source timeouts & failure isolation
+  → normalise + validate → keyword pre-filter + 30-day lookback
+  → dedup L1 (canonical URL) / L2 (headline ±3d) → store
+  → Gemini Flash classification (≤16 items/run, cached by input hash)
+  → excerpt verification → dedup L3 (company+date+initiative) → score
+  → digest builder → Gemini overview → digests table → (optional) email
+```
 
-## Learn More
+Details: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md). Sources and their access limits: [`docs/DATA_SOURCE_REGISTER.md`](docs/DATA_SOURCE_REGISTER.md).
 
-To learn more about Next.js, take a look at the following resources:
+## Configure Gemini
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Set `GEMINI_API_KEY` (server-side) and optionally `GEMINI_MODEL`. The default is `gemini-3.8-flash`, checked against the live `models.list` endpoint on 2026-10-12. The app refuses any model id that doesn't contain `flash`. Without a key, live items stay "awaiting AI analysis" and the digest uses the code-generated overview; nothing is fabricated.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Test
 
-## Deploy on Vercel
+```bash
+npm test            # 114 tests: unit, PGlite integration, route security, end-to-end
+npm run lint && npm run typecheck && npm run build
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+The test plan and results are in [`docs/TEST_PLAN.md`](docs/TEST_PLAN.md).
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Deploy
+
+See [`docs/DEPLOYMENT_GUIDE.md`](docs/DEPLOYMENT_GUIDE.md). Short version: import the GitHub repo into Vercel (framework **Next.js**), add the Neon integration, set the env vars from `.env.example`, run `npm run db:migrate && npm run db:seed` against the database, and deploy. The cron job is defined in `vercel.json` (`30 0 * * 1` UTC = Monday 06:00 IST).
+
+## Demo workflow (5 minutes)
+
+1. Open the app. **Live data** shows real items collected from the feeds. A quiet week shows few or no high-priority items, and nothing is padded in.
+2. Switch to **Synthetic demo**. Orchid Pharma's explicit NGO call ranks first. Open it to see the verified quotes, score breakdown, confidence reasons and next action.
+3. Open **Lumen Telecom**: two publications, merged into one opportunity with two sources. Then open **Kestrel Digital**: the same company's tree-planting announcement is kept separate and ranked Low.
+4. Filter by **Evidence: weak**. Zenith Retail and Crestline Finance have "facts" whose quotes don't appear in the source, so they are flagged and downgraded.
+5. Sign in, set a decision with a note, and reload: the decision persists with its history.
+6. Click **Generate demo digest now** to see the five sections, the Gemini overview and the honest delivery status ("not emailed").
+7. In **Settings**, add a sector or change a weight and save. Scores update everywhere after reload.
+8. **Sources** shows each feed's last success or error, robots.txt and 403 findings, and the per-run filter counts.
+
+## Repository map
+
+```
+src/app/            pages (dashboard, opportunity detail, digest, sources, settings, status, login) + API routes
+src/lib/sources/    registry + adapters (rss.ts, gdelt.ts) + bounded HTTP
+src/lib/pipeline/   normalise/validate/pre-filter (normalize.ts), ingest + dedup + AI orchestration (ingest.ts)
+src/lib/ai/         Gemini client (gemini.ts), classification prompt & grounding (classify.ts), schema (analysis.ts)
+src/lib/scoring/    deterministic 100-point scoring
+src/lib/digest/     digest sections (build.ts), generation/idempotency/delivery (generate.ts)
+src/lib/delivery/   optional Resend email
+src/lib/time/       single reporting-window definition (Asia/Kolkata)
+db/migrations/      SQL schema     data/   source registry + synthetic seed     tests/   Vitest suites
+docs/               spec, assumptions, sources, architecture, tests, deployment, components map, reports
+```
