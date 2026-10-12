@@ -34,7 +34,7 @@ Machine-readable registry: [`data/sources.json`](../data/sources.json), synced i
 | `ngoportal-funding` | NGOportal — funding opportunities | partner_calls | no | rss | yes | Vercel | 2026-10-12 | 10 | — (India-filtered) |
 | `ngobox-rfp` | NGOBox RFP/EOI board | partner_calls | no | ngobox_html | yes | **Mac collector** | 2026-10-12 07:00 | 6 | — (403 from Vercel) |
 | `fundsforngos` | FundsForNGOs | partner_calls | no | rss | yes | **Mac collector** | 2026-10-12 07:00 | 25 | — (403 from Vercel) |
-| `gdelt-csr-education` | GDELT DOC 2.0 API | news_api | no | gdelt_api | yes | **Mac collector** | never | — | 429 / connect timeout (rate limit, also hit by today's testing) |
+| `gdelt-csr-education` | GDELT DOC 2.0 API | news_api | no | gdelt_api | **paused** | — | never | — | paused 12 Oct: 429 / timeouts on every attempt from Vercel and the local collector |
 | `pib` | Press Information Bureau | government | yes | rss | no | — | — | — | 403 |
 | `mca-notifications` | Ministry of Corporate Affairs | government | yes | link_only | no | — | — | — | 403, no feed |
 | `csr-portal` | National CSR Portal | government | yes | link_only | no | — | — | — | 403, JS dashboard |

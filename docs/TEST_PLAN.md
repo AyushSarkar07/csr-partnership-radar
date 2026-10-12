@@ -12,7 +12,7 @@ The automated suites use deterministic fixtures: two fixture RSS feeds (`tests/f
 ## Results (2026-10-12)
 | Check | Result |
 |---|---|
-| `npm test` | **138 passed, 0 failed** (11 files; also run with `TZ=Asia/Kolkata`) |
+| `npm test` | **141 passed, 0 failed** (11 files; also run with `TZ=Asia/Kolkata`) |
 | `npm run lint` | 0 problems |
 | `tsc --noEmit` | 0 errors |
 | `next build` | success, 22 dynamic routes |

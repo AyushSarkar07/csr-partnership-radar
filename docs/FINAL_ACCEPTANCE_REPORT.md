@@ -35,7 +35,7 @@ Date: 2026-10-12 (Monday). **Updated the same day after fixing the blockers** (s
 All brief-level requirements (BR-1…BR-35) are tracked in `docs/REQUIREMENTS_TRACEABILITY.md`, and all are VERIFIED, including BR-20 (a real Resend send), except **BR-21, now PARTIAL**: user sign-in was removed at the owner's request.
 
 ## Test results (run 2026-10-12, final audit)
-- `npm test`: **138 passed / 0 failed** across 11 files (unit, PGlite integration with real migrations, route-handler security, end-to-end).
+- `npm test`: **141 passed / 0 failed** across 11 files (unit, PGlite integration with real migrations, route-handler security, end-to-end).
 - `npm run lint`: 0 problems · `tsc --noEmit`: 0 errors · `next build`: success.
 - Mutation sanity check: deliberately breaking two rules made the corresponding tests fail; restored.
 - All 18 required functional tests map to passing tests (table in `docs/TEST_PLAN.md`).
@@ -79,6 +79,6 @@ Also added: CSR Universe and CSR Mandate feeds; source-stated deadlines with an 
 |---|---|---|---|
 | 1 | Email only to ayush10ani@gmail.com | Resend test-sender rule | Verify a domain you control at resend.com/domains, set `DIGEST_FROM_EMAIL` to an address on it, and change the recipient in Settings |
 | 2 | Mac collector depends on the Mac being awake and online | Partner calls (NGOBox, FundsForNGOs) and GDELT are missed if the Mac is off on Monday morning; launchd catches up on wake | Keep the Mac on Monday mornings, or run `npm run collect:local -- --prod` manually |
-| 3 | GDELT not yet successful | The news-index source contributes nothing so far | Wait for its rate limit to reset; disable it from Sources if it keeps failing |
+| 3 | GDELT paused | It never succeeded (rate limits), so it is paused with the reason shown on the Sources page; 18 of 18 active sources check successfully | Re-enable from the Sources page to try again |
 | 4 | Official government feeds (PIB, MCA, CSR portal) return 403 | Policy changes come from secondary sources (TaxGuru, CSR news) | Check the links manually; re-enable PIB from Sources to re-test |
 | 5 | No authentication (owner's decision) | Anyone with the URL can change settings and decisions and trigger Gemini usage (within cooldowns); review notes are public | Re-add sign-in (e.g. Vercel Password Protection, or an identity provider) if the URL is shared beyond Ananya |
