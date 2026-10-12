@@ -13,9 +13,10 @@ import { formatDate, formatDateTime, nextDigestAt } from "@/lib/time/window";
 
 export const dynamic = "force-dynamic";
 
-function Tile({ label, value, hint, tone = "default", example }: { label: string; value: number; hint: string; tone?: "default" | "high" | "urgent"; example?: string }) {
-  const ring = tone === "urgent" && value > 0 ? "border-danger/60" : tone === "high" && value > 0 ? "border-high/60" : "border-line";
-  const num = tone === "urgent" && value > 0 ? "text-danger" : tone === "high" && value > 0 ? "text-high" : "";
+function Tile({ label, value, hint, tone = "default", example }: { label: string; value: number | string; hint: string; tone?: "default" | "high" | "urgent"; example?: string }) {
+  const positive = typeof value === "number" ? value > 0 : true;
+  const ring = tone === "urgent" && positive ? "border-danger/60" : tone === "high" && positive ? "border-high/60" : "border-line";
+  const num = tone === "urgent" && positive ? "text-danger" : tone === "high" && positive ? "text-high" : "";
   return (
     <div className={`rounded-xl border bg-surface p-4 ${ring}`}>
       <div className="text-xs font-medium uppercase tracking-wide text-ink-3">{label}</div>
@@ -78,12 +79,41 @@ export default async function Dashboard({ searchParams }: PageProps<"/">) {
         <ActionButtons mode={filters.mode} />
       </div>
 
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        <Tile tone="high" example={filters.mode === "live" ? "/?mode=demo&priority=high" : undefined} label="Worth a call this week" value={d.metrics.highPriority} hint={d.metrics.highPriority ? "ranked first in the list below" : "none met the bar this week"} />
-        <Tile tone="urgent" example={filters.mode === "live" ? "/?mode=demo&q=Larkspur" : undefined} label="Calls closing in 7 days" value={d.metrics.closingSoon} hint={d.metrics.closingSoon ? "proposal deadlines coming up" : "no open NGO calls closing this week"} />
-        <Tile label="On the watchlist" value={d.metrics.watchlist} hint="relevant, not yet a call" />
-        <Tile example={filters.mode === "live" ? "/?mode=demo&priority=policy" : undefined} label="Policy developments" value={d.metrics.policy} hint={d.metrics.policy ? "affecting CSR spending" : "no CSR rule changes this week"} />
-      </div>
+      {(() => {
+        const live = filters.mode === "live";
+        type T = { key: string; label: string; value: number | string; hint: string; tone?: "high" | "urgent"; example?: string };
+        const worth: T = { key: "worth", tone: "high", label: "Worth a call this week", value: d.metrics.highPriority, hint: d.metrics.highPriority ? "ranked first in the list below" : "none met the bar this week", example: live ? "/?mode=demo&priority=high" : undefined };
+        const closing: T = { key: "closing", tone: "urgent", label: "Calls closing in 7 days", value: d.metrics.closingSoon, hint: "proposal deadlines coming up" };
+        const policy: T = { key: "policy", label: "Policy developments", value: d.metrics.policy, hint: "affecting CSR spending" };
+        const watch: T = { key: "watch", label: "On the watchlist", value: d.metrics.watchlist, hint: "relevant, not yet a call" };
+        const fresh: T = { key: "fresh", label: live ? "New announcements" : "Demo announcements", value: d.metrics.freshAnnouncements, hint: "published in the last 7 days" };
+        const sources: T = { key: "sources", label: "Sources checked", value: `${d.metrics.sourcesOk}/${d.metrics.sourcesEnabled}`, hint: "on the latest update" };
+        // Urgent signals take a tile only when there is something to act on; otherwise
+        // the slot shows other real activity and the "none this week" note goes below.
+        const tiles = [worth, ...[closing, policy].filter((t) => Number(t.value) > 0), watch, fresh, sources].slice(0, 4);
+        const quiet = [
+          d.metrics.closingSoon === 0 && { text: "No open NGO calls closing in the next 7 days", example: "/?mode=demo&q=Larkspur" },
+          d.metrics.policy === 0 && { text: "No CSR rule changes this week", example: "/?mode=demo&priority=policy" },
+        ].filter(Boolean) as Array<{ text: string; example: string }>;
+        return (
+          <div className="space-y-2">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+              {tiles.map((t) => <Tile key={t.key} tone={t.tone} example={t.example} label={t.label} value={t.value} hint={t.hint} />)}
+            </div>
+            {quiet.length > 0 && (
+              <p className="text-xs text-ink-3">
+                {quiet.map((q, i) => (
+                  <span key={q.text}>
+                    {i > 0 && " · "}
+                    {q.text}
+                    {live && <> (<Link href={q.example} className="text-accent hover:underline">see a tested example</Link>)</>}
+                  </span>
+                ))}
+              </p>
+            )}
+          </div>
+        );
+      })()}
 
       {digestSummary && d.digest && (
             <Card className="p-4">
