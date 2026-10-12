@@ -30,7 +30,7 @@ History: created before any application code, with every row `NOT STARTED`. Upda
 | PDF-10 | Not a raw feed; each item answers "worth a call this week?" | Mandatory | Verdict, primary reason, breakdown, intent evidence, uncertainties, next action on cards, detail and digest | UI + payload test | **VERIFIED** | `digest.test.ts` checks every item has sources, next action, 5-part breakdown; UI screenshots |
 | PDF-11 | Focus sectors configurable | Mandatory | `/settings` sector editor → `PUT /api/settings` → `user_settings` | Test 13 | **VERIFIED** | `settings-e2e.test.ts`; prod PUT → version 1 persisted |
 | PDF-12 | Geographic priorities configurable | Mandatory | Operating, expansion and excluded geographies; `geographicFit()` | Tests 5, 13 | **VERIFIED** | `scoring.test.ts` › "changing configured geography changes the fit" |
-| PDF-13 | Delivered every Monday morning | Mandatory | `vercel.json` cron `30 0 * * 1`; `/api/cron/weekly-digest` | Route invoked in prod; cron registered | **VERIFIED** (route) / **IMPLEMENTED-UNVERIFIED** (first unattended trigger) | Prod cron call 200 in 37 s; Vercel project `crons.enabledAt` set. The first automatic trigger is Mon 19 Oct 2026 06:00 IST, after submission |
+| PDF-13 | Delivered every Monday morning | Mandatory | `vercel.json` cron `30 0 * * 1`; `/api/cron/weekly-digest` | Route invoked in prod; cron registered | **VERIFIED** | Unattended Vercel Cron trigger observed at 08:38:43 UTC on 12 Oct (temporary one-off schedule, since removed); prod cron call 200 in 37 s; email delivered via Resend |
 | PDF-14 | AI-powered | Mandatory | Gemini classification + digest overview | as PDF-2 | **VERIFIED** | as PDF-2 |
 
 ## C. Brief requirements (implementation guidance)

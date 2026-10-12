@@ -61,12 +61,12 @@ The automated suites use deterministic fixtures: two fixture RSS feeds (`tests/f
 | Production digest | Gemini overview; 0 high priority (no padding), 7 monitor, 4 background; failed sources listed; delivery `not_configured` |
 | UI | Login, demo digest generation, review save + reload, settings form, sources page, mobile 375px (no horizontal scroll), dark theme |
 
+| Unattended Vercel Cron | A temporary one-off schedule fired by itself at 08:38:43 UTC: digest regenerated (trigger `cron`, generation 5), refresh skipped by run key, no duplicate email. Entry then removed |
 | Real email (Resend) | Test digest `live:2026-10-12` accepted by Resend for ayush10ani@gmail.com (message id `01a12ee8-e435-7474-8ca8-67d1386106fc`). The first attempt to ayush_sarkar@pg27.mesaschool.co was rejected (403, test-sender restriction) and recorded as `failed`. |
 | Mac collector (launchd) | `launchctl kickstart` run against production: FundsForNGOs 25 items, NGOBox 6 items (1 relevant new), GDELT failed (rate limit); exit code 0 |
 | Date bug found and fixed | The NGOBox deadline 16 Oct was read back as 15 Oct when the process ran in IST, because the driver parses SQL `date` into a local-midnight JS Date. Fixed with a string type parser plus a regression test run under `TZ=Asia/Kolkata` |
 
 ## Not run / unverified
 - **Email to addresses other than ayush10ani@gmail.com**: blocked by Resend's test-sender rule until a domain is verified.
-- **An unattended Vercel Cron trigger**: the first scheduled run after deployment will be Monday 19 Oct 2026 06:00 IST. The cron route itself was invoked in production with the secret. Check Vercel → Cron Jobs / Logs after that date.
-- **GDELT success path from production**: rate-limited or timed out in every attempt so far. The parsing is unit-tested.
+- **GDELT success path**: rate-limited (429) or timed out on every attempt today, from both Vercel and the Mac. Parsing and the retry are unit-tested.
 - **No browser automation suite** (Playwright) is included. UI flows were checked manually.

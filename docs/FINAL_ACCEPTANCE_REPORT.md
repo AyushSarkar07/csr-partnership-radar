@@ -1,6 +1,6 @@
 # Final Acceptance Report — CSR Partnership Radar
 
-Date: 2026-10-12 (Monday). Audit method: re-read the assignment PDF line by line, compared it with the running system, re-ran the full test/lint/type/build suite, and exercised production directly.
+Date: 2026-10-12 (Monday). **Updated the same day after fixing the blockers** (see "Blocker fixes" below). Audit method: re-read the assignment PDF line by line, compared it with the running system, re-ran the full test/lint/type/build suite, and exercised production directly.
 
 ## Submission links
 | Item | Value | Status |
@@ -30,7 +30,7 @@ Date: 2026-10-12 (Monday). Audit method: re-read the assignment PDF line by line
 | Policy / regulatory changes | VERIFIED | policy section with confirmed / needs-interpretation label |
 | Each item answers "worth a call this week?" | VERIFIED | Verdict, reason, breakdown, evidence, uncertainties, next action |
 | Configurable sectors and geographies | VERIFIED | `/settings`; Test 13; prod settings saved (v1) |
-| Delivered every Monday morning | **VERIFIED (route + schedule registered); first unattended run pending** | Cron route ran in prod with the secret (HTTP 200, 37 s). Vercel shows the cron enabled. Today's 06:00 slot passed before the first deployment, so the first automatic trigger is **Mon 19 Oct 2026, 06:00–06:59 IST**. |
+| Delivered every Monday morning | **VERIFIED** | A temporary one-off schedule (`0 8 12 10 *`) was added so Vercel's scheduler could be observed. **Vercel triggered `/api/cron/weekly-digest` unattended at 08:38:43 UTC**: digest `live:2026-10-12` regenerated (generation 5, trigger `cron`), the refresh skipped by run key, no duplicate email. The one-off entry was then removed; the Monday schedule `30 0 * * 1` remains. Email delivery verified: Resend accepted the digest for ayush10ani@gmail.com. |
 
 All brief-level requirements (BR-1…BR-33) are tracked in `docs/REQUIREMENTS_TRACEABILITY.md`. Every one is VERIFIED except **BR-20, real email sending**, which is IMPLEMENTED-UNVERIFIED because no Resend credentials exist.
 
@@ -60,14 +60,25 @@ Vercel project `mesa-dbb9/csr-partnership-radar`: framework Next.js, Node 24, St
 ## GitHub status
 Public repository `AyushSarkar07/csr-partnership-radar`, branch `main`. `.env.local`, `.vercel` and tool folders are ignored, and staged files were scanned for keys and connection strings before each commit (none found).
 
-## Remaining blockers / limitations and exact resolution steps
+## Blocker fixes (2026-10-12, after the first report)
+| # | Original blocker | Fix | Evidence |
+|---|---|---|---|
+| 1 | Email not configured | Reused the user's existing Resend key (from kargo-decision-room) with sender `CSR Radar <onboarding@resend.dev>`. Resend's test sender only delivers to the account owner, so the recipient is **ayush10ani@gmail.com** (user's choice) | A send to ayush_sarkar@pg27.mesaschool.co was rejected (403, recorded as `failed`). The send to ayush10ani@gmail.com was accepted, id `01a12ee8-e435-7474-8ca8-67d1386106fc`. Later regenerations did not resend |
+| 2 | First unattended cron unobserved | Temporary one-off cron, observed, then removed | Unattended trigger at 08:38:43 UTC (above) |
+| 3 | FundsForNGOs blocked from Vercel | **Mac collector**: launchd job `com.csrradar.collector` (Mon 05:15 + daily 09:00 IST) fetches sources marked `runner: local` into production with the same pipeline. Also added the **NGOBox RFP/EOI board** (deadline-bearing partner calls), which is likewise blocked from Vercel (CloudFront 403) and so also runs on the Mac | launchd run at 07:00 UTC: FundsForNGOs 25 items, NGOBox 6 items (1 relevant new). No proxies used to get around the CDN blocks |
+| 4 | GDELT rate-limited | 25 s timeout, one polite retry after 6 s (and on HTTP 429), moved to the Mac collector | Still failing today (HTTP 429 / connect timeout, worsened by today's test traffic). Retried on every collector run; reported honestly |
+| 5 | Government sources 403 | Added **TaxGuru Company Law** RSS (republishes MCA notifications) for regulatory coverage; PIB/MCA stay link-only | Feed works from Vercel (75 items). This week's 2 candidates were correctly classified `not_csr` (company-law, not CSR rules) |
+| 6 | Single shared access code | Not changed: appropriate for a single-user tool. Documented as a limitation | — |
+| 7 | Dev and prod shared one database | Separate Neon database `csr-radar-dev` (`DEV_DATABASE_URL`); local runtime and scripts use dev unless `--prod` | Scripts log `target=dev host=ep-mute-dust…` vs `target=prod host=ep-patient-rain…` |
+| 8 | Access code delivery | Still in `.env.local` only (never committed) | — |
+
+Also added: CSR Universe and CSR Mandate feeds; source-stated deadlines with an open-call rule (an explicit call with a future deadline counts as current, a passed deadline drops to background); one retry for transient network resets (fixed HCLTech's HTTP/2 errors). **Bug found and fixed while verifying:** SQL `date` values were parsed into local-midnight JS Dates, shifting deadlines by a day when the process ran in IST. They are now returned as strings, with a regression test run under `TZ=Asia/Kolkata`. Tests: **133 passed / 0 failed**.
+
+## Remaining limitations
 | # | Item | Impact | Resolution |
 |---|---|---|---|
-| 1 | Email delivery not configured | The digest is stored in-app and printable; it is not emailed | Create a Resend account and verify a domain, set `RESEND_API_KEY` and `DIGEST_FROM_EMAIL` in Vercel, redeploy, then in Settings enable "Email the live digest" and enter the recipient |
-| 2 | First unattended cron run not yet observed | The Monday automation is configured but untested by the scheduler itself | After Mon 19 Oct 2026 07:00 IST, check Vercel → Project → Cron Jobs / Logs and the new `live:2026-10-19` digest on `/digest` |
-| 3 | FundsForNGOs blocks Vercel IPs (403) | One partner-call source is missing in production runs | Run `npm run pipeline:refresh` locally (same database), or ask the publisher about access |
-| 4 | GDELT rate-limits / times out | The news-index source rarely contributes | Optional: raise the timeout for that adapter, or disable it in Sources |
-| 5 | Government sources (PIB, MCA, CSR portal) return 403 | Policy changes come only from secondary CSR news | Check manually; the links are in the registry. Re-enable PIB from Sources to re-test |
-| 6 | Single shared access code | Not multi-user secure | Add an identity provider (e.g. Neon Auth or Auth.js) if more users are added |
-| 7 | Local dev and production share one Neon database | Local experiments affect production data | Create a Neon branch for development and point `.env.local` at it |
-| 8 | Access code delivery | Needed to use write features | Shared with the owner separately; never committed. Rotate with `vercel env add ACCESS_CODE production --force` and redeploy |
+| 1 | Email only to ayush10ani@gmail.com | Resend test-sender rule | Verify a domain you control at resend.com/domains, set `DIGEST_FROM_EMAIL` to an address on it, and change the recipient in Settings |
+| 2 | Mac collector depends on the Mac being awake and online | Partner calls (NGOBox, FundsForNGOs) and GDELT are missed if the Mac is off on Monday morning; launchd catches up on wake | Keep the Mac on Monday mornings, or run `npm run collect:local -- --prod` manually |
+| 3 | GDELT not yet successful | The news-index source contributes nothing so far | Wait for its rate limit to reset; disable it from Sources if it keeps failing |
+| 4 | Official government feeds (PIB, MCA, CSR portal) return 403 | Policy changes come from secondary sources (TaxGuru, CSR news) | Check the links manually; re-enable PIB from Sources to re-test |
+| 5 | Single shared access code | Not multi-user | Add an identity provider if more users join |
