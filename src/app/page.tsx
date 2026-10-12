@@ -16,10 +16,11 @@ import { formatDate, formatDateTime, nextDigestAt } from "@/lib/time/window";
 
 export const dynamic = "force-dynamic";
 
-function Tile({ label, value, hint, colour, example, href }: { label: string; value: number | string; hint: string; colour: string; example?: string; href?: string }) {
+function Tile({ label, value, hint, colour, href, action }: { label: string; value: number | string; hint: string; colour: string; href: string; action: string }) {
   return (
-    <div
-      className="lift h-full rounded-xl border p-4"
+    <Link
+      href={href}
+      className="lift group block h-full rounded-xl border p-4 focus-visible:outline-2"
       style={{ background: tint(colour, 9), borderColor: `color-mix(in oklab, ${colour} 38%, var(--line))` }}
     >
       <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide" style={{ color: colour }}>
@@ -28,11 +29,10 @@ function Tile({ label, value, hint, colour, example, href }: { label: string; va
       </div>
       <div className="mt-1 text-3xl font-semibold tabular-nums" style={{ color: colour }}>{typeof value === "number" ? <CountUp value={value} /> : value}</div>
       <div className="mt-0.5 text-xs text-ink-2">{hint}</div>
-      {example && value === 0 && (
-        <Link href={example} className="mt-2 inline-block text-xs text-accent hover:underline">See a tested example →</Link>
-      )}
-      {href && <Link href={href} className="mt-2 inline-block text-xs font-medium hover:underline" style={{ color: colour }}>View sources →</Link>}
-    </div>
+      <div className="mt-2 text-xs font-medium opacity-80 transition-opacity group-hover:opacity-100" style={{ color: colour }}>
+        {action} <span aria-hidden className="inline-block transition-transform group-hover:translate-x-0.5">→</span>
+      </div>
+    </Link>
   );
 }
 
@@ -82,7 +82,7 @@ export default async function Dashboard({ searchParams }: PageProps<"/">) {
   const ref = referenceTime(filters.mode);
   const labels = new Map(settings.sectors.map((s) => [s.key, s.label]));
     const digestSummary = parseSummary(d.digest?.summary ?? null);
-  const hidden = explainHidden(d.all, filters);
+  const hidden = explainHidden(d.all, filters, d.window.end);
 
   return (
     <div className="mx-auto max-w-7xl px-4 sm:px-6 py-6 space-y-5">
@@ -115,13 +115,17 @@ export default async function Dashboard({ searchParams }: PageProps<"/">) {
 
       {(() => {
         const live = filters.mode === "live";
-        type T = { key: string; label: string; value: number | string; hint: string; colour: string; example?: string; href?: string };
-        const worth: T = { key: "worth", colour: "var(--high)", label: "Worth a call this week", value: d.metrics.highPriority, hint: d.metrics.highPriority ? "ranked first in the list below" : "none met the bar this week", example: live ? "/?mode=demo&priority=high" : undefined };
-        const closing: T = { key: "closing", colour: "var(--danger)", label: "Calls closing in 7 days", value: d.metrics.closingSoon, hint: "proposal deadlines coming up" };
-        const policy: T = { key: "policy", colour: "var(--policy)", label: "Policy developments", value: d.metrics.policy, hint: "affecting CSR spending" };
-        const watch: T = { key: "watch", colour: "var(--monitor)", label: "On the watchlist", value: d.metrics.watchlist, hint: "relevant, not yet a call" };
-        const fresh: T = { key: "fresh", colour: "var(--accent)", label: live ? "New announcements" : "Demo announcements", value: d.metrics.freshAnnouncements, hint: "published in the last 7 days" };
-        const sources: T = { key: "sources", colour: "var(--s2)", label: "Sources checked", value: `${d.metrics.sourcesOk}/${d.metrics.sourcesEnabled}`, hint: "on the latest update", href: "/sources" };
+        type T = { key: string; label: string; value: number | string; hint: string; colour: string; href: string; action: string };
+        // Each tile opens the list already filtered to what it counts (or the page it describes).
+        const listHref = (extra: Record<string, string>) => `/?${new URLSearchParams({ mode: filters.mode, ...extra })}#opportunities`;
+        const worth: T = d.metrics.highPriority || !live
+          ? { key: "worth", colour: "var(--high)", label: "Worth a call this week", value: d.metrics.highPriority, hint: "ranked first in the list below", href: listHref({ priority: "high" }), action: "Show these" }
+          : { key: "worth", colour: "var(--high)", label: "Worth a call this week", value: 0, hint: "none met the bar this week", href: "/?mode=demo&priority=high#opportunities", action: "See a tested example" };
+        const closing: T = { key: "closing", colour: "var(--danger)", label: "Calls closing in 7 days", value: d.metrics.closingSoon, hint: "proposal deadlines coming up", href: listHref({ closing: "1" }), action: "Show these calls" };
+        const policy: T = { key: "policy", colour: "var(--policy)", label: "Policy developments", value: d.metrics.policy, hint: "affecting CSR spending", href: listHref({ priority: "policy" }), action: "Show these" };
+        const watch: T = { key: "watch", colour: "var(--monitor)", label: "On the watchlist", value: d.metrics.watchlist, hint: "relevant, not yet a call", href: listHref({ priority: "monitor" }), action: "Show the watchlist" };
+        const fresh: T = { key: "fresh", colour: "var(--accent)", label: live ? "New announcements" : "Demo announcements", value: d.metrics.freshAnnouncements, hint: "published in the last 7 days", href: listHref({ freshness: "fresh" }), action: "Show this week's" };
+        const sources: T = { key: "sources", colour: "var(--s2)", label: "Sources checked", value: `${d.metrics.sourcesOk}/${d.metrics.sourcesEnabled}`, hint: "on the latest update", href: "/sources", action: "View sources" };
         // Urgent signals take a tile only when there is something to act on; otherwise
         // the slot shows other real activity and the "none this week" note goes below.
         const tiles = [worth, ...[closing, policy].filter((t) => Number(t.value) > 0), watch, fresh, sources].slice(0, 4);
@@ -136,7 +140,7 @@ export default async function Dashboard({ searchParams }: PageProps<"/">) {
             <div className="grid grid-cols-2 gap-3">
               {tiles.map((t, i) => (
                 <div key={t.key} className="fade-up h-full" style={{ animationDelay: `${i * 70}ms` }}>
-                  <Tile colour={t.colour} example={t.example} href={t.href} label={t.label} value={t.value} hint={t.hint} />
+                  <Tile colour={t.colour} href={t.href} action={t.action} label={t.label} value={t.value} hint={t.hint} />
                 </div>
               ))}
             </div>
@@ -217,10 +221,30 @@ export default async function Dashboard({ searchParams }: PageProps<"/">) {
         <FilterBar f={filters} settings={settings} />
       </div>
 
-      <section className="space-y-3" aria-labelledby="opps-title">
+      <section id="opportunities" className="scroll-mt-4 space-y-3" aria-labelledby="opps-title">
         <div className="flex flex-wrap items-end justify-between gap-x-4 gap-y-2">
           <div>
-            <h2 id="opps-title" className="font-serif text-lg font-semibold">Opportunities</h2>
+            <h2 id="opps-title" className="flex flex-wrap items-center gap-2 font-serif text-lg font-semibold">
+              Opportunities
+              {(() => {
+                const label = filters.closing
+                  ? "Calls closing in 7 days"
+                  : filters.priority
+                    ? { high: "Worth a call this week", monitor: "On the watchlist", policy: "Policy developments", background: "Context only", low: "Low relevance" }[filters.priority as Priority]
+                    : filters.freshness === "fresh"
+                      ? "Published this week"
+                      : null;
+                return label ? (
+                  <Link
+                    href={`/?mode=${filters.mode}#opportunities`}
+                    className="inline-flex items-center gap-1.5 rounded-full border border-accent/40 bg-accent-bg px-2.5 py-0.5 font-sans text-xs font-medium text-accent hover:border-accent"
+                    aria-label={`Showing ${label}. Clear this filter`}
+                  >
+                    Showing: {label} <span aria-hidden>✕</span>
+                  </Link>
+                ) : null;
+              })()}
+            </h2>
             <p className="text-xs text-ink-3">
               Showing {hidden.shown} of {d.all.length}
               {hidden.lowHidden > 0 && <> · {hidden.lowHidden} low-relevance hidden (<Link className="underline" href={`/?${filtersToQuery({ ...filters, showLow: true })}`}>show</Link>)</>}

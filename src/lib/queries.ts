@@ -108,7 +108,7 @@ export async function getDashboard(db: Db, filters: Filters, preloaded?: Awaited
       [window.start],
     ),
   ]);
-  const shown = applyFilters(all, filters);
+  const shown = applyFilters(all, filters, window.end);
   const fetchable = sources.filter((s) => s.enabled && s.retrieval_method !== "link_only");
   const fresh = all.filter((o) => o.score.freshness === "fresh" || o.score.freshness === "open_call");
   const metrics = {

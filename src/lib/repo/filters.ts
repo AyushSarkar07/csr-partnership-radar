@@ -1,4 +1,5 @@
 import { ANNOUNCEMENT_TYPES } from "../ai/analysis";
+import { deadlineEnd } from "../time/window";
 import { REVIEW_STATUSES, type Opportunity } from "./opportunities";
 
 export interface Filters {
@@ -17,6 +18,8 @@ export interface Filters {
   status: string;
   verification: string;
   showLow: boolean;
+  /** Only open calls for NGOs whose deadline falls within 7 days of the period end. */
+  closing: boolean;
   sort: "score" | "date" | "company";
 }
 
@@ -45,11 +48,12 @@ export function parseFilters(p: Params, defaults: { mode: "live" | "demo"; days:
     status: pick(get(p, "status"), ["", "unreviewed", ...REVIEW_STATUSES] as const, ""),
     verification: pick(get(p, "verification"), ["", "verified", "needs_verification"] as const, ""),
     showLow: get(p, "showLow") === "1",
+    closing: get(p, "closing") === "1",
     sort: pick(get(p, "sort"), ["score", "date", "company"] as const, "score"),
   };
 }
 
-export function applyFilters(opps: Opportunity[], f: Filters): Opportunity[] {
+export function applyFilters(opps: Opportunity[], f: Filters, refEnd: Date = new Date()): Opportunity[] {
   const lc = (s: string | null | undefined) => (s ?? "").toLowerCase();
   const out = opps.filter((o) => {
     if (f.freshness === "fresh" && o.score.freshness !== "fresh" && o.score.freshness !== "open_call") return false;
@@ -70,6 +74,11 @@ export function applyFilters(opps: Opportunity[], f: Filters): Opportunity[] {
     if (f.status === "unreviewed" && o.review) return false;
     if (f.status && f.status !== "unreviewed" && o.review?.status !== f.status) return false;
     if (f.verification && o.verificationStatus !== f.verification) return false;
+    if (f.closing) {
+      if (!o.deadline || o.partnerSignal !== "explicit" || o.score.flags.includes("deadline_passed")) return false;
+      const ms = deadlineEnd(o.deadline).getTime() - refEnd.getTime();
+      if (ms < 0 || ms > 7 * 86_400_000) return false;
+    }
     return true;
   });
   const t = (o: Opportunity) => (o.publishedAt ? new Date(o.publishedAt).getTime() : 0);
@@ -91,10 +100,10 @@ export function filtersToQuery(f: Partial<Filters>): string {
 }
 
 /** How many items the current view hides because of the default visibility rules. */
-export function explainHidden(opps: Opportunity[], f: Filters) {
-  const shown = applyFilters(opps, f).length;
-  const withLow = f.priority ? shown : applyFilters(opps, { ...f, showLow: true }).length;
-  const withOlder = f.freshness === "all" ? withLow : applyFilters(opps, { ...f, showLow: true, freshness: "all" }).length;
+export function explainHidden(opps: Opportunity[], f: Filters, refEnd: Date = new Date()) {
+  const shown = applyFilters(opps, f, refEnd).length;
+  const withLow = f.priority ? shown : applyFilters(opps, { ...f, showLow: true }, refEnd).length;
+  const withOlder = f.freshness === "all" ? withLow : applyFilters(opps, { ...f, showLow: true, freshness: "all" }, refEnd).length;
   return { shown, lowHidden: withLow - shown, olderHidden: withOlder - withLow };
 }
 
@@ -102,6 +111,6 @@ export function explainHidden(opps: Opportunity[], f: Filters) {
 export function hasAdvancedFilters(f: Filters, defaultDays: number): boolean {
   return Boolean(
     f.days !== defaultDays || f.freshness !== "window" || f.type || f.priority || f.evidence || f.company ||
-      f.geography || f.sourceType || f.status || f.verification || f.showLow,
+      f.geography || f.sourceType || f.status || f.verification || f.showLow || f.closing,
   );
 }

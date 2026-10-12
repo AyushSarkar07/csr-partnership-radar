@@ -101,3 +101,14 @@ describe("calls closing soon (demo)", () => {
     expect(d.metrics.closingSoon).toBe(1); // Orchid (7 Nov) and Ember (15 Nov) are further out
   });
 });
+
+describe("tile filters", () => {
+  it("closing=1 shows only open calls due within 7 days of the period end", async () => {
+    const { applyFilters, parseFilters } = await import("@/lib/repo/filters");
+    const f = parseFilters({ mode: "demo", closing: "1" }, { mode: "demo", days: 7 });
+    expect(applyFilters(opps, f, DEMO_REFERENCE_TIME).map((o) => o.seedId)).toEqual(["SYN-031"]);
+    const high = applyFilters(opps, parseFilters({ mode: "demo", priority: "high" }, { mode: "demo", days: 7 }), DEMO_REFERENCE_TIME);
+    expect(high.every((o) => o.score.priority === "high")).toBe(true);
+    expect(high.length).toBeGreaterThan(0);
+  });
+});
