@@ -3,7 +3,6 @@ import { ActionButtons } from "@/components/ActionButtons";
 import { FilterBar } from "@/components/FilterBar";
 import { ModeBanner, ModeSwitch } from "@/components/ModeSwitch";
 import { OpportunityCard } from "@/components/OpportunityCard";
-import { SourceHealthPanel } from "@/components/SourceHealth";
 import { Card, EmptyState, SectionTitle } from "@/components/ui";
 import { getDb, isDbConfigured } from "@/lib/db/client";
 import { getDashboard, parseSummary, referenceTime } from "@/lib/queries";
@@ -13,7 +12,7 @@ import { formatDate, formatDateTime, nextDigestAt } from "@/lib/time/window";
 
 export const dynamic = "force-dynamic";
 
-function Tile({ label, value, hint, tone = "default", example }: { label: string; value: number | string; hint: string; tone?: "default" | "high" | "urgent"; example?: string }) {
+function Tile({ label, value, hint, tone = "default", example, href }: { label: string; value: number | string; hint: string; tone?: "default" | "high" | "urgent"; example?: string; href?: string }) {
   const positive = typeof value === "number" ? value > 0 : true;
   const ring = tone === "urgent" && positive ? "border-danger/60" : tone === "high" && positive ? "border-high/60" : "border-line";
   const num = tone === "urgent" && positive ? "text-danger" : tone === "high" && positive ? "text-high" : "";
@@ -25,6 +24,7 @@ function Tile({ label, value, hint, tone = "default", example }: { label: string
       {example && value === 0 && (
         <Link href={example} className="mt-2 inline-block text-xs text-accent hover:underline">See a tested example →</Link>
       )}
+      {href && <Link href={href} className="mt-2 inline-block text-xs text-accent hover:underline">View sources →</Link>}
     </div>
   );
 }
@@ -81,13 +81,13 @@ export default async function Dashboard({ searchParams }: PageProps<"/">) {
 
       {(() => {
         const live = filters.mode === "live";
-        type T = { key: string; label: string; value: number | string; hint: string; tone?: "high" | "urgent"; example?: string };
+        type T = { key: string; label: string; value: number | string; hint: string; tone?: "high" | "urgent"; example?: string; href?: string };
         const worth: T = { key: "worth", tone: "high", label: "Worth a call this week", value: d.metrics.highPriority, hint: d.metrics.highPriority ? "ranked first in the list below" : "none met the bar this week", example: live ? "/?mode=demo&priority=high" : undefined };
         const closing: T = { key: "closing", tone: "urgent", label: "Calls closing in 7 days", value: d.metrics.closingSoon, hint: "proposal deadlines coming up" };
         const policy: T = { key: "policy", label: "Policy developments", value: d.metrics.policy, hint: "affecting CSR spending" };
         const watch: T = { key: "watch", label: "On the watchlist", value: d.metrics.watchlist, hint: "relevant, not yet a call" };
         const fresh: T = { key: "fresh", label: live ? "New announcements" : "Demo announcements", value: d.metrics.freshAnnouncements, hint: "published in the last 7 days" };
-        const sources: T = { key: "sources", label: "Sources checked", value: `${d.metrics.sourcesOk}/${d.metrics.sourcesEnabled}`, hint: "on the latest update" };
+        const sources: T = { key: "sources", label: "Sources checked", value: `${d.metrics.sourcesOk}/${d.metrics.sourcesEnabled}`, hint: "on the latest update", href: "/sources" };
         // Urgent signals take a tile only when there is something to act on; otherwise
         // the slot shows other real activity and the "none this week" note goes below.
         const tiles = [worth, ...[closing, policy].filter((t) => Number(t.value) > 0), watch, fresh, sources].slice(0, 4);
@@ -98,7 +98,7 @@ export default async function Dashboard({ searchParams }: PageProps<"/">) {
         return (
           <div className="space-y-2">
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-              {tiles.map((t) => <Tile key={t.key} tone={t.tone} example={t.example} label={t.label} value={t.value} hint={t.hint} />)}
+              {tiles.map((t) => <Tile key={t.key} tone={t.tone} example={t.example} href={t.href} label={t.label} value={t.value} hint={t.hint} />)}
             </div>
             {quiet.length > 0 && (
               <p className="text-xs text-ink-3">
@@ -194,7 +194,7 @@ export default async function Dashboard({ searchParams }: PageProps<"/">) {
             </ul>
             <p className="mt-3 text-xs text-ink-3">{filters.mode === "live" ? `${d.metrics.verified} of ${d.metrics.totalStored} announcements verified against the original source.` : `${d.metrics.totalStored} demo announcements.`}</p>
           </Card>
-          {filters.mode === "live" ? <SourceHealthPanel sources={d.sources} timezone={tz} /> : (
+          {filters.mode === "demo" && (
             <Card className="p-4 text-sm text-ink-2">
               <SectionTitle>About the demo data</SectionTitle>
               The demo shows how the radar handles open calls for partners, duplicate news coverage, missing dates, weak evidence, older news, other regions, policy changes and recorded decisions. Open any item to explore it.</Card>
