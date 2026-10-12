@@ -68,7 +68,7 @@ export default async function OpportunityPage({ params }: PageProps<"/opportunit
                 <p className="text-ink-2">{a.why_it_matters}</p>
                 <h3 className="text-sm font-semibold mt-3">Evidence of partnership / funding intent</h3>
                 <p className="text-ink-2">
-                  Partner signal: <strong>{a.implementation_partner_signal.level}</strong>. {a.implementation_partner_signal.evidence}
+                  <strong>{{ explicit: "Explicit invitation to NGOs.", implied: "Works with NGOs; no open call stated.", none: "No request for NGO partners stated." }[a.implementation_partner_signal.level]}</strong> {a.implementation_partner_signal.evidence}
                   {a.funding_signal.present && <><br />Funding signal: {a.funding_signal.description}</>}
                 </p>
                 {a.policy_implication && (
