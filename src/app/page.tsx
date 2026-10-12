@@ -95,12 +95,12 @@ export default async function Dashboard({ searchParams }: PageProps<"/">) {
 
       <Card className="p-4 flex flex-wrap items-start justify-between gap-4">
         <ActionButtons mode={filters.mode} />
-        <div className="text-sm text-ink-2 max-w-md">
+        <div className="text-sm text-ink-2 max-w-xl">
           {d.digest ? (
             <>
               Latest digest: <Link className="text-accent hover:underline" href={`/digest/${d.digest.id}`}>{formatDateTime(d.digest.generated_at, tz)}</Link> ·{" "}
               {d.digest.content.counts.high_priority} high priority · delivery: <strong>{d.digest.delivery_status.replace("_", " ")}</strong>
-              {digestSummary && <p className="mt-1 text-ink-3 line-clamp-2">{digestSummary.overview}</p>}
+              {digestSummary && <p className="mt-2 text-ink-2 leading-relaxed">{digestSummary.overview}</p>}
             </>
           ) : (
             <>No digest yet. The weekly digest is prepared every Monday at 06:00 IST.</>

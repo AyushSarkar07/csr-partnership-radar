@@ -127,7 +127,7 @@ export default async function OpportunityPage({ params }: PageProps<"/opportunit
                   <div className="mt-1 text-xs text-ink-3">
                     Published: {c.published_at ? formatDateTime(c.published_at, tz) : "Unknown"} ({PROVENANCE[c.published_at_provenance] ?? c.published_at_provenance}) · Retrieved: {formatDateTime(c.retrieved_at, tz)}
                   </div>
-                  {c.excerpt && <p className="mt-1 text-xs text-ink-2 line-clamp-3">{c.excerpt}</p>}
+                  {c.excerpt && <p className="mt-1 text-xs text-ink-2">{c.excerpt}</p>}
                 </li>
               ))}
             </ul>
