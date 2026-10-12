@@ -116,8 +116,10 @@
       ],
       "geographic_coverage": "India",
       "enabled": true,
-      "access_limitations": "Public HTML listing (HTTP 200); no RSS feed; robots.txt returns 404 (no restrictions). We read only the listing page (one request per run), never individual call pages. Each card gives title, issuing organisation and deadline; no publication date is shown, so dates stay 'unknown' and the source-stated deadline is used for open-call status. Many calls are vendor/consultant procurements, which the relevance filter and Gemini classify as non-relevant.",
-      "config": {}
+      "access_limitations": "Public HTML listing behind CloudFront; HTTP 403 to Vercel's servers, HTTP 200 from a residential connection. No RSS feed; robots.txt returns 404 (no restrictions). Only the listing page is read (one request per run). Cards give title, organisation and deadline; no publication date, so the source-stated deadline determines open-call status. Fetched by the Mac collector (config.runner = \"local\"), not by Vercel: the site blocks datacenter IPs. Runs Mondays 05:15 IST and daily 09:00 IST while the Mac is awake.",
+      "config": {
+        "runner": "local"
+      }
     },
     {
       "is_official": false,
@@ -296,10 +298,11 @@
         "youth_employment"
       ],
       "geographic_coverage": "Global (filtered to items mentioning India)",
-      "enabled": false,
-      "access_limitations": "DISABLED (2026-10-12): public RSS works from a residential connection in India but returns HTTP 403 to Vercel's servers (bot protection for cloud IPs), so production runs always failed. Replaced by the NGOBox RFP/EOI board, which is reachable from Vercel. Only items mentioning India were used.",
+      "enabled": true,
+      "access_limitations": "Public RSS (Cloudflare). Returns HTTP 403 to Vercel's servers but works from a residential connection in India; only items mentioning India are kept. Fetched by the Mac collector (config.runner = \"local\"), not by Vercel: the site blocks datacenter IPs. Runs Mondays 05:15 IST and daily 09:00 IST while the Mac is awake.",
       "config": {
-        "requireIndiaMention": true
+        "requireIndiaMention": true,
+        "runner": "local"
       }
     },
     {
@@ -319,11 +322,12 @@
       ],
       "geographic_coverage": "India (sourcecountry:IN)",
       "enabled": true,
-      "access_limitations": "Free public API, limited to 1 request / 5 seconds and frequently returns a rate-limit notice from shared IPs (observed during development). Returns headline + URL + 'seendate' (first time GDELT saw the article — not the publisher's date). No article text, so evidence is headline-only and scored as weak. Note: GDELT rejects quoted phrases shorter than 4 characters (\"CSR\"), so CSR is unquoted. Timeout raised to 25 s and one polite retry after 6 s when the rate-limit notice is returned.",
+      "access_limitations": "Free public API, limited to 1 request / 5 s per IP; shared Vercel IPs were rate-limited (HTTP 429) on every production attempt. Returns headline + URL + 'seendate' (first seen by GDELT, not the publisher's date), so evidence is headline-only. 25 s timeout, one polite retry after 6 s. Fetched by the Mac collector (config.runner = \"local\"), not by Vercel: the site blocks datacenter IPs. Runs Mondays 05:15 IST and daily 09:00 IST while the Mac is awake.",
       "config": {
         "query": "(CSR OR \"corporate social responsibility\") (skilling OR \"skill development\" OR education OR \"digital literacy\" OR employability) sourcecountry:IN sourcelang:english",
         "maxrecords": 50,
-        "timeoutMs": 25000
+        "timeoutMs": 25000,
+        "runner": "local"
       }
     },
     {

@@ -1,5 +1,9 @@
-import { Pool, neonConfig } from "@neondatabase/serverless";
+import { Pool, neonConfig, types } from "@neondatabase/serverless";
 import type { Db } from "./types";
+
+// SQL `date` (OID 1082) stays a "YYYY-MM-DD" string. The default parser builds a JS Date at
+// local midnight, which shifts deadlines by a day when the process runs in IST.
+types.setTypeParser(1082, (v: string) => v);
 
 export function createNeonDb(connectionString: string): Db & { end: () => Promise<void> } {
   if (typeof globalThis.WebSocket !== "undefined") {

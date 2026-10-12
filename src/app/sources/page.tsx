@@ -37,7 +37,7 @@ export default async function SourcesPage() {
                   <div className="font-medium">{s.name}</div>
                   <div className="text-xs text-ink-3 flex flex-wrap gap-x-3">
                     <span>{SOURCE_TYPE_LABEL[s.source_type]}{s.is_official ? " · official" : " · secondary"}</span>
-                    <span>Method: {s.retrieval_method}</span>
+                    <span>Method: {s.retrieval_method}{s.config?.runner === "local" ? " · fetched by the Mac collector (blocked from Vercel)" : ""}</span>
                     <span>Credibility weight: {s.credibility.toFixed(2)}</span>
                     <span>Coverage: {s.geographic_coverage}</span>
                     <span>Sectors: {s.sector_relevance.join(", ")}</span>

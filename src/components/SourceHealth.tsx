@@ -23,7 +23,7 @@ export function SourceHealthPanel({ sources, timezone }: { sources: SourceRecord
             <li key={s.id} className="py-2 flex items-start gap-2">
               <Pill className={st.cls}>{st.label}</Pill>
               <div className="min-w-0">
-                <div className="truncate">{s.name}</div>
+                <div className="truncate">{s.name}{s.config?.runner === "local" && <span className="ml-1 text-xs text-ink-3">· via Mac collector</span>}</div>
                 <div className="text-xs text-ink-3">
                   {s.last_error ? <span className="text-danger">{s.last_error.slice(0, 90)}</span> : s.last_success_at ? `Checked ${formatDateTime(s.last_success_at, timezone)} · ${s.last_item_count ?? 0} items` : "Not fetched yet"}
                 </div>

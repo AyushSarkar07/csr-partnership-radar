@@ -122,6 +122,44 @@ describe("bounded HTTP retry", () => {
   });
 });
 
+describe("cloud vs local runner split", () => {
+  it("Vercel runs skip local-only sources; the collector fetches only them", async () => {
+    const { runsHere } = await import("@/lib/pipeline/ingest");
+    const ids = (runner: "cloud" | "local" | "all") => REGISTRY.filter((s) => s.enabled || s.id === "fundsforngos").filter((s) => runsHere(s, runner)).map((s) => s.id);
+    expect(ids("local").sort()).toEqual(["fundsforngos", "gdelt-csr-education", "ngobox-rfp"]);
+    expect(ids("cloud")).not.toContain("ngobox-rfp");
+    expect(ids("cloud")).toContain("indiacsr");
+    expect(ids("all")).toEqual(expect.arrayContaining(["ngobox-rfp", "indiacsr"]));
+  });
+});
+
+describe("deadline round-trip through the pipeline", () => {
+  it("stores and reads back the exact source-stated date, and ranks the open call", async () => {
+    const { createTestDb } = await import("./helpers/db");
+    const { syncRegistry } = await import("@/lib/sources/registry");
+    const { runRefresh } = await import("@/lib/pipeline/ingest");
+    const { loadOpportunities } = await import("@/lib/repo/opportunities");
+    const { fakeClassifier } = await import("./helpers/fixtures");
+    const db = await createTestDb();
+    await syncRegistry(db);
+    const now = new Date("2026-10-12T00:30:00Z");
+    const fetchImpl = async () => new Response(html, { status: 200 });
+    const classify: typeof fakeClassifier = async (input, settings) => {
+      const r = await fakeClassifier(input, settings);
+      return { ...r, analysis: { ...r.analysis, company_name: "Fixture Foundation", announcement_type: "explicit_partner_request", implementation_partner_signal: { level: "explicit", evidence: "Call for NGO Implementation Partners" }, sectors: ["skill_development"], geographies: ["Pune"] } };
+    };
+    const r = await runRefresh(db, { trigger: "test", now, fetchImpl, classify, sourceIds: ["ngobox-rfp"], runner: "all" });
+    expect(r.itemsNew).toBe(1);
+    const row = (await db.query<{ deadline: unknown }>("select deadline from announcements"))[0];
+    expect(row.deadline).toBe("2026-10-30");
+    const [o] = await loadOpportunities(db, "live", DEFAULT_SETTINGS, reportingWindow(now, 7, "Asia/Kolkata"));
+    expect(o.deadline).toBe("2026-10-30");
+    expect(o.score.freshness).toBe("open_call");
+    expect(o.publishedAt).toBeNull();
+    await db.close();
+  });
+});
+
 describe("database selection (dev vs prod)", () => {
   const saved = { ...process.env };
   afterEach(() => { process.env = { ...saved }; });

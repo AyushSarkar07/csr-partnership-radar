@@ -18,7 +18,13 @@ export type Classifier = (
 ) => Promise<{ analysis: Analysis; claims: VerifiedClaim[]; model: string }>;
 
 export interface RefreshOptions {
-  trigger: "manual" | "cron" | "test";
+  trigger: "manual" | "cron" | "test" | "collector";
+  /**
+   * Which sources to fetch. "cloud" skips sources marked config.runner = "local"
+   * (they block datacenter IPs); "local" fetches only those; "all" fetches everything.
+   * Default: "cloud" on Vercel, "all" elsewhere.
+   */
+  runner?: "cloud" | "local" | "all";
   runKey?: string;
   now?: Date;
   fetchImpl?: FetchLike;
@@ -83,7 +89,8 @@ export async function runRefresh(db: Db, opts: RefreshOptions): Promise<RefreshR
   }
 
   try {
-    let sources = (await listSources(db)).filter((s) => s.enabled && ADAPTERS[s.retrieval_method]);
+    const runner = opts.runner ?? (process.env.VERCEL ? "cloud" : "all");
+    let sources = (await listSources(db)).filter((s) => s.enabled && ADAPTERS[s.retrieval_method] && runsHere(s, runner));
     if (opts.sourceIds) sources = sources.filter((s) => opts.sourceIds!.includes(s.id));
 
     // Fetch all sources concurrently; one failure never affects the others.
@@ -396,4 +403,9 @@ async function runPool(tasks: Array<() => Promise<void>>, concurrency: number) {
 
 function isoDate(v: unknown): string {
   return v instanceof Date ? v.toISOString().slice(0, 10) : String(v).slice(0, 10);
+}
+
+export function runsHere(s: SourceRecord, runner: "cloud" | "local" | "all"): boolean {
+  const local = s.config?.runner === "local";
+  return runner === "all" || (runner === "local" ? local : !local);
 }

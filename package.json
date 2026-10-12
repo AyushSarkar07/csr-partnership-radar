@@ -16,7 +16,8 @@
     "db:reset-demo": "tsx scripts/seed.ts --reset-demo",
     "pipeline:refresh": "tsx scripts/refresh.ts",
     "digest:live": "tsx scripts/digest.ts",
-    "digest:demo": "tsx scripts/digest.ts --demo"
+    "digest:demo": "tsx scripts/digest.ts --demo",
+    "collect:local": "tsx scripts/collect-local.ts"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.2.0",

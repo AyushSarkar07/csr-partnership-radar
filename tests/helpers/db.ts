@@ -4,7 +4,7 @@ import type { Db } from "@/lib/db/types";
 
 /** In-process PostgreSQL (PGlite) running the real migrations. */
 export async function createTestDb(): Promise<Db & { close: () => Promise<void> }> {
-  const pg = new PGlite();
+  const pg = new PGlite({ parsers: { 1082: (v: string) => v } }); // same date handling as production
   const make = (exec: { query: PGlite["query"] }): Db => ({
     query: async <T>(text: string, params: unknown[] = []) => (await exec.query<T>(text, params as never[])).rows,
     tx: async (fn) => fn(make(exec)),
