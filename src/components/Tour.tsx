@@ -15,7 +15,7 @@ interface Step {
 const STEPS: Step[] = [
   {
     title: "Welcome to CSR Partnership Radar",
-    body: "Every week the radar reads CSR news, company announcements and calls for NGO partners, scores each one for your organisation, and tells you which companies are worth a call. This tour uses demo data, so feel free to click around. 9 short steps.",
+    body: "Every week the radar reads CSR news, company announcements and calls for NGO partners, scores each one for your organisation, and tells you which companies are worth a call. This tour uses demo data, so feel free to click around. 8 short steps.",
   },
   {
     target: "status",
@@ -28,38 +28,33 @@ const STEPS: Step[] = [
     body: "The headline numbers: companies worth a call this week, open calls for NGOs closing soon, policy changes and your watchlist. Urgent tiles turn green or red when there is something to act on.",
   },
   {
-    target: "radar",
-    title: "3. The radar",
-    body: "Every dot is an opportunity. The slice shows its sector, the distance from the centre shows its score (closer = stronger) and the colour shows its priority. Watch the beam sweep, then hover over or click a dot to open it.",
-  },
-  {
     target: "sectors",
-    title: "4. Where opportunities come from",
-    body: "How this week's relevant announcements split across your focus sectors. Click a sector to show only its opportunities. You can change the sectors in Settings.",
+    title: "3. Where opportunities come from",
+    body: "The ring shows how this week's relevant announcements split across your focus sectors, with each sector in its own colour. Click a sector to show only its opportunities. You can change the sectors in Settings.",
   },
   {
     target: "filters",
-    title: "5. Find what you need",
+    title: "4. Find what you need",
     body: "Search by company, programme or place, filter by sector and choose the order. “More filters” adds period, priority, evidence strength, your decisions and more.",
   },
   {
     target: "legend",
-    title: "6. What the colours mean",
-    body: "Each opportunity gets one colour: green = call this week, amber = watchlist, purple = policy, blue-grey = context only, light grey = low relevance. Hover over any label for its meaning.",
+    title: "5. What the colours mean",
+    body: "Colours make the page quick to scan: each card is tinted in its sector's colour (the same colours as the ring), and the label on the card shows its priority: call this week, watchlist, policy, context only or low relevance. Open “What do the labels mean?” for details.",
   },
   {
     target: "card",
-    title: "7. Read an opportunity in seconds",
+    title: "6. Read an opportunity in seconds",
     body: "Each card shows the score out of 100, a clear verdict with the reason, key details and the suggested next step. Open it to see the evidence quoted from the source, the score breakdown and where it was reported.",
   },
   {
     target: "card",
-    title: "8. Record your decision",
+    title: "7. Record your decision",
     body: "Inside an opportunity, mark it as “Worth contacting this week”, “Monitor”, “Already contacted”, “Won” and more, with a note. Your decisions are kept with full history and shape the weekly digest.",
   },
   {
     target: "header",
-    title: "9. Digest, sources and settings",
+    title: "8. Digest, sources and settings",
     body: "The Weekly digest is your Monday briefing (also emailed). Sources shows what the radar checks. Settings — top right — is where you change sectors, locations, scoring and email. You can restart this tour any time from “Take the tour”.",
   },
 ];

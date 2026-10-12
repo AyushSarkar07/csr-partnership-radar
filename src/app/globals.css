@@ -1,7 +1,8 @@
 @import "tailwindcss";
 
-/* Research-desk palette: cool paper, deep navy ink, clear signal colours. */
-:root {
+/* Themes. Default follows the system; a choice in the header sets data-theme on <html>. */
+:root,
+:root[data-theme="light"] {
   --paper: #f4f6fa;
   --surface: #ffffff;
   --surface-2: #edf1f7;
@@ -25,10 +26,17 @@
   --danger-bg: #fdecea;
   --synthetic: #b4520f;
   --synthetic-bg: #fff0e3;
+  --s1: #2563eb;
+  --s2: #0d9488;
+  --s3: #7c3aed;
+  --s4: #ea580c;
+  --s5: #db2777;
+  --s6: #65a30d;
+  color-scheme: light;
 }
 
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme]) {
     --paper: #0a101d;
     --surface: #111a2b;
     --surface-2: #17223a;
@@ -52,7 +60,113 @@
     --danger-bg: #3d1b18;
     --synthetic: #ffb37a;
     --synthetic-bg: #3b2414;
+    --s1: #6ea8ff;
+    --s2: #2dd4bf;
+    --s3: #a78bfa;
+    --s4: #fb923c;
+    --s5: #f472b6;
+    --s6: #a3e635;
+    color-scheme: dark;
   }
+}
+
+:root[data-theme="dark"] {
+  --paper: #0a101d;
+  --surface: #111a2b;
+  --surface-2: #17223a;
+  --ink: #e8edf6;
+  --ink-2: #b2bdd2;
+  --ink-3: #8290aa;
+  --line: #253149;
+  --accent: #7c9dff;
+  --accent-bg: #1b2752;
+  --high: #3ddc9b;
+  --high-bg: #0e3326;
+  --monitor: #f6b94e;
+  --monitor-bg: #3a2a0e;
+  --policy: #b69cff;
+  --policy-bg: #2a2050;
+  --background-c: #6cc3e6;
+  --background-bg: #0f2e3d;
+  --low: #8b97ac;
+  --low-bg: #1b2436;
+  --danger: #ff8a7a;
+  --danger-bg: #3d1b18;
+  --synthetic: #ffb37a;
+  --synthetic-bg: #3b2414;
+  --s1: #6ea8ff;
+  --s2: #2dd4bf;
+  --s3: #a78bfa;
+  --s4: #fb923c;
+  --s5: #f472b6;
+  --s6: #a3e635;
+  color-scheme: dark;
+}
+
+:root[data-theme="midnight"] {
+  --paper: #0b0a1f;
+  --surface: #15132e;
+  --surface-2: #1d1a3d;
+  --ink: #ecebff;
+  --ink-2: #bdb8e6;
+  --ink-3: #8f89bd;
+  --line: #2c2856;
+  --accent: #a78bfa;
+  --accent-bg: #2a2260;
+  --high: #34d399;
+  --high-bg: #0f3a2c;
+  --monitor: #fbbf24;
+  --monitor-bg: #3d2e0a;
+  --policy: #f0abfc;
+  --policy-bg: #3f1d4b;
+  --background-c: #67e8f9;
+  --background-bg: #0e3640;
+  --low: #9a94c4;
+  --low-bg: #221f44;
+  --danger: #fb7185;
+  --danger-bg: #4a1625;
+  --synthetic: #fdba74;
+  --synthetic-bg: #43260f;
+  --s1: #60a5fa;
+  --s2: #2dd4bf;
+  --s3: #c084fc;
+  --s4: #fb923c;
+  --s5: #f472b6;
+  --s6: #a3e635;
+  color-scheme: dark;
+}
+
+:root[data-theme="sand"] {
+  --paper: #f6efe3;
+  --surface: #fffaf2;
+  --surface-2: #f1e7d6;
+  --ink: #2b2118;
+  --ink-2: #5c4d3d;
+  --ink-3: #8a7a66;
+  --line: #e3d6c1;
+  --accent: #b4531a;
+  --accent-bg: #fbe6d6;
+  --high: #2f7d4f;
+  --high-bg: #e2f1e4;
+  --monitor: #b7791f;
+  --monitor-bg: #fbecd2;
+  --policy: #8a4fbd;
+  --policy-bg: #f1e6f8;
+  --background-c: #2c6e85;
+  --background-bg: #dfeef2;
+  --low: #8c8170;
+  --low-bg: #efe8dc;
+  --danger: #b83227;
+  --danger-bg: #fbe5df;
+  --synthetic: #a8501a;
+  --synthetic-bg: #fbe8d8;
+  --s1: #2563a8;
+  --s2: #0f7f74;
+  --s3: #7b46b8;
+  --s4: #c2561a;
+  --s5: #b83a6e;
+  --s6: #5e8a1c;
+  color-scheme: light;
 }
 
 @theme inline {
@@ -96,40 +210,20 @@ body {
 }
 
 /* ---------- Motion ---------- */
-@keyframes radar-sweep { to { transform: rotate(360deg); } }
-@keyframes radar-ping {
-  0%, 82% { opacity: 0; transform: scale(0.4); }
-  86% { opacity: 0.9; transform: scale(1); }
-  100% { opacity: 0; transform: scale(2.6); }
-}
-@keyframes radar-glow {
-  0%, 82% { filter: brightness(0.85); }
-  86% { filter: brightness(1.6); }
-  100% { filter: brightness(0.85); }
-}
 @keyframes fade-up {
   from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: none; }
 }
 @keyframes ring-draw { from { stroke-dashoffset: var(--ring-full); } }
-@keyframes centre-pulse {
-  0%, 100% { opacity: 0.55; transform: scale(1); }
-  50% { opacity: 1; transform: scale(1.35); }
-}
 
-.radar-sweep { animation: radar-sweep 6s linear infinite; transform-origin: 50% 50%; }
-.radar-ping { animation: radar-ping 6s linear infinite; transform-box: fill-box; transform-origin: center; }
-.radar-dot { animation: radar-glow 6s linear infinite; }
-.radar-centre { animation: centre-pulse 2.4s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
 .fade-up { animation: fade-up 0.5s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
 .ring-progress { animation: ring-draw 1.1s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
 .lift { transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease; }
 .lift:hover { transform: translateY(-2px); box-shadow: 0 10px 30px -12px color-mix(in oklab, var(--ink) 35%, transparent); }
 
 @media (prefers-reduced-motion: reduce) {
-  .radar-sweep, .radar-ping, .radar-dot, .radar-centre, .fade-up, .ring-progress { animation: none !important; }
-  .radar-ping { opacity: 0; }
-  .lift:hover { transform: none; }
+  .fade-up, .ring-progress { animation: none !important; }
+    .lift:hover { transform: none; }
 }
 
 :focus-visible {

@@ -4,7 +4,8 @@ import { FilterBar } from "@/components/FilterBar";
 import { ModeBanner, ModeSwitch } from "@/components/ModeSwitch";
 import { OpportunityCard } from "@/components/OpportunityCard";
 import { CountUp } from "@/components/CountUp";
-import { Radar } from "@/components/Radar";
+import { SectorRing } from "@/components/SectorRing";
+import { sectorColour, tint } from "@/lib/colours";
 import { Card, EmptyState, PRIORITY_STYLE } from "@/components/ui";
 import type { Priority } from "@/lib/scoring/score";
 import { getDb, isDbConfigured } from "@/lib/db/client";
@@ -15,35 +16,39 @@ import { formatDate, formatDateTime, nextDigestAt } from "@/lib/time/window";
 
 export const dynamic = "force-dynamic";
 
-function Tile({ label, value, hint, tone = "default", example, href }: { label: string; value: number | string; hint: string; tone?: "default" | "high" | "urgent"; example?: string; href?: string }) {
-  const positive = typeof value === "number" ? value > 0 : true;
-  const ring = tone === "urgent" && positive ? "border-danger/60" : tone === "high" && positive ? "border-high/60" : "border-line";
-  const num = tone === "urgent" && positive ? "text-danger" : tone === "high" && positive ? "text-high" : "";
+function Tile({ label, value, hint, colour, example, href }: { label: string; value: number | string; hint: string; colour: string; example?: string; href?: string }) {
   return (
-    <div className={`lift h-full rounded-xl border bg-surface p-4 ${ring}`}>
-      <div className="text-xs font-medium uppercase tracking-wide text-ink-3">{label}</div>
-      <div className={`mt-1 text-3xl font-semibold tabular-nums ${num}`}>{typeof value === "number" ? <CountUp value={value} /> : value}</div>
-      <div className="mt-0.5 text-xs text-ink-3">{hint}</div>
+    <div
+      className="lift h-full rounded-xl border p-4"
+      style={{ background: tint(colour, 9), borderColor: `color-mix(in oklab, ${colour} 38%, var(--line))` }}
+    >
+      <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide" style={{ color: colour }}>
+        <span aria-hidden className="h-2 w-2 rounded-full" style={{ background: colour }} />
+        {label}
+      </div>
+      <div className="mt-1 text-3xl font-semibold tabular-nums" style={{ color: colour }}>{typeof value === "number" ? <CountUp value={value} /> : value}</div>
+      <div className="mt-0.5 text-xs text-ink-2">{hint}</div>
       {example && value === 0 && (
         <Link href={example} className="mt-2 inline-block text-xs text-accent hover:underline">See a tested example →</Link>
       )}
-      {href && <Link href={href} className="mt-2 inline-block text-xs text-accent hover:underline">View sources →</Link>}
+      {href && <Link href={href} className="mt-2 inline-block text-xs font-medium hover:underline" style={{ color: colour }}>View sources →</Link>}
     </div>
   );
 }
 
-function ColourLegend() {
+function ColourLegend({ sectors }: { sectors: Array<{ key: string; label: string }> }) {
   const order: Priority[] = ["high", "monitor", "policy", "background", "low"];
   return (
     <details className="group text-xs" data-tour="legend">
       <summary className="flex cursor-pointer list-none flex-wrap items-center gap-x-3 gap-y-1 text-ink-2">
-        {order.map((p) => (
-          <span key={p} className="inline-flex items-center gap-1.5" title={PRIORITY_STYLE[p].meaning}>
-            <span aria-hidden className={`h-2.5 w-2.5 rounded-full ${PRIORITY_STYLE[p].bar}`} />
-            {PRIORITY_STYLE[p].label}
+        <span className="text-ink-3">Card colour = sector:</span>
+        {sectors.map((x, i) => (
+          <span key={x.key} className="inline-flex items-center gap-1.5">
+            <span aria-hidden className="h-2.5 w-2.5 rounded-full" style={{ background: sectorColour(i) }} />
+            {x.label}
           </span>
         ))}
-        <span className="text-accent group-open:hidden">What do the colours mean?</span>
+        <span className="text-accent group-open:hidden">What do the labels mean?</span>
         <span className="hidden text-accent group-open:inline">Hide</span>
       </summary>
       <dl className="mt-2 grid gap-1.5 rounded-lg border border-line bg-surface p-3 sm:grid-cols-2">
@@ -76,8 +81,7 @@ export default async function Dashboard({ searchParams }: PageProps<"/">) {
   const tz = settings.timezone;
   const ref = referenceTime(filters.mode);
   const labels = new Map(settings.sectors.map((s) => [s.key, s.label]));
-  const maxSector = Math.max(1, ...d.sectorCounts.map((s) => s.count));
-  const digestSummary = parseSummary(d.digest?.summary ?? null);
+    const digestSummary = parseSummary(d.digest?.summary ?? null);
   const hidden = explainHidden(d.all, filters);
 
   return (
@@ -111,13 +115,13 @@ export default async function Dashboard({ searchParams }: PageProps<"/">) {
 
       {(() => {
         const live = filters.mode === "live";
-        type T = { key: string; label: string; value: number | string; hint: string; tone?: "high" | "urgent"; example?: string; href?: string };
-        const worth: T = { key: "worth", tone: "high", label: "Worth a call this week", value: d.metrics.highPriority, hint: d.metrics.highPriority ? "ranked first in the list below" : "none met the bar this week", example: live ? "/?mode=demo&priority=high" : undefined };
-        const closing: T = { key: "closing", tone: "urgent", label: "Calls closing in 7 days", value: d.metrics.closingSoon, hint: "proposal deadlines coming up" };
-        const policy: T = { key: "policy", label: "Policy developments", value: d.metrics.policy, hint: "affecting CSR spending" };
-        const watch: T = { key: "watch", label: "On the watchlist", value: d.metrics.watchlist, hint: "relevant, not yet a call" };
-        const fresh: T = { key: "fresh", label: live ? "New announcements" : "Demo announcements", value: d.metrics.freshAnnouncements, hint: "published in the last 7 days" };
-        const sources: T = { key: "sources", label: "Sources checked", value: `${d.metrics.sourcesOk}/${d.metrics.sourcesEnabled}`, hint: "on the latest update", href: "/sources" };
+        type T = { key: string; label: string; value: number | string; hint: string; colour: string; example?: string; href?: string };
+        const worth: T = { key: "worth", colour: "var(--high)", label: "Worth a call this week", value: d.metrics.highPriority, hint: d.metrics.highPriority ? "ranked first in the list below" : "none met the bar this week", example: live ? "/?mode=demo&priority=high" : undefined };
+        const closing: T = { key: "closing", colour: "var(--danger)", label: "Calls closing in 7 days", value: d.metrics.closingSoon, hint: "proposal deadlines coming up" };
+        const policy: T = { key: "policy", colour: "var(--policy)", label: "Policy developments", value: d.metrics.policy, hint: "affecting CSR spending" };
+        const watch: T = { key: "watch", colour: "var(--monitor)", label: "On the watchlist", value: d.metrics.watchlist, hint: "relevant, not yet a call" };
+        const fresh: T = { key: "fresh", colour: "var(--accent)", label: live ? "New announcements" : "Demo announcements", value: d.metrics.freshAnnouncements, hint: "published in the last 7 days" };
+        const sources: T = { key: "sources", colour: "var(--s2)", label: "Sources checked", value: `${d.metrics.sourcesOk}/${d.metrics.sourcesEnabled}`, hint: "on the latest update", href: "/sources" };
         // Urgent signals take a tile only when there is something to act on; otherwise
         // the slot shows other real activity and the "none this week" note goes below.
         const tiles = [worth, ...[closing, policy].filter((t) => Number(t.value) > 0), watch, fresh, sources].slice(0, 4);
@@ -132,7 +136,7 @@ export default async function Dashboard({ searchParams }: PageProps<"/">) {
             <div className="grid grid-cols-2 gap-3">
               {tiles.map((t, i) => (
                 <div key={t.key} className="fade-up h-full" style={{ animationDelay: `${i * 70}ms` }}>
-                  <Tile tone={t.tone} example={t.example} href={t.href} label={t.label} value={t.value} hint={t.hint} />
+                  <Tile colour={t.colour} example={t.example} href={t.href} label={t.label} value={t.value} hint={t.hint} />
                 </div>
               ))}
             </div>
@@ -149,7 +153,7 @@ export default async function Dashboard({ searchParams }: PageProps<"/">) {
             )}
           </div>
           {digestSummary && d.digest && (
-            <Card className="fade-up p-4" style={{ animationDelay: "280ms" }}>
+            <Card className="fade-up p-4" style={{ animationDelay: "280ms", background: tint("var(--accent)", 6), borderColor: "color-mix(in oklab, var(--accent) 30%, var(--line))" }}>
               <div className="flex flex-wrap items-baseline justify-between gap-2">
                 <h2 className="font-serif text-lg font-semibold">This week in brief</h2>
                 <Link className="text-xs text-accent hover:underline" href={`/digest/${d.digest.id}`}>Read the full digest →</Link>
@@ -158,20 +162,22 @@ export default async function Dashboard({ searchParams }: PageProps<"/">) {
             </Card>
           )}
           </div>
-          <Card className="fade-up relative overflow-hidden p-4" style={{ animationDelay: "120ms" }} data-tour="radar">
-            <div className="flex items-baseline justify-between gap-2">
-              <h2 className="font-serif text-lg font-semibold">This week on the radar</h2>
-              <span className="inline-flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wider text-high">
-                <span className="radar-centre inline-block h-1.5 w-1.5 rounded-full bg-high" aria-hidden /> Live scan
-              </span>
+          <Card className="fade-up p-4" style={{ animationDelay: "120ms" }} data-tour="sectors">
+            <div className="flex flex-wrap items-baseline justify-between gap-2">
+              <h2 className="font-serif text-lg font-semibold">Where opportunities come from</h2>
+              <span className="text-xs text-ink-3">by sector · click to filter</span>
             </div>
-            <Radar
-              sectors={settings.sectors.map((x) => ({ key: x.key, label: x.label }))}
-              thresholds={settings.thresholds}
-              points={d.all
-                .filter((o) => o.score.priority !== "low" && (o.score.freshness === "fresh" || o.score.freshness === "open_call" || o.score.freshness === "unknown"))
-                .map((o) => ({ id: o.id, label: o.company ?? o.headline, score: o.score.total, priority: o.score.priority, sector: o.sectors.find((k) => settings.sectors.some((x) => x.key === k)) ?? null }))}
-            />
+            <div className="mt-3">
+              <SectorRing
+                sectors={d.sectorCounts.map((x, i) => ({ ...x, index: i }))}
+                total={d.metrics.freshAnnouncements}
+                activeKey={filters.sector}
+                hrefFor={(key) => `/?${filtersToQuery({ ...filters, sector: key })}`}
+              />
+            </div>
+            <p className="mt-3 text-xs text-ink-3">
+              {filters.mode === "live" ? `${d.metrics.verified} of ${d.metrics.totalStored} announcements verified against the original source` : `${d.metrics.totalStored} demo announcements`}
+            </p>
           </Card>
           </div>
         );
@@ -206,36 +212,6 @@ export default async function Dashboard({ searchParams }: PageProps<"/">) {
       )}
       {filters.mode === "live" && d.metrics.aiPending > 0 && <p className="text-sm text-ink-3">{d.metrics.aiPending} new item(s) queued for analysis on the next update.</p>}
 
-      <Card className="p-4" data-tour="sectors">
-        <div className="flex flex-wrap items-baseline justify-between gap-2">
-          <h2 className="font-serif text-lg font-semibold">Where opportunities come from</h2>
-          <span className="text-xs text-ink-3">
-            {filters.mode === "live" ? `${d.metrics.verified} of ${d.metrics.totalStored} announcements verified against the original source` : `${d.metrics.totalStored} demo announcements`}
-          </span>
-        </div>
-        <ul className="mt-3 grid grid-cols-2 gap-3 lg:grid-cols-4">
-          {d.sectorCounts.map((s) => {
-            const activeSector = filters.sector === s.key;
-            return (
-              <li key={s.key}>
-                <Link
-                  href={`/?${filtersToQuery({ ...filters, sector: activeSector ? "" : s.key })}`}
-                  aria-current={activeSector ? "true" : undefined}
-                  className={`block rounded-lg border px-3 py-2 transition-colors hover:border-accent ${activeSector ? "border-accent bg-accent-bg" : "border-line bg-surface-2"}`}
-                >
-                  <div className="flex items-baseline justify-between gap-2 text-sm">
-                    <span>{s.label}</span>
-                    <span className="text-lg font-semibold tabular-nums">{s.count}</span>
-                  </div>
-                  <div className="mt-1.5 h-1.5 rounded-full bg-line">
-                    <div className="h-1.5 rounded-full bg-accent" style={{ width: `${(s.count / maxSector) * 100}%` }} />
-                  </div>
-                </Link>
-              </li>
-            );
-          })}
-        </ul>
-      </Card>
 
       <div data-tour="filters">
         <FilterBar f={filters} settings={settings} />
@@ -251,7 +227,7 @@ export default async function Dashboard({ searchParams }: PageProps<"/">) {
               {hidden.olderHidden > 0 && <> · {hidden.olderHidden} older hidden (<Link className="underline" href={`/?${filtersToQuery({ ...filters, showLow: true, freshness: "all" })}`}>show</Link>)</>}
             </p>
           </div>
-          <ColourLegend />
+          <ColourLegend sectors={settings.sectors.map((x) => ({ key: x.key, label: x.label }))} />
         </div>
         {d.shown.length === 0 ? (
           filters.mode === "live" && d.metrics.liveTotal === 0 ? (

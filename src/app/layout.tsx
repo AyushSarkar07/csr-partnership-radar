@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Newsreader } from "next/font/google";
 import Link from "next/link";
+import { ThemePicker, THEME_BOOT_SCRIPT } from "@/components/ThemePicker";
 import { Tour, TourButton } from "@/components/Tour";
 import "./globals.css";
 
@@ -22,7 +23,10 @@ const NAV = [
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className={`${geistSans.variable} ${geistMono.variable} ${newsreader.variable} h-full antialiased`}>
+    <html lang="en" suppressHydrationWarning className={`${geistSans.variable} ${geistMono.variable} ${newsreader.variable} h-full antialiased`}>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: THEME_BOOT_SCRIPT }} />
+      </head>
       <body className="min-h-full flex flex-col">
         <a href="#main" className="sr-only focus:not-sr-only focus:absolute focus:p-2 focus:bg-surface">Skip to content</a>
         <header data-tour="header" className="border-b border-line bg-surface">
@@ -40,6 +44,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             </nav>
             <div className="ml-auto flex items-center gap-2">
               <TourButton />
+              <ThemePicker />
               <Link
                 href="/settings"
                 data-tour="settings"

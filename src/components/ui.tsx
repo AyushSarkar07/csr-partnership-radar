@@ -1,4 +1,4 @@
-import type { HTMLAttributes, ReactNode } from "react";
+import type { CSSProperties, HTMLAttributes, ReactNode } from "react";
 import type { Priority } from "@/lib/scoring/score";
 
 export function cx(...c: Array<string | false | null | undefined>) {
@@ -13,9 +13,9 @@ export const PRIORITY_STYLE: Record<Priority, { label: string; cls: string; bar:
   low: { label: "Low relevance", cls: "bg-low-bg text-low", bar: "bg-low", meaning: "Outside your focus sectors, or not about CSR." },
 };
 
-export function Pill({ children, className, title }: { children: ReactNode; className?: string; title?: string }) {
+export function Pill({ children, className, title, style }: { children: ReactNode; className?: string; title?: string; style?: CSSProperties }) {
   return (
-    <span title={title} className={cx("inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium whitespace-nowrap", className)}>
+    <span title={title} style={style} className={cx("inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium whitespace-nowrap", className)}>
       {children}
     </span>
   );
